@@ -38,6 +38,7 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
+    push: true,
   }),
   sharp,
   cors: [process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'],

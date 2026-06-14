@@ -4,7 +4,7 @@ import path from 'path'
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
-  output: 'standalone',
+
   allowedDevOrigins: ['98.70.33.131'],
   serverExternalPackages: ['cloudinary'],
   images: {

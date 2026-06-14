@@ -1,0 +1,55 @@
+import type { CollectionConfig } from 'payload'
+
+export const Products: CollectionConfig = {
+  slug: 'products',
+  admin: { useAsTitle: 'name', defaultColumns: ['name', 'category', 'price', 'status'] },
+  access: { read: () => true },
+  fields: [
+    { name: 'name', type: 'text', required: true, label: 'Product Name (English)' },
+    { name: 'nameBn', type: 'text', required: true, label: 'পণ্যের নাম (বাংলা)' },
+    { name: 'slug', type: 'text', required: true, unique: true, admin: { position: 'sidebar' } },
+    {
+      name: 'category',
+      type: 'select',
+      label: 'Category',
+      options: [
+        { label: 'জৈব সার', value: 'organic-fertilizer' },
+        { label: 'জৈব কীটনাশক', value: 'organic-pesticide' },
+        { label: 'মাটি উন্নয়নকারী', value: 'soil-improver' },
+      ],
+    },
+    { name: 'image', type: 'upload', relationTo: 'media', label: 'Product Image' },
+    {
+      name: 'gallery',
+      type: 'array',
+      label: 'Image Gallery',
+      fields: [{ name: 'image', type: 'upload', relationTo: 'media' }],
+    },
+    { name: 'shortDescription', type: 'textarea', label: 'Short Description (Bengali)' },
+    { name: 'description', type: 'richText', label: 'Full Description' },
+    {
+      name: 'benefits',
+      type: 'array',
+      label: 'সুবিধাসমূহ',
+      fields: [{ name: 'benefit', type: 'text', label: 'Benefit' }],
+    },
+    {
+      name: 'usage',
+      type: 'richText',
+      label: 'ব্যবহারবিধি (How to Use)',
+    },
+    { name: 'price', type: 'number', label: 'Price (BDT)', admin: { position: 'sidebar' } },
+    { name: 'weight', type: 'text', label: 'Weight/Size', admin: { position: 'sidebar' } },
+    {
+      name: 'status',
+      type: 'select',
+      options: [
+        { label: 'Published', value: 'published' },
+        { label: 'Draft', value: 'draft' },
+      ],
+      defaultValue: 'published',
+      admin: { position: 'sidebar' },
+    },
+    { name: 'featured', type: 'checkbox', label: 'Featured Product', admin: { position: 'sidebar' } },
+  ],
+}

@@ -1,0 +1,35 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3001:3001'
+    environment:
+      - DATABASE_URL=postgresql://paragon:paragon123@pg-of:5432/paragon_organic
+      - PAYLOAD_SECRET=paragon-local-dev-secret-key-change-in-prod
+      - NEXT_PUBLIC_SITE_URL=http://localhost:3001
+    depends_on:
+      pg-of:
+        condition: service_healthy
+    restart: unless-stopped
+
+  pg-of:
+    image: postgres:16-alpine
+    container_name: pg-of
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: paragon_organic
+      POSTGRES_USER: paragon
+      POSTGRES_PASSWORD: paragon123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U paragon -d paragon_organic']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

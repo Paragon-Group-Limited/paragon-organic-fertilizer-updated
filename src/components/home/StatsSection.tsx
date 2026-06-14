@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Leaf, Users, Calendar, Package } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const stats = [
   { icon: Leaf, valueBn: '১০০%', valueEn: '100%', labelBn: 'অর্গানিক জৈব সার', labelEn: 'Certified Organic' },
@@ -14,10 +15,10 @@ const stats = [
 export default function StatsSection() {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
+  const { lang } = useLanguage()
 
   return (
     <section ref={ref} style={{ background: 'linear-gradient(135deg, #1B4D3E 0%, #0F2E24 100%)' }} className="relative overflow-hidden">
-      {/* Decorative background */}
       <div className="absolute inset-0 opacity-5"
         style={{
           backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)',
@@ -44,16 +45,13 @@ export default function StatsSection() {
                 </div>
 
                 <div className="text-4xl font-bold text-white mb-1"
-                  style={{ fontFamily: 'var(--font-hind)' }}>
-                  {stat.valueBn}
+                  style={{ fontFamily: lang === 'en' ? 'var(--font-inter)' : 'var(--font-hind)' }}>
+                  {lang === 'en' ? stat.valueEn : stat.valueBn}
                 </div>
 
-                <div className="text-sm font-semibold mb-0.5"
-                  style={{ color: '#D4A017', fontFamily: 'var(--font-hind)' }}>
-                  {stat.labelBn}
-                </div>
-                <div className="text-xs" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-inter)' }}>
-                  {stat.labelEn}
+                <div className="text-sm font-semibold"
+                  style={{ color: '#D4A017', fontFamily: lang === 'en' ? 'var(--font-inter)' : 'var(--font-hind)' }}>
+                  {lang === 'en' ? stat.labelEn : stat.labelBn}
                 </div>
               </motion.div>
             )

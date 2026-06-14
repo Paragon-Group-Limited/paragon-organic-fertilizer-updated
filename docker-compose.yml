@@ -21,11 +21,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 1G
+          cpus: '0.25'
+          memory: 384M
         reservations:
-          cpus: '0.1'
-          memory: 256M
+          cpus: '0.05'
+          memory: 128M
 
   pg-of:
     image: postgres:16-alpine
@@ -45,11 +45,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: 256M
+          cpus: '0.1'
+          memory: 128M
         reservations:
           cpus: '0.05'
-          memory: 64M
+          memory: 32M
 
 volumes:
   postgres_data:

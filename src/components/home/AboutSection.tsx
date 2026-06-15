@@ -91,7 +91,7 @@ export default function AboutSection() {
               style={{ color: '#1B4D3E', fontFamily: lang === 'en' ? 'var(--font-inter)' : 'var(--font-hind)' }}>
               {lang === 'en'
                 ? <>Keep Soil Healthy,<br /><span style={{ color: '#D4A017' }}>Grow More Crops</span></>
-                : <>মাটিকে সুস্থ রাখুন,<br /><span style={{ color: '#D4A017' }}>ফসল বাড়ান</span></>
+                : <>মাটিকে সুস্থ রাখুন,,<br /><span style={{ color: '#D4A017' }}>ফসল বাড়ান</span></>
               }
             </h2>
 

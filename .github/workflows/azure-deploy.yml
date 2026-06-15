@@ -16,7 +16,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/paragon-organic-fertilizer-updated
+            cd ~/project/paragon-organic-fertilizer-updated
             git pull origin main
             docker compose up --build -d
             docker image prune -f

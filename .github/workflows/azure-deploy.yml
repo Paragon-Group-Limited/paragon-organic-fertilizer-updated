@@ -19,6 +19,6 @@ jobs:
           script: |
             cd ~/project/paragon-organic-fertilizer-updated
             git pull origin main
-            docker compose build --no-cache
+            docker compose build
             docker compose up -d
             docker image prune -f

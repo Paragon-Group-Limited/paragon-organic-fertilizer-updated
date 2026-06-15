@@ -43,3 +43,6 @@ next-env.d.ts
 # Claude Code config
 CLAUDE.md
 AGENTS.md
+
+# Local dev overrides
+docker-compose.override.yml

@@ -1,0 +1,34 @@
+import { NextResponse } from 'next/server'
+import { getPayload } from 'payload'
+import config from '@payload-config'
+
+const layout = {"root":{"props":{"title":"হোম পেজ"}},"zones":{},"content":[{"type":"HomeSlidesBlock","props":{"id":"home-slider","slides":[{"tagBn":"মাটির প্রাণ, কৃষকের আস্থা","tagEn":"Soul of Soil, Farmer's Trust","bgColor":"linear-gradient(135deg, #0a1f14 0%, #1B4D3E 55%, #2D7A3A 100%)","cta1Href":"/products","cta2Href":"/about/our-story","imageUrl":"https://res.cloudinary.com/dvhlalxqb/image/upload/v1781080308/paragon/puck/file_dyu8tg.jpg","cta1Label":"আমাদের পণ্য দেখুন","cta2Label":"আরও জানুন","headingBn":"প্যারাগন জৈব সার","subtitleBn":"উপকারী অণুজীব সমৃদ্ধ ১০০% অর্গানিক জৈব সার — মাটির গঠন উন্নত করতে, উর্বরতা বাড়াতে এবং ফসলের স্বাভাবিক বৃদ্ধিতে কার্যকর।","accentColor":"#D4A017"},{"tagBn":"মাটির স্বাস্থ্য রক্ষা করুন","tagEn":"Protect Your Soil's Health","bgColor":"linear-gradient(135deg, #0d2438 0%, #1a3d2b 45%, #0F5132 100%)","cta1Href":"/about/soil-benefit","cta2Href":"/location","imageUrl":"https://res.cloudinary.com/dvhlalxqb/image/upload/v1781080431/paragon/puck/file_h4q8ln.webp","cta1Label":"কীভাবে কাজ করে?","cta2Label":"ডিলার খুঁজুন","headingBn":"মাটি বাঁচান, ফসল বাড়ান","subtitleBn":"বারবার চাষ এবং রাসায়নিক সারের অতিরিক্ত ব্যবহারে ক্ষতিগ্রস্ত মাটিকে প্যারাগন জৈব সার দিয়ে পুনরুজ্জীবিত করুন।","accentColor":"#4CAF50"},{"tagBn":"বাংলাদেশের কৃষকদের পাশে","tagEn":"Standing With Bangladeshi Farmers","bgColor":"linear-gradient(160deg, #1B4D3E 0%, #0F2E24 50%, #0a1a10 100%)","cta1Href":"/contact","cta2Href":"/career","imageUrl":"https://res.cloudinary.com/dvhlalxqb/image/upload/v1781080521/paragon/puck/file_vtsfr3.jpg","cta1Label":"যোগাযোগ করুন","cta2Label":"ক্যারিয়ার","headingBn":"হাজার কৃষকের বিশ্বাস","subtitleBn":"সারাদেশে হাজার হাজার কৃষক প্যারাগন জৈব সার ব্যবহার করে উৎপাদন বাড়াচ্ছেন এবং মাটির স্বাস্থ্য রক্ষা করছেন।","accentColor":"#D4A017"}]}},{"type":"StatsSectionBlock","props":{"id":"home-stats","stat1LabelBn":"<p><span style=\"color: rgb(49, 130, 206); font-size: 13px;\">অর্গানিক জৈব সার</span></p>","stat1LabelEn":"<p><span style=\"color: rgb(113, 128, 150); font-size: 13px;\"><u>Certified Organic</u></span></p>","stat1ValueBn":"<p>100%</p>","stat2LabelBn":"সন্তুষ্ট কৃষক","stat2LabelEn":"<p><span style=\"color: rgb(208, 236, 227); font-size: 13px;\"><u>Happy Farmers</u></span></p>","stat2ValueBn":"<p>5000+</p>","stat3LabelBn":"বছরের অভিজ্ঞতা","stat3LabelEn":"Years Experience","stat3ValueBn":"<p>100+</p>","stat4LabelBn":"প্রিমিয়াম পণ্য","stat4LabelEn":"Premium Products","stat4ValueBn":"<p>3+</p>"}},{"type":"AboutSectionBlock","props":{"id":"home-about","ctaHref":"/about/our-story","tagText":"<p><span style=\"font-size: 30px;\">আমাদের সম্পর্কে</span></p>","bodyText":"প্যারাগন জৈব সার উপকারী অণুজীব সমৃদ্ধ একটি ১০০% প্রাকৃতিক সার, যা বাংলাদেশের কৃষিজমির মাটির উর্বরতা পুনরুদ্ধার করতে এবং ফসলের স্বাভাবিক বৃদ্ধি নিশ্চিত করতে বিশেষভাবে তৈরি।","ctaLabel":"আমাদের গল্প জানুন","feature1":"উপকারী অণুজীব সমৃদ্ধ প্রাকৃতিক উপাদান","feature2":"মাটির জৈব পদার্থ বৃদ্ধি করে","feature3":"ফসলের রোগ প্রতিরোধ ক্ষমতা বাড়ায়","feature4":"রাসায়নিক সারের নির্ভরতা কমায়","imageUrl":"","badgeLabel":"প্রাকৃতিক উপাদান","badgeValue":"১০০%","headingLine1":"মাটিকে সুস্থ রাখুন,","highlightText":"ফসল বাড়ান"}},{"type":"ProblemSectionBlock","props":{"id":"home-problem","sol1":"মাটিতে জৈব পদার্থ ও পুষ্টি উপাদান পুনরায় যোগ করে","sol2":"উপকারী অণুজীব সরবরাহ করে মাটির জীবন ফিরিয়ে আনে","sol3":"মাটির পানি ধারণ ও বায়ু চলাচল উন্নত করে","sol4":"ফসলের উৎপাদন ৩০-৫০% পর্যন্ত বৃদ্ধি করতে সক্ষম","prob1":"বারবার চাষের ফলে মাটির জৈব পদার্থ হ্রাস পাচ্ছে","prob2":"অতিরিক্ত রাসায়নিক সার ব্যবহারে মাটি অম্লীয় হয়ে পড়ছে","prob3":"মাটির পানি ধারণ ক্ষমতা কমে যাচ্ছে","prob4":"উপকারী অণুজীবের সংখ্যা উল্লেখযোগ্যভাবে কমছে","tagText":"সমস্যা ও সমাধান","headingBn":"বাংলাদেশের মাটির সংকট ও","problemTitle":"বাংলাদেশের মাটির উর্বরতা কেন কমছে?","highlightText":"আমাদের সমাধান","solutionTitle":"প্যারাগন জৈব সার কীভাবে কাজ করে?"}},{"type":"HowItWorksBlock","props":{"id":"home-howitworks","step1En":"Apply","step1No":"০১","step2En":"Microbes Activate","step2No":"০২","step3En":"Soil Recovers","step3No":"০৩","step4En":"Yield Increases","step4No":"০৪","tagText":"ব্যবহারের পদ্ধতি","headingBn":"মাত্র","step1Desc":"জমি প্রস্তুতির সময় বা ফসল লাগানোর আগে প্যারাগন জৈব সার মাটিতে মিশিয়ে দিন।","step1Icon":"🌿","step2Desc":"উপকারী অণুজীব মাটিতে সক্রিয় হয়ে জৈব পদার্থ বিশ্লেষণ শুরু করে এবং পুষ্টি সরবরাহ করে।","step2Icon":"🔬","step3Desc":"মাটির গঠন, পানি ধারণ ক্ষমতা এবং জৈব পদার্থের পরিমাণ উল্লেখযোগ্যভাবে বৃদ্ধি পায়।","step3Icon":"🌱","step4Desc":"সুস্থ মাটিতে ফসল দ্রুত ও শক্তিশালীভাবে বৃদ্ধি পায়, উৎপাদন ৩০-৫০% পর্যন্ত বৃদ্ধি পেতে পারে।","step4Icon":"🌾","step1Title":"প্রয়োগ করুন","step2Title":"অণুজীব সক্রিয় হয়","step3Title":"মাটি সুস্থ হয়","step4Title":"ফলন বাড়ে","highlightText":"৪টি ধাপে ফলন বাড়ান"}},{"type":"ProductsPreviewBlock","props":{"id":"home-products","p1Tag":"সেরা বিক্রি","p2Tag":"নতুন","p3Tag":"জনপ্রিয়","p1Desc":"উপকারী অণুজীব সমৃদ্ধ ১০০% অর্গানিক সার।","p1Icon":"🌿","p1Name":"প্যারাগন জৈব সার","p2Desc":"প্রাকৃতিক উপাদান দিয়ে তৈরি পরিবেশবান্ধব কীটনাশক।","p2Icon":"🌾","p2Name":"জৈব কীটনাশক","p3Desc":"মাটির পিএইচ ঠিক রাখে এবং মাটির গঠন উন্নত করে।","p3Icon":"🏔️","p3Name":"মাটি উন্নয়নকারী","tagText":"আমাদের পণ্যসমূহ","p1NameEn":"Paragon Organic Fertilizer","p1Weight":"৫০ কেজি","p2NameEn":"Organic Pesticide","p2Weight":"১ লিটার","p3NameEn":"Soil Improver","p3Weight":"২৫ কেজি","headingBn":"প্রিমিয়াম","p1Featured":true,"p1Gradient":"linear-gradient(135deg, #1B4D3E 0%, #2D7A3A 100%)","p2Gradient":"linear-gradient(135deg, #D4A017 0%, #F5C842 100%)","p3Gradient":"linear-gradient(135deg, #8B5E3C 0%, #C49A6C 100%)","highlightText":"কৃষি পণ্য","allProductsHref":"/products"}},{"type":"CTASectionBlock","props":{"id":"home-cta","phone":"+8801700000000","tagText":"আজই শুরু করুন","bodyText":"প্যারাগন জৈব সার ব্যবহার করে আপনার ফসলের উৎপাদন বাড়ান এবং মাটির দীর্ঘমেয়াদী স্বাস্থ্য নিশ্চিত করুন।","cta1Href":"/contact","cta1Label":"এখনই যোগাযোগ করুন","cta2Label":"কল করুন","headingLine1":"আপনার জমির মাটি","highlightText":"সুস্থ করুন আজই"}}]}
+
+export async function GET() {
+  try {
+    const payload = await getPayload({ config })
+    const slug = 'home'
+
+    const existing = await payload.find({
+      collection: 'pages',
+      where: { slug: { equals: slug } },
+    })
+
+    if (existing.docs.length > 0) {
+      await payload.update({
+        collection: 'pages',
+        id: existing.docs[0].id,
+        data: { layout, status: 'published' },
+      })
+    } else {
+      await payload.create({
+        collection: 'pages',
+        data: { title: 'home', slug, layout, status: 'published' },
+      })
+    }
+
+    return NextResponse.json({ success: true, message: 'home page seeded successfully' })
+  } catch (err) {
+    return NextResponse.json({ success: false, error: String(err) }, { status: 500 })
+  }
+}

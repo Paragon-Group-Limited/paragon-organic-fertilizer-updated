@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { PageBanner } from '@/components/layout/PageBanner'
 import { LocationContent } from '@/components/location/LocationContent'
 import { PuckRenderer } from '@/components/puck/PuckRenderer'
+import { getPageLayout } from '@/lib/getPageLayout'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,20 +11,8 @@ export const metadata: Metadata = {
   description: 'সারাবাংলাদেশে প্যারাগন জৈব সারের ডিলার নেটওয়ার্ক। ডিলারশিপ সুযোগ ও আবেদন প্রক্রিয়া।',
 }
 
-async function getLayout() {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/pages/location`, { cache: 'no-store' })
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.layout ?? null
-  } catch {
-    return null
-  }
-}
-
 export default async function LocationPage() {
-  const layout = await getLayout()
+  const layout = await getPageLayout('location')
 
   if (layout) return <PuckRenderer data={layout} />
 

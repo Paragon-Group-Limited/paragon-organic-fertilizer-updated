@@ -1,5 +1,6 @@
 import { PuckEditorWrapper } from '@/components/puck/PuckEditorWrapper'
 import { getDefaultLayout } from '@/puck/defaultLayouts'
+import { getPageLayout } from '@/lib/getPageLayout'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,17 +17,9 @@ export default async function EditorPage({ params, searchParams }: Props) {
 
   // try to load saved layout from database
   let initialData: object | undefined = undefined
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/pages/${slug}`, { cache: 'no-store' })
-    if (res.ok) {
-      const json = await res.json()
-      if (json.layout && Array.isArray(json.layout.content) && json.layout.content.length > 0) {
-        initialData = json.layout
-      }
-    }
-  } catch {
-    // no saved data
+  const layout = await getPageLayout(slug)
+  if (layout && Array.isArray((layout as {content?: unknown[]}).content) && (layout as {content?: unknown[]}).content!.length > 0) {
+    initialData = layout
   }
 
   // if no saved layout → use the default layout for this page

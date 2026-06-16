@@ -242,7 +242,7 @@ function PublishConfirmModal({ pageLabel, onConfirm, onCancel, publishing }: {
 function PublishSuccessModal({ pageLabel, slug, onClose }: {
   pageLabel: string; slug: string; onClose: () => void
 }) {
-  const liveUrl = `http://localhost:3000/${slug === 'home' ? '' : slug}`
+  const liveUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/${slug === 'home' ? '' : slug}`
   return (
     <div style={{ position:'fixed', inset:0, zIndex:999999, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center' }}>
       <div style={{ background:'white', borderRadius:'16px', padding:'32px', maxWidth:'420px', width:'90%', boxShadow:'0 24px 64px rgba(0,0,0,0.3)', fontFamily:'sans-serif' }}>

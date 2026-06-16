@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { PageBanner } from '@/components/layout/PageBanner'
 import { SoilBenefitContent } from '@/components/about/SoilBenefitContent'
 import { PuckRenderer } from '@/components/puck/PuckRenderer'
+import { getPageLayout } from '@/lib/getPageLayout'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,20 +11,8 @@ export const metadata: Metadata = {
   description: 'জৈব সার মাটির উর্বরতা কীভাবে বৃদ্ধি করে এবং বাংলাদেশের কৃষিজমির সংকট সমাধানে কী ভূমিকা রাখে।',
 }
 
-async function getLayout() {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/pages/about/soil-benefit`, { cache: 'no-store' })
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.layout ?? null
-  } catch {
-    return null
-  }
-}
-
 export default async function SoilBenefitPage() {
-  const layout = await getLayout()
+  const layout = await getPageLayout('about/soil-benefit')
 
   if (layout) return <PuckRenderer data={layout} />
 

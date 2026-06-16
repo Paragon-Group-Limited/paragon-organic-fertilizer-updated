@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { PageBanner } from '@/components/layout/PageBanner'
 import { CareerContent } from '@/components/career/CareerContent'
 import { PuckRenderer } from '@/components/puck/PuckRenderer'
+import { getPageLayout } from '@/lib/getPageLayout'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,20 +11,8 @@ export const metadata: Metadata = {
   description: 'প্যারাগন জৈব সারে ক্যারিয়ার গড়ুন। পরিবেশবান্ধব কৃষির উন্নয়নে অবদান রাখুন।',
 }
 
-async function getLayout() {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/pages/career`, { cache: 'no-store' })
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.layout ?? null
-  } catch {
-    return null
-  }
-}
-
 export default async function CareerPage() {
-  const layout = await getLayout()
+  const layout = await getPageLayout('career')
 
   if (layout) return <PuckRenderer data={layout} />
 

@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ChevronRight } from 'lucide-react'
@@ -63,19 +62,13 @@ export function PageBanner({
         {/* Background image + tint */}
         {bgImageUrl && (
           <>
-            {/* fill wrapper — Next.js Image requires a positioned, overflow-hidden parent */}
-            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-              <Image
-                src={bgImageUrl}
-                alt=""
-                fill
-                sizes="100vw"
-                priority
-                aria-hidden
-                style={{ objectFit: 'cover', objectPosition: 'center center' }}
-              />
-            </div>
-            {/* Semi-transparent gradient tint — converts hex stops to rgba(…, 0.65) */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              backgroundImage: `url(${bgImageUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }} />
+            {/* Semi-transparent gradient tint */}
             <div
               style={{
                 position: 'absolute', inset: 0,

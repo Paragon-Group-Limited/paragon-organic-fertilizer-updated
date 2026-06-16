@@ -3,8 +3,11 @@
 import { useState, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { richTextField } from '@/puck/fields/richTextField'
+import { videoUploadField } from '@/puck/fields/videoUploadField'
 import { RichText } from '@/components/puck/RichText'
 import { useT } from '@/hooks/useT'
+
+// ─── URL helpers ──────────────────────────────────────────────────────────────
 
 function getYouTubeId(url: string): string | null {
   if (!url) return null
@@ -13,6 +16,18 @@ function getYouTubeId(url: string): string | null {
   )
   return match ? match[1] : null
 }
+
+function isCloudinaryVideo(url: string): boolean {
+  return url.includes('res.cloudinary.com') && url.includes('/video/')
+}
+
+function getCloudinaryThumbnail(videoUrl: string): string {
+  return videoUrl
+    .replace('/video/upload/', '/video/upload/so_0,w_640/')
+    .replace(/\.(mp4|webm|mov|avi|mkv)$/i, '.jpg')
+}
+
+// ─── Single video card ────────────────────────────────────────────────────────
 
 function VideoCard({
   url,
@@ -27,12 +42,19 @@ function VideoCard({
 }) {
   const [open, setOpen] = useState(false)
   const [hovered, setHovered] = useState(false)
-  const videoId = getYouTubeId(url)
 
-  if (!videoId) return null
+  const youtubeId = getYouTubeId(url)
+  const isCloudinary = isCloudinaryVideo(url)
 
-  const thumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`
+  if (!youtubeId && !isCloudinary) return null
+
+  const thumbnail = youtubeId
+    ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
+    : getCloudinaryThumbnail(url)
+
+  const embedUrl = youtubeId
+    ? `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`
+    : null
 
   return (
     <>
@@ -81,7 +103,7 @@ function VideoCard({
               position: 'absolute',
               inset: 0,
               background:
-                'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
+                'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.15) 55%, transparent 100%)',
             }}
           />
 
@@ -111,15 +133,13 @@ function VideoCard({
                   : '0 4px 18px rgba(0,0,0,0.35)',
               }}
             >
-              <span
-                style={{ fontSize: 22, color: '#1B4D3E', marginLeft: 3, lineHeight: 1 }}
-              >
+              <span style={{ fontSize: 22, color: '#1B4D3E', marginLeft: 3, lineHeight: 1 }}>
                 ▶
               </span>
             </div>
           </div>
 
-          {/* Title at bottom */}
+          {/* Title */}
           {title && (
             <div
               style={{
@@ -148,7 +168,7 @@ function VideoCard({
         </div>
       </motion.div>
 
-      {/* Lightbox */}
+      {/* Lightbox / player modal */}
       {open && (
         <div
           onClick={() => setOpen(false)}
@@ -174,13 +194,25 @@ function VideoCard({
               cursor: 'default',
             }}
           >
-            <iframe
-              src={embedUrl}
-              title={title || 'YouTube video'}
-              style={{ width: '100%', height: '100%', border: 'none', borderRadius: 12 }}
-              allow="autoplay; encrypted-media; fullscreen"
-              allowFullScreen
-            />
+            {youtubeId ? (
+              <iframe
+                src={embedUrl!}
+                title={title || 'YouTube video'}
+                style={{ width: '100%', height: '100%', border: 'none', borderRadius: 12 }}
+                allow="autoplay; encrypted-media; fullscreen"
+                allowFullScreen
+              />
+            ) : (
+              // Cloudinary / direct video
+              // eslint-disable-next-line jsx-a11y/media-has-caption
+              <video
+                src={url}
+                controls
+                autoPlay
+                style={{ width: '100%', height: '100%', borderRadius: 12, background: '#000' }}
+              />
+            )}
+
             <button
               onClick={() => setOpen(false)}
               aria-label="Close"
@@ -213,6 +245,8 @@ function VideoCard({
   )
 }
 
+// ─── Block render ─────────────────────────────────────────────────────────────
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function YouTubeVideoGridRender(props: any) {
   const ref = useRef(null)
@@ -220,7 +254,9 @@ function YouTubeVideoGridRender(props: any) {
   const t = useT()
 
   const videos: { url: string; title?: string }[] = props.videos || []
-  const validVideos = videos.filter((v) => v.url && getYouTubeId(v.url))
+  const validVideos = videos.filter(
+    (v) => v.url && (getYouTubeId(v.url) || isCloudinaryVideo(v.url))
+  )
 
   if (validVideos.length === 0) {
     return (
@@ -238,7 +274,7 @@ function YouTubeVideoGridRender(props: any) {
           }}
         >
           <div style={{ fontSize: 40, marginBottom: 12 }}>🎬</div>
-          <p>Puck editor থেকে YouTube video URL যোগ করুন</p>
+          <p>Puck editor থেকে ভিডিও যোগ করুন</p>
         </div>
       </section>
     )
@@ -289,7 +325,7 @@ function YouTubeVideoGridRender(props: any) {
           </motion.div>
         )}
 
-        {/* Grid — 3 cols desktop, 2 tablet, 1 mobile */}
+        {/* 3-column portrait grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
           {validVideos.map((video, i) => (
             <VideoCard
@@ -301,28 +337,31 @@ function YouTubeVideoGridRender(props: any) {
             />
           ))}
         </div>
+
       </div>
     </section>
   )
 }
 
+// ─── Puck block export ────────────────────────────────────────────────────────
+
 export const youTubeVideoGridBlock = {
   YouTubeVideoGridBlock: {
-    label: '🎬 YouTube Video Grid',
+    label: '🎬 Video Grid (Upload or YouTube)',
     fields: {
       tagText: richTextField('Tag (pill badge)'),
       heading: richTextField('Section Heading'),
       headingHighlight: richTextField('Heading Highlight (gold)'),
       subheading: richTextField('Subheading (optional)'),
-      bgColor: { type: 'text' as const, label: 'Background Color (CSS)' },
+      bgColor: { type: 'text' as const, label: 'Background Color (CSS, default: #0F2E24)' },
       videos: {
         type: 'array' as const,
         label: 'Videos',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        getItemSummary: (item: any) => item.title || item.url || 'Video',
+        getItemSummary: (item: any) => item.title || 'Video',
         arrayFields: {
-          url: { type: 'text' as const, label: 'YouTube URL (youtube.com/watch?v=... বা youtu.be/...)' },
-          title: { type: 'text' as const, label: 'Title (optional — ভিডিওর নিচে দেখাবে)' },
+          url: videoUploadField('ভিডিও Upload করুন (Desktop থেকে → Cloudinary)'),
+          title: { type: 'text' as const, label: 'Title (optional)' },
         },
         defaultItemProps: { url: '', title: '' },
       },

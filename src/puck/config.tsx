@@ -22,6 +22,7 @@ import { locationBlocks } from './blocks/LocationBlocks'
 import { careerBlocks } from './blocks/CareerBlocks'
 import { contactBlocks } from './blocks/ContactBlocks'
 import { productsBlocks } from './blocks/ProductsBlocks'
+import { youTubeVideoGridBlock } from './blocks/YouTubeVideoGridBlock'
 
 // ── Inline block wrappers that use useLanguage ───────────────────────────────
 
@@ -192,6 +193,9 @@ export const puckConfig: Config = {
     'হোম পেজ সেকশন': {
       components: ['HomeSlidesBlock', 'StatsSectionBlock', 'AboutSectionBlock', 'ProblemSectionBlock', 'HowItWorksBlock', 'ProductsPreviewBlock', 'CTASectionBlock'],
     },
+    '🎬 YouTube ভিডিও': {
+      components: ['YouTubeVideoGridBlock'],
+    },
     'সাধারণ ব্লক': {
       components: ['HeroBanner', 'ContentBlock', 'SectionHeading', 'StatsRow', 'TextBlock', 'CardGrid', 'CTABanner'],
     },
@@ -241,6 +245,7 @@ export const puckConfig: Config = {
     ...careerBlocks,
     ...contactBlocks,
     ...productsBlocks,
+    ...youTubeVideoGridBlock,
 
     // ══════════════════════════════════════════════════════════════
     // HOME PAGE BLOCKS

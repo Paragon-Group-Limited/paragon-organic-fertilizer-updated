@@ -465,6 +465,7 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
       '📞 Contact':         puckConfig.categories?.['📞 Contact'] ?? { components: [] },
       '📦 Products':        puckConfig.categories?.['📦 Products'] ?? { components: [] },
       'Home Page Sections': { components: ['HomeSlidesBlock', 'StatsSectionBlock', 'AboutSectionBlock', 'ProblemSectionBlock', 'HowItWorksBlock', 'ProductsPreviewBlock', 'CTASectionBlock'] },
+      '🎬 YouTube Videos':  { components: ['YouTubeVideoGridBlock'] },
       'General Blocks':     { components: ['HeroBanner', 'ContentBlock', 'SectionHeading', 'StatsRow', 'TextBlock', 'CardGrid', 'CTABanner'] },
     } : puckConfig.categories,
   }), [lang, langFilteredComponents])

@@ -45,92 +45,6 @@ function flatPages(tree: PageItem[]): PageItem[] {
   return tree.flatMap(p => p.children ? flatPages(p.children) : [p])
 }
 
-function PageNavigator({ currentSlug, onNavigate }: { currentSlug: string; onNavigate: (slug: string) => void }) {
-  const { lang } = useLanguage()
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
-    about: currentSlug.startsWith('about/'),
-  })
-
-  const toggle = (key: string) => setOpenGroups(p => ({ ...p, [key]: !p[key] }))
-  const L = (item: PageItem) => lang === 'en' ? item.labelEn : item.label
-
-  const renderItem = (item: PageItem) => {
-    if (item.isGroup) {
-      const key = item.labelEn.toLowerCase()
-      const open = openGroups[key] ?? false
-      const hasActive = item.children?.some(c => c.slug === currentSlug)
-
-      return (
-        <div key={key}>
-          <button
-            onClick={() => toggle(key)}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '7px 10px', background: hasActive ? 'rgba(27,77,62,0.08)' : 'transparent',
-              border: 'none', borderRadius: '7px', cursor: 'pointer', marginBottom: '2px',
-            }}
-          >
-            <span style={{ fontSize: '14px' }}>{item.icon}</span>
-            <div style={{ flex: 1, textAlign: 'left' }}>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: hasActive ? '#1B4D3E' : '#1a2e1a' }}>{L(item)}</div>
-            </div>
-            <span style={{ fontSize: '10px', color: '#9ca3af', flexShrink: 0 }}>{open ? '▲' : '▼'}</span>
-          </button>
-
-          {open && (
-            <div style={{ marginLeft: '10px', paddingLeft: '10px', borderLeft: '2px solid rgba(27,77,62,0.15)', marginBottom: '4px' }}>
-              {item.children?.map(child => renderItem(child))}
-            </div>
-          )}
-        </div>
-      )
-    }
-
-    const active = item.slug === currentSlug
-    return (
-      <button
-        key={item.slug}
-        disabled={item.disabled}
-        onClick={() => item.slug && onNavigate(item.slug)}
-        style={{
-          width: '100%', display: 'flex', alignItems: 'center', gap: '8px',
-          padding: '7px 10px',
-          background: active ? 'rgba(27,77,62,0.1)' : 'transparent',
-          border: active ? '1.5px solid rgba(27,77,62,0.35)' : '1.5px solid transparent',
-          borderRadius: '7px', cursor: item.disabled ? 'default' : 'pointer',
-          marginBottom: '2px', opacity: item.disabled ? 0.45 : 1, textAlign: 'left',
-        }}
-      >
-        <span style={{ fontSize: '14px', flexShrink: 0 }}>{item.icon}</span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
-            fontSize: '12px', fontWeight: active ? 700 : 500,
-            color: active ? '#1B4D3E' : '#374151',
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-          }}>{L(item)}</div>
-          {item.disabled && (
-            <div style={{ fontSize: '9px', color: '#9ca3af' }}>
-              {lang === 'en' ? 'Coming soon' : 'শীঘ্রই'}
-            </div>
-          )}
-        </div>
-        {active && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#1B4D3E', flexShrink: 0 }} />}
-      </button>
-    )
-  }
-
-  return (
-    <div style={{ padding: '12px 10px 10px', borderBottom: '1px solid #e5e7eb' }}>
-      <div style={{ fontSize: '10px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 10px', marginBottom: '8px' }}>
-        {lang === 'en' ? 'All Pages' : 'সব পেজ'}
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {PAGE_TREE.map(item => renderItem(item))}
-      </div>
-    </div>
-  )
-}
-
 // ─── Unsaved-changes modal ────────────────────────────────────────────────────
 
 function NavModal({ pageLabel, onSaveAndGo, onDiscard, onStay, saving }: {
@@ -275,9 +189,18 @@ function PublishSuccessModal({ pageLabel, slug, onClose }: {
 
 // ─── Custom Puck header with undo/redo + translated title ─────────────────────
 
-function PuckHeader({ slug, actions }: { slug: string; actions: ReactNode }) {
+function PuckHeader({
+  slug, actions, singlePage, onNavigate,
+}: {
+  slug: string
+  actions: ReactNode
+  singlePage: boolean
+  onNavigate: (slug: string) => void
+}) {
   const { lang } = useLanguage()
   const { history } = usePuck()
+  const [dropOpen, setDropOpen] = useState(false)
+  const dropRef = useRef<HTMLDivElement>(null)
 
   const currentPage = flatPages(PAGE_TREE).find(p => p.slug === slug)
   const title = lang === 'en' ? (currentPage?.labelEn || slug) : (currentPage?.label || slug)
@@ -287,6 +210,48 @@ function PuckHeader({ slug, actions }: { slug: string; actions: ReactNode }) {
     borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '16px',
     background: 'transparent', color: '#374151', transition: 'background 0.1s',
   }
+
+  useEffect(() => {
+    if (!dropOpen) return
+    const handler = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setDropOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [dropOpen])
+
+  const renderDropItems = (items: PageItem[], depth = 0): React.ReactNode =>
+    items.map(item => {
+      if (item.isGroup) {
+        return (
+          <div key={item.labelEn}>
+            <div style={{ padding: '4px 12px 2px', fontSize: 10, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {item.icon} {lang === 'en' ? item.labelEn : item.label}
+            </div>
+            {item.children && renderDropItems(item.children, depth + 1)}
+          </div>
+        )
+      }
+      const isActive = item.slug === slug
+      return (
+        <button
+          key={item.slug}
+          onClick={() => { onNavigate(item.slug!); setDropOpen(false) }}
+          style={{
+            width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 8,
+            padding: `5px 12px 5px ${12 + depth * 12}px`,
+            background: isActive ? 'rgba(27,77,62,0.1)' : 'transparent',
+            border: 'none', cursor: 'pointer', fontSize: 12,
+            color: isActive ? '#1B4D3E' : '#374151', fontWeight: isActive ? 700 : 400,
+            borderRadius: 4,
+          }}
+        >
+          <span style={{ fontSize: 13 }}>{item.icon}</span>
+          {lang === 'en' ? item.labelEn : item.label}
+          {isActive && <span style={{ marginLeft: 'auto', fontSize: 10, color: '#1B4D3E' }}>✓</span>}
+        </button>
+      )
+    })
 
   return (
     <div style={{
@@ -309,9 +274,31 @@ function PuckHeader({ slug, actions }: { slug: string; actions: ReactNode }) {
         style={{ ...btnBase, opacity: history.hasFuture ? 1 : 0.3, cursor: history.hasFuture ? 'pointer' : 'default' }}
       >↪</button>
 
-      {/* Page title — centered */}
-      <div style={{ flex: 1, textAlign: 'center', fontSize: '14px', fontWeight: 700, color: '#1a2e1a' }}>
-        {title}
+      {/* Page title — centered, clickable dropdown when multi-page */}
+      <div ref={dropRef} style={{ flex: 1, textAlign: 'center', position: 'relative' }}>
+        <button
+          onClick={() => !singlePage && setDropOpen(o => !o)}
+          style={{
+            background: 'none', border: 'none', cursor: singlePage ? 'default' : 'pointer',
+            fontSize: '14px', fontWeight: 700, color: '#1a2e1a',
+            display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 6,
+          }}
+        >
+          {title}
+          {!singlePage && <span style={{ fontSize: 10, color: '#9ca3af' }}>{dropOpen ? '▲' : '▼'}</span>}
+        </button>
+
+        {dropOpen && !singlePage && (
+          <div style={{
+            position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)',
+            background: 'white', border: '1px solid #e5e7eb', borderRadius: 8,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 9999,
+            minWidth: 200, maxHeight: 380, overflowY: 'auto',
+            padding: '6px 0',
+          }}>
+            {renderDropItems(PAGE_TREE)}
+          </div>
+        )}
       </div>
 
       {/* Actions (language switcher, save, reset, publish) */}
@@ -605,18 +592,23 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
         overrides={{
           puck: ({ children }: { children: React.ReactNode }) => (
             <>
-              {/* Reverse sidenav order + rename labels via CSS */}
+              {/* Sidenav: Outline→top "Existing Sections", Blocks→bottom "Add New Blocks" */}
               <style>{`
-                [class*="PuckLayout-nav"]{display:flex!important;flex-direction:column-reverse!important}
-                [class*="PuckLayout-nav"] [class*="NavItem-link_"]{font-size:0!important;line-height:0!important}
-                [class*="PuckLayout-nav"] [class*="NavItem_"]:first-child [class*="NavItem-link_"]::after{content:"Add New Blocks";font-size:9px;color:currentColor;display:block;text-align:center;line-height:1.2}
-                [class*="PuckLayout-nav"] [class*="NavItem_"]:last-child [class*="NavItem-link_"]::after{content:"Existing Blocks";font-size:9px;color:currentColor;display:block;text-align:center;line-height:1.2}
+                [class*="PuckLayout-nav"]{display:flex!important;flex-direction:column!important;height:100%!important}
+                [class*="PuckLayout-nav"]>*{display:flex!important;flex-direction:column!important;height:100%!important;flex:1!important}
+                [class*="PuckLayout-nav"] [class*="NavItem_"]{flex:1!important;display:flex!important;align-items:center!important;justify-content:center!important}
+                [class*="PuckLayout-nav"] [class*="NavItem_"]:first-child{order:2!important}
+                [class*="PuckLayout-nav"] [class*="NavItem_"]:nth-child(2){order:1!important}
+                [class*="PuckLayout-nav"] [class*="NavItem_"]:not(:first-child):not(:nth-child(2)){display:none!important}
+                [class*="PuckLayout-nav"] [class*="NavItem-link_"]{font-size:0!important}
+                [class*="PuckLayout-nav"] [class*="NavItem_"]:first-child [class*="NavItem-link_"]::after{content:"Add New Blocks";font-size:9px;color:currentColor;display:block;text-align:center;line-height:1.3}
+                [class*="PuckLayout-nav"] [class*="NavItem_"]:nth-child(2) [class*="NavItem-link_"]::after{content:"Existing Sections";font-size:9px;color:currentColor;display:block;text-align:center;line-height:1.3}
               `}</style>
               {children}
             </>
           ),
           header: ({ actions }: { actions: ReactNode }) => (
-            <PuckHeader slug={slug} actions={actions} />
+            <PuckHeader slug={slug} actions={actions} singlePage={!!singlePage} onNavigate={handleNavigate} />
           ),
           headerActions: () => (
             <HeaderActions
@@ -627,10 +619,7 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
             />
           ),
           fields: ({ children }: { children: React.ReactNode }) => (
-            <>
-              {!singlePage && <PageNavigator currentSlug={slug} onNavigate={handleNavigate} />}
-              {children}
-            </>
+            <>{children}</>
           ),
         }}
       />

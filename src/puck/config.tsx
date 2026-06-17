@@ -160,44 +160,57 @@ function CTABannerRender(props: any) {
 
 export const puckConfig: Config = {
   categories: {
-    'পেজ কন্টেন্ট': {
-      components: ['StaticPageBlock'],
-    },
-    '🎨 পেজ ব্যানার': {
-      components: ['PageBannerBlock'],
-    },
-    '📖 About — Our Story': {
-      components: ['OurStoryFoundingBlock', 'OurStoryTimelineBlock', 'OurStorySuccessStoriesBlock', 'OurStoryValuesBlock'],
-    },
-    '🌱 About — Soil Benefit': {
-      components: ['SoilApplicationTableBlock', 'SoilProblemBlock', 'SoilBenefitCardsBlock', 'SoilHowItWorksBlock', 'SoilComparisonBlock'],
-    },
-    '✅ About — Why This Product': {
-      components: ['WhyProductContentBlock', 'WhyUSPBlock', 'WhyTestimonialsBlock'],
-    },
-    '🏢 About — Paragon Group': {
-      components: ['ParagonAboutBlock', 'ParagonVisionBlock', 'ParagonBusinessesBlock', 'ParagonWhyOrganicBlock'],
-    },
-    '📍 Location': {
-      components: ['LocationMapContactBlock', 'LocationCoverageBlock', 'LocationDealerBenefitsBlock', 'LocationApplicationBlock'],
-    },
-    '💼 Career': {
-      components: ['CareerWhyJoinBlock', 'CareerFieldsBlock', 'CareerProcessBlock'],
-    },
-    '📞 Contact': {
-      components: ['ContactInfoBlock', 'ContactFormMapBlock', 'ContactFAQBlock'],
-    },
-    '📦 Products': {
-      components: ['ProductsGridBlock', 'ProductsCtaBannerBlock'],
-    },
-    'হোম পেজ সেকশন': {
-      components: ['HomeSlidesBlock', 'StatsSectionBlock', 'AboutSectionBlock', 'ProblemSectionBlock', 'HowItWorksBlock', 'ProductsPreviewBlock', 'CTASectionBlock'],
-    },
+    // ── Visible in "Add New Blocks" panel ──────────────────────────
     '🎬 YouTube ভিডিও': {
       components: ['YouTubeVideoGridBlock'],
     },
     'সাধারণ ব্লক': {
       components: ['HeroBanner', 'ContentBlock', 'SectionHeading', 'StatsRow', 'TextBlock', 'CardGrid', 'CTABanner'],
+    },
+    // ── Hidden from panel (page-specific blocks, added via Existing Sections) ──
+    'পেজ কন্টেন্ট': {
+      components: ['StaticPageBlock'],
+      visible: false,
+    },
+    '🎨 পেজ ব্যানার': {
+      components: ['PageBannerBlock'],
+      visible: false,
+    },
+    '📖 About — Our Story': {
+      components: ['OurStoryFoundingBlock', 'OurStoryTimelineBlock', 'OurStorySuccessStoriesBlock', 'OurStoryValuesBlock'],
+      visible: false,
+    },
+    '🌱 About — Soil Benefit': {
+      components: ['SoilApplicationTableBlock', 'SoilProblemBlock', 'SoilBenefitCardsBlock', 'SoilHowItWorksBlock', 'SoilComparisonBlock'],
+      visible: false,
+    },
+    '✅ About — Why This Product': {
+      components: ['WhyProductContentBlock', 'WhyUSPBlock', 'WhyTestimonialsBlock'],
+      visible: false,
+    },
+    '🏢 About — Paragon Group': {
+      components: ['ParagonAboutBlock', 'ParagonVisionBlock', 'ParagonBusinessesBlock', 'ParagonWhyOrganicBlock'],
+      visible: false,
+    },
+    '📍 Location': {
+      components: ['LocationMapContactBlock', 'LocationCoverageBlock', 'LocationDealerBenefitsBlock', 'LocationApplicationBlock'],
+      visible: false,
+    },
+    '💼 Career': {
+      components: ['CareerWhyJoinBlock', 'CareerFieldsBlock', 'CareerProcessBlock'],
+      visible: false,
+    },
+    '📞 Contact': {
+      components: ['ContactInfoBlock', 'ContactFormMapBlock', 'ContactFAQBlock'],
+      visible: false,
+    },
+    '📦 Products': {
+      components: ['ProductsGridBlock', 'ProductsCtaBannerBlock'],
+      visible: false,
+    },
+    'হোম পেজ সেকশন': {
+      components: ['HomeSlidesBlock', 'StatsSectionBlock', 'AboutSectionBlock', 'ProblemSectionBlock', 'HowItWorksBlock', 'ProductsPreviewBlock', 'CTASectionBlock'],
+      visible: false,
     },
   },
 

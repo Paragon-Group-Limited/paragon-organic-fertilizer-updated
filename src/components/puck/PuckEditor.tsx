@@ -276,117 +276,117 @@ function PublishSuccessModal({ pageLabel, slug, onClose }: {
 const SIDEBAR_W = 272
 
 function PuckCustomSidebar() {
-  const [tab, setTab] = useState<'sections' | 'add'>('sections')
+  const [mode, setMode] = useState<'outline' | 'add'>('outline')
   const { dispatch } = usePuck()
   const { lang } = useLanguage()
   const t = (bn: string, en: string) => lang === 'en' ? en : bn
 
-  // Hide Puck's built-in left panel so our sidebar doesn't overlap badly
   useLayoutEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dispatch({ type: 'setUi', ui: (ui: any) => ({ ...ui, leftSideBarVisible: false }) } as any)
   }, [dispatch])
 
-  const tabBtn = (active: boolean): React.CSSProperties => ({
-    flex: 1,
-    padding: '9px 6px 8px',
-    border: 'none',
-    borderBottom: `2.5px solid ${active ? '#1B4D3E' : 'transparent'}`,
-    cursor: 'pointer',
-    fontSize: '11.5px',
-    fontWeight: 700,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    background: 'transparent',
-    color: active ? '#1B4D3E' : '#9ca3af',
-    transition: 'all 0.15s',
-    whiteSpace: 'nowrap',
-  })
-
-  const panelLabel = (text: string, sub?: string) => (
-    <div style={{ padding: '7px 14px 6px', background: '#fafafa', borderBottom: '1px solid #f3f4f6', flexShrink: 0 }}>
-      <div style={{ fontSize: 10, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{text}</div>
-      {sub && <div style={{ fontSize: 9.5, color: '#b8bec5', marginTop: 2 }}>{sub}</div>}
+  // Shared section-label style
+  const sectionLabel = (label: string) => (
+    <div style={{
+      padding: '7px 12px 6px',
+      background: '#fafafa',
+      borderBottom: '1px solid #f0f0f0',
+      fontSize: 10,
+      fontWeight: 700,
+      color: '#9ca3af',
+      textTransform: 'uppercase' as const,
+      letterSpacing: '0.08em',
+      flexShrink: 0,
+    }}>
+      {label}
     </div>
   )
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-
-      {/* ── Tab bar ── */}
-      <div style={{ display: 'flex', background: '#f9fafb', borderBottom: '1px solid #e5e7eb', flexShrink: 0 }}>
-        <button style={tabBtn(tab === 'sections')} onClick={() => setTab('sections')}>
-          <span>📋</span><span>{t('Sections', 'Sections')}</span>
-        </button>
-        <button style={tabBtn(tab === 'add')} onClick={() => setTab('add')}>
-          <span>➕</span><span>{t('Add Block', 'Add Block')}</span>
-        </button>
-      </div>
-
-      {/* ── Sections panel ── */}
-      <div style={{ display: tab === 'sections' ? 'flex' : 'none', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-        {panelLabel(t('পেজের সেকশন', 'Page Sections'))}
-
-        <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
-          <Puck.Outline />
-        </div>
-
-        {/* Add block shortcut */}
-        <div style={{ padding: 8, borderTop: '1px solid #f3f4f6', flexShrink: 0 }}>
+  if (mode === 'add') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+        {/* Header with back arrow */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '0 6px 0 4px', borderBottom: '1px solid #e5e7eb',
+          background: '#fafafa', flexShrink: 0, minHeight: 36,
+        }}>
           <button
-            onClick={() => setTab('add')}
+            onClick={() => setMode('outline')}
+            title={t('ফিরে যান', 'Back')}
             style={{
-              width: '100%', padding: '8px 12px', borderRadius: 8,
-              border: '1.5px dashed #d1d5db', background: '#f9fafb',
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
-              textAlign: 'left', transition: 'border-color 0.15s, background 0.15s',
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#1B4D3E'; (e.currentTarget as HTMLElement).style.background = '#f0fdf4' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#d1d5db'; (e.currentTarget as HTMLElement).style.background = '#f9fafb' }}
-          >
-            <div style={{
-              width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-              background: 'linear-gradient(135deg,#1B4D3E,#2D7A3A)',
+              width: 28, height: 28, borderRadius: 6, border: 'none',
+              background: 'transparent', cursor: 'pointer', fontSize: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 16, color: 'white', fontWeight: 700, lineHeight: 1,
-            }}>+</div>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>
-                {t('নতুন Block যোগ করুন', 'Add New Block')}
-              </div>
-              <div style={{ fontSize: 10, color: '#9ca3af' }}>
-                {t('Browse করতে click করুন', 'Click to browse')}
-              </div>
-            </div>
+              color: '#6b7280', transition: 'background 0.12s',
+              flexShrink: 0,
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#e5e7eb'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+          >
+            ←
           </button>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            {t('নতুন Block যোগ করুন', 'Add New Block')}
+          </span>
         </div>
-      </div>
 
-      {/* ── Add Block panel ── */}
-      <div style={{ display: tab === 'add' ? 'flex' : 'none', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-        {panelLabel(
-          t('নতুন Block যোগ করুন', 'Add New Block'),
-          t('Page-এ drag করুন', 'Drag a block onto the page'),
-        )}
-
-        {/* Back button */}
-        <button
-          onClick={() => setTab('sections')}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 5,
-            padding: '5px 14px', border: 'none', borderBottom: '1px solid #f3f4f6',
-            background: 'white', cursor: 'pointer', fontSize: 10.5, color: '#6b7280',
-            width: '100%', textAlign: 'left', flexShrink: 0,
-          }}
-        >
-          ← {t('Sections দেখুন', 'View sections')}
-        </button>
+        <div style={{ fontSize: 9.5, color: '#b0b7bf', padding: '4px 12px 5px', background: '#fafafa', borderBottom: '1px solid #f0f0f0', flexShrink: 0 }}>
+          {t('Page-এ drag করে block যোগ করুন', 'Drag a block onto the page')}
+        </div>
 
         <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
           <Puck.Components />
         </div>
+      </div>
+    )
+  }
+
+  // ── Outline / existing-blocks view ───────────────────────────────────────────
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+
+      {sectionLabel(t('বিদ্যমান Blocks', 'Existing Blocks'))}
+
+      {/* Current page outline */}
+      <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+        <Puck.Outline />
+      </div>
+
+      {/* Add New Block — same icon row style as outline items */}
+      <div style={{ borderTop: '1px solid #f0f0f0', padding: '4px 6px', flexShrink: 0 }}>
+        <button
+          onClick={() => setMode('add')}
+          style={{
+            width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+            padding: '7px 10px', borderRadius: 6, border: 'none',
+            background: 'transparent', cursor: 'pointer',
+            transition: 'background 0.12s',
+          }}
+          onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#f0fdf4'}
+          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+        >
+          {/* Grid-dots icon — mirrors Puck's outline drag-handle look */}
+          <span style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2,
+            width: 16, height: 16, flexShrink: 0, opacity: 0.45,
+          }}>
+            {[0,1,2,3].map(i => (
+              <span key={i} style={{ width: 5, height: 5, borderRadius: 1.5, background: '#1B4D3E', display: 'block' }} />
+            ))}
+          </span>
+          {/* Green + badge */}
+          <div style={{
+            width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+            background: 'linear-gradient(135deg,#1B4D3E,#2D7A3A)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 14, color: 'white', fontWeight: 700, lineHeight: 1,
+          }}>+</div>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>
+            {t('Add New Block', 'Add New Block')}
+          </span>
+        </button>
       </div>
     </div>
   )

@@ -749,10 +749,10 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
         overrides={{
           puck: ({ children }: { children: React.ReactNode }) => (
             <div style={{ '--puck-user-left-side-bar-width': `${SIDEBAR_W}px` } as React.CSSProperties}>
-              {/* Collapse the sidenav column (plugin Blocks/Outline tab icons) */}
+              {/* Collapse sidenav: variable lives on PuckLayout-inner, not :root */}
               <style>{`
-                :root{--puck-side-nav-width:0px!important}
-                [data-puck-plugin-nav]{display:none!important}
+                [class*="PuckLayout-inner"]{--puck-side-nav-width:0px!important}
+                [class*="PuckLayout-nav"]{display:none!important}
               `}</style>
               {children}
               {/* Custom sidebar — position:fixed so height works regardless of parent */}

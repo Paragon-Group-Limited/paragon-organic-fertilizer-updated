@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect, useMemo, useLayoutEffect, type ReactNode } from 'react'
-import { Puck, usePuck } from '@puckeditor/core'
+import { Puck, usePuck, Drawer } from '@puckeditor/core'
 import { puckConfig } from '@/puck/config'
 import '@puckeditor/core/dist/index.css'
 import { useRouter } from 'next/navigation'
@@ -275,6 +275,30 @@ function PublishSuccessModal({ pageLabel, slug, onClose }: {
 
 const SIDEBAR_W = 272
 
+// Generic-only block categories shown in "Add New Block" panel
+const GENERIC_SECTIONS = [
+  {
+    titleBn: '🎬 YouTube ভিডিও',
+    titleEn: '🎬 YouTube Videos',
+    blocks: [
+      { name: 'YouTubeVideoGridBlock', label: '🎬 Video Grid (Upload or YouTube)' },
+    ],
+  },
+  {
+    titleBn: 'সাধারণ ব্লক',
+    titleEn: 'General Blocks',
+    blocks: [
+      { name: 'HeroBanner',     label: 'Hero Banner (simple)' },
+      { name: 'ContentBlock',   label: 'Content Block (Image + Text)' },
+      { name: 'SectionHeading', label: 'Section Heading' },
+      { name: 'StatsRow',       label: 'Stats Row (4 counters)' },
+      { name: 'TextBlock',      label: 'Text Block' },
+      { name: 'CardGrid',       label: 'Card Grid (3 cards)' },
+      { name: 'CTABanner',      label: 'CTA Banner (simple)' },
+    ],
+  },
+]
+
 function PuckCustomSidebar() {
   const [mode, setMode] = useState<'outline' | 'add'>('outline')
   const { dispatch } = usePuck()
@@ -282,51 +306,44 @@ function PuckCustomSidebar() {
   const t = (bn: string, en: string) => lang === 'en' ? en : bn
 
   useLayoutEffect(() => {
+    // Hide Puck's default left panel + the narrow sidenav (plugin tabs)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dispatch({ type: 'setUi', ui: (ui: any) => ({ ...ui, leftSideBarVisible: false }) } as any)
   }, [dispatch])
 
-  // Shared section-label style
   const sectionLabel = (label: string) => (
     <div style={{
-      padding: '7px 12px 6px',
-      background: '#fafafa',
-      borderBottom: '1px solid #f0f0f0',
-      fontSize: 10,
-      fontWeight: 700,
-      color: '#9ca3af',
-      textTransform: 'uppercase' as const,
-      letterSpacing: '0.08em',
-      flexShrink: 0,
+      padding: '7px 12px 6px', background: '#fafafa',
+      borderBottom: '1px solid #f0f0f0', fontSize: 10,
+      fontWeight: 700, color: '#9ca3af',
+      textTransform: 'uppercase' as const, letterSpacing: '0.08em', flexShrink: 0,
     }}>
       {label}
     </div>
   )
 
+  // ── Add New Block view ────────────────────────────────────────────────────────
   if (mode === 'add') {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-        {/* Header with back arrow */}
+
+        {/* Header row */}
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '0 6px 0 4px', borderBottom: '1px solid #e5e7eb',
-          background: '#fafafa', flexShrink: 0, minHeight: 36,
+          display: 'flex', alignItems: 'center', gap: 6, minHeight: 36,
+          padding: '0 8px 0 4px', borderBottom: '1px solid #e5e7eb',
+          background: '#fafafa', flexShrink: 0,
         }}>
           <button
             onClick={() => setMode('outline')}
-            title={t('ফিরে যান', 'Back')}
             style={{
               width: 28, height: 28, borderRadius: 6, border: 'none',
               background: 'transparent', cursor: 'pointer', fontSize: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#6b7280', transition: 'background 0.12s',
-              flexShrink: 0,
+              color: '#6b7280', flexShrink: 0,
             }}
             onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#e5e7eb'}
             onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-          >
-            ←
-          </button>
+          >←</button>
           <span style={{ fontSize: 10, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             {t('নতুন Block যোগ করুন', 'Add New Block')}
           </span>
@@ -336,57 +353,72 @@ function PuckCustomSidebar() {
           {t('Page-এ drag করে block যোগ করুন', 'Drag a block onto the page')}
         </div>
 
+        {/* Filtered block list — only generic categories */}
         <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
-          <Puck.Components />
+          {GENERIC_SECTIONS.map(section => (
+            <div key={section.titleEn}>
+              <div style={{
+                padding: '8px 12px 5px', fontSize: 10, fontWeight: 700,
+                color: '#6b7280', textTransform: 'uppercase' as const,
+                letterSpacing: '0.06em', background: '#fafafa',
+                borderBottom: '1px solid #f0f0f0', borderTop: '1px solid #f0f0f0',
+                marginTop: 4,
+              }}>
+                {lang === 'en' ? section.titleEn : section.titleBn}
+              </div>
+              <Drawer>
+                {section.blocks.map(b => (
+                  <Drawer.Item key={b.name} name={b.name} label={b.label} />
+                ))}
+              </Drawer>
+            </div>
+          ))}
         </div>
       </div>
     )
   }
 
-  // ── Outline / existing-blocks view ───────────────────────────────────────────
+  // ── Outline (existing blocks) view ────────────────────────────────────────────
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
 
       {sectionLabel(t('বিদ্যমান Blocks', 'Existing Blocks'))}
 
-      {/* Current page outline */}
+      {/* Outline + Add New Block button in ONE scroll container so button
+          sits directly below the last outline item, never floats to screen bottom */}
       <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
         <Puck.Outline />
-      </div>
 
-      {/* Add New Block — same icon row style as outline items */}
-      <div style={{ borderTop: '1px solid #f0f0f0', padding: '4px 6px', flexShrink: 0 }}>
-        <button
-          onClick={() => setMode('add')}
-          style={{
-            width: '100%', display: 'flex', alignItems: 'center', gap: 8,
-            padding: '7px 10px', borderRadius: 6, border: 'none',
-            background: 'transparent', cursor: 'pointer',
-            transition: 'background 0.12s',
-          }}
-          onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#f0fdf4'}
-          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-        >
-          {/* Grid-dots icon — mirrors Puck's outline drag-handle look */}
-          <span style={{
-            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2,
-            width: 16, height: 16, flexShrink: 0, opacity: 0.45,
-          }}>
-            {[0,1,2,3].map(i => (
-              <span key={i} style={{ width: 5, height: 5, borderRadius: 1.5, background: '#1B4D3E', display: 'block' }} />
-            ))}
-          </span>
-          {/* Green + badge */}
-          <div style={{
-            width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
-            background: 'linear-gradient(135deg,#1B4D3E,#2D7A3A)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 14, color: 'white', fontWeight: 700, lineHeight: 1,
-          }}>+</div>
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>
-            {t('Add New Block', 'Add New Block')}
-          </span>
-        </button>
+        {/* Add New Block — same icon-row style as outline items */}
+        <div style={{ borderTop: '1px solid #f0f0f0', padding: '4px 6px' }}>
+          <button
+            onClick={() => setMode('add')}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+              padding: '7px 10px', borderRadius: 6, border: 'none',
+              background: 'transparent', cursor: 'pointer', transition: 'background 0.12s',
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#f0fdf4'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+          >
+            {/* Grid-dot icon — mirrors Puck outline drag-handle */}
+            <span style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, width: 16, height: 16, flexShrink: 0, opacity: 0.4 }}>
+              {[0,1,2,3].map(i => (
+                <span key={i} style={{ width: 5, height: 5, borderRadius: 1.5, background: '#1B4D3E', display: 'block' }} />
+              ))}
+            </span>
+            {/* Green + circle */}
+            <div style={{
+              width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+              background: 'linear-gradient(135deg,#1B4D3E,#2D7A3A)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 14, color: 'white', fontWeight: 700, lineHeight: 1,
+            }}>+</div>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>
+              {t('Add New Block', 'Add New Block')}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -724,6 +756,8 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
         overrides={{
           puck: ({ children }: { children: React.ReactNode }) => (
             <div style={{ position: 'relative', height: '100%' }}>
+              {/* Hide Puck's sidenav (Blocks/Outline tab icons) — we replace the whole left area */}
+              <style>{`[class*="PuckLayout"][class*="sidenav"],[class*="SideNav"],[class*="sidenav"]{display:none!important}`}</style>
               {/* Default layout — left sidebar hidden via dispatch inside PuckCustomSidebar */}
               {children}
               {/* Custom sidebar overlaid on the left panel area, below the 56px header */}

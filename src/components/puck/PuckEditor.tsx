@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect, useMemo, type ReactNode } from 'react'
+import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo, type ReactNode } from 'react'
 import { Puck, usePuck, Drawer } from '@puckeditor/core'
 import { puckConfig } from '@/puck/config'
 import '@puckeditor/core/dist/index.css'
@@ -303,6 +303,19 @@ function PuckCustomSidebar() {
   const [mode, setMode] = useState<'outline' | 'add'>('outline')
   const { lang } = useLanguage()
   const t = (bn: string, en: string) => lang === 'en' ? en : bn
+
+  // Imperatively hide Puck's sidenav (CSS injection doesn't reliably override CSS modules)
+  useLayoutEffect(() => {
+    const applyHide = () => {
+      const nav = document.querySelector('[class*="PuckLayout-nav"]') as HTMLElement | null
+      if (nav) { nav.style.setProperty('display', 'none', 'important'); nav.style.setProperty('width', '0', 'important') }
+      const inner = document.querySelector('[class*="PuckLayout-inner"]') as HTMLElement | null
+      if (inner) inner.style.setProperty('--puck-side-nav-width', '0px', 'important')
+    }
+    applyHide()
+    const id = setTimeout(applyHide, 150)
+    return () => clearTimeout(id)
+  }, [])
 
   const sectionLabel = (label: string) => (
     <div style={{

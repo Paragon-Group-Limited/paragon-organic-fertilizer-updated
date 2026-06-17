@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo, type ReactNode } from 'react'
+import { useState, useRef, useCallback, useEffect, useMemo, type ReactNode } from 'react'
 import { Puck, usePuck } from '@puckeditor/core'
 import { puckConfig } from '@/puck/config'
 import '@puckeditor/core/dist/index.css'
@@ -271,33 +271,7 @@ function PublishSuccessModal({ pageLabel, slug, onClose }: {
   )
 }
 
-// ─── Sidenav modifier: reorder + rename Puck's built-in Blocks/Outline tabs ───
-
-function PuckSidenavModifier() {
-  useLayoutEffect(() => {
-    const apply = () => {
-      const nav = document.querySelector('[class*="PuckLayout-nav"]')
-      if (!nav) return
-      const items = nav.querySelectorAll('[class*="NavItem_"]')
-      items.forEach((item, idx) => {
-        const link = item.querySelector('[class*="NavItem-link_"]')
-        if (!link) return
-        // idx 0 = Blocks (visually second via CSS order) → "Add New Block"
-        // idx 1 = Outline (visually first via CSS order) → "Existing Blocks"
-        const target = idx === 0 ? 'Add New Block' : 'Existing Blocks'
-        for (const node of Array.from(link.childNodes)) {
-          if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
-            node.textContent = target
-          }
-        }
-      })
-    }
-    apply()
-    const id = setInterval(apply, 400)
-    return () => clearInterval(id)
-  }, [])
-  return null
-}
+// (sidenav reorder + rename is handled entirely via CSS in overrides.puck)
 
 // ─── Custom Puck header with undo/redo + translated title ─────────────────────
 
@@ -631,14 +605,14 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
         overrides={{
           puck: ({ children }: { children: React.ReactNode }) => (
             <>
-              {/* Reorder sidenav tabs: Outline (idx 1) floats to top, Blocks (idx 0) to bottom */}
+              {/* Reverse sidenav order + rename labels via CSS */}
               <style>{`
-                [class*="PuckLayout-nav"]{display:flex!important;flex-direction:column!important}
-                [class*="PuckLayout-nav"]>:nth-child(1){order:2}
-                [class*="PuckLayout-nav"]>:nth-child(2){order:1}
+                [class*="PuckLayout-nav"]{display:flex!important;flex-direction:column-reverse!important}
+                [class*="PuckLayout-nav"] [class*="NavItem-link_"]{font-size:0!important;line-height:0!important}
+                [class*="PuckLayout-nav"] [class*="NavItem_"]:first-child [class*="NavItem-link_"]::after{content:"Add New Blocks";font-size:9px;color:currentColor;display:block;text-align:center;line-height:1.2}
+                [class*="PuckLayout-nav"] [class*="NavItem_"]:last-child [class*="NavItem-link_"]::after{content:"Existing Blocks";font-size:9px;color:currentColor;display:block;text-align:center;line-height:1.2}
               `}</style>
               {children}
-              <PuckSidenavModifier />
             </>
           ),
           header: ({ actions }: { actions: ReactNode }) => (

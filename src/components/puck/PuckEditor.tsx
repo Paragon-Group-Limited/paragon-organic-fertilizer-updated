@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo, type ReactNode } from 'react'
-import { Puck, usePuck, Drawer } from '@puckeditor/core'
+import { Puck, usePuck } from '@puckeditor/core'
 import { puckConfig } from '@/puck/config'
 import '@puckeditor/core/dist/index.css'
 import { useRouter } from 'next/navigation'
@@ -271,163 +271,32 @@ function PublishSuccessModal({ pageLabel, slug, onClose }: {
   )
 }
 
-// ─── Custom Left Sidebar ──────────────────────────────────────────────────────
+// ─── Sidenav modifier: reorder + rename Puck's built-in Blocks/Outline tabs ───
 
-const SIDEBAR_W = 272
-
-// Generic-only block categories shown in "Add New Block" panel
-const GENERIC_SECTIONS = [
-  {
-    titleBn: '🎬 YouTube ভিডিও',
-    titleEn: '🎬 YouTube Videos',
-    blocks: [
-      { name: 'YouTubeVideoGridBlock', label: '🎬 Video Grid (Upload or YouTube)' },
-    ],
-  },
-  {
-    titleBn: 'সাধারণ ব্লক',
-    titleEn: 'General Blocks',
-    blocks: [
-      { name: 'HeroBanner',     label: 'Hero Banner (simple)' },
-      { name: 'ContentBlock',   label: 'Content Block (Image + Text)' },
-      { name: 'SectionHeading', label: 'Section Heading' },
-      { name: 'StatsRow',       label: 'Stats Row (4 counters)' },
-      { name: 'TextBlock',      label: 'Text Block' },
-      { name: 'CardGrid',       label: 'Card Grid (3 cards)' },
-      { name: 'CTABanner',      label: 'CTA Banner (simple)' },
-    ],
-  },
-]
-
-function PuckCustomSidebar() {
-  const [mode, setMode] = useState<'outline' | 'add'>('outline')
-  const { lang } = useLanguage()
-  const t = (bn: string, en: string) => lang === 'en' ? en : bn
-
-  // Imperatively hide Puck's sidenav (CSS injection doesn't reliably override CSS modules)
+function PuckSidenavModifier() {
   useLayoutEffect(() => {
-    const applyHide = () => {
-      const nav = document.querySelector('[class*="PuckLayout-nav"]') as HTMLElement | null
-      if (nav) { nav.style.setProperty('display', 'none', 'important'); nav.style.setProperty('width', '0', 'important') }
-      const inner = document.querySelector('[class*="PuckLayout-inner"]') as HTMLElement | null
-      if (inner) inner.style.setProperty('--puck-side-nav-width', '0px', 'important')
+    const apply = () => {
+      const nav = document.querySelector('[class*="PuckLayout-nav"]')
+      if (!nav) return
+      const items = nav.querySelectorAll('[class*="NavItem_"]')
+      items.forEach((item, idx) => {
+        const link = item.querySelector('[class*="NavItem-link_"]')
+        if (!link) return
+        // idx 0 = Blocks (visually second via CSS order) → "Add New Block"
+        // idx 1 = Outline (visually first via CSS order) → "Existing Blocks"
+        const target = idx === 0 ? 'Add New Block' : 'Existing Blocks'
+        for (const node of Array.from(link.childNodes)) {
+          if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+            node.textContent = target
+          }
+        }
+      })
     }
-    applyHide()
-    const id = setTimeout(applyHide, 150)
-    return () => clearTimeout(id)
+    apply()
+    const id = setInterval(apply, 400)
+    return () => clearInterval(id)
   }, [])
-
-  const sectionLabel = (label: string) => (
-    <div style={{
-      padding: '7px 12px 6px', background: '#fafafa',
-      borderBottom: '1px solid #f0f0f0', fontSize: 10,
-      fontWeight: 700, color: '#9ca3af',
-      textTransform: 'uppercase' as const, letterSpacing: '0.08em', flexShrink: 0,
-    }}>
-      {label}
-    </div>
-  )
-
-  // ── Add New Block view ────────────────────────────────────────────────────────
-  if (mode === 'add') {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-
-        {/* Header row */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 6, minHeight: 36,
-          padding: '0 8px 0 4px', borderBottom: '1px solid #e5e7eb',
-          background: '#fafafa', flexShrink: 0,
-        }}>
-          <button
-            onClick={() => setMode('outline')}
-            style={{
-              width: 28, height: 28, borderRadius: 6, border: 'none',
-              background: 'transparent', cursor: 'pointer', fontSize: 16,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#6b7280', flexShrink: 0,
-            }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#e5e7eb'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-          >←</button>
-          <span style={{ fontSize: 10, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            {t('নতুন Block যোগ করুন', 'Add New Block')}
-          </span>
-        </div>
-
-        <div style={{ fontSize: 9.5, color: '#b0b7bf', padding: '4px 12px 5px', background: '#fafafa', borderBottom: '1px solid #f0f0f0', flexShrink: 0 }}>
-          {t('Page-এ drag করে block যোগ করুন', 'Drag a block onto the page')}
-        </div>
-
-        {/* Filtered block list — only generic categories */}
-        <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
-          {GENERIC_SECTIONS.map(section => (
-            <div key={section.titleEn}>
-              <div style={{
-                padding: '8px 12px 5px', fontSize: 10, fontWeight: 700,
-                color: '#6b7280', textTransform: 'uppercase' as const,
-                letterSpacing: '0.06em', background: '#fafafa',
-                borderBottom: '1px solid #f0f0f0', borderTop: '1px solid #f0f0f0',
-                marginTop: 4,
-              }}>
-                {lang === 'en' ? section.titleEn : section.titleBn}
-              </div>
-              <Drawer>
-                {section.blocks.map(b => (
-                  <Drawer.Item key={b.name} name={b.name} label={b.label} />
-                ))}
-              </Drawer>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  // ── Outline (existing blocks) view ────────────────────────────────────────────
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-
-      {sectionLabel(t('বিদ্যমান Blocks', 'Existing Blocks'))}
-
-      {/* Outline + Add New Block button in ONE scroll container so button
-          sits directly below the last outline item, never floats to screen bottom */}
-      <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
-        <Puck.Outline />
-
-        {/* Add New Block — same icon-row style as outline items */}
-        <div style={{ borderTop: '1px solid #f0f0f0', padding: '4px 6px' }}>
-          <button
-            onClick={() => setMode('add')}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: 8,
-              padding: '7px 10px', borderRadius: 6, border: 'none',
-              background: 'transparent', cursor: 'pointer', transition: 'background 0.12s',
-            }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#f0fdf4'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-          >
-            {/* Grid-dot icon — mirrors Puck outline drag-handle */}
-            <span style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, width: 16, height: 16, flexShrink: 0, opacity: 0.4 }}>
-              {[0,1,2,3].map(i => (
-                <span key={i} style={{ width: 5, height: 5, borderRadius: 1.5, background: '#1B4D3E', display: 'block' }} />
-              ))}
-            </span>
-            {/* Green + circle */}
-            <div style={{
-              width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
-              background: 'linear-gradient(135deg,#1B4D3E,#2D7A3A)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 14, color: 'white', fontWeight: 700, lineHeight: 1,
-            }}>+</div>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>
-              {t('Add New Block', 'Add New Block')}
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+  return null
 }
 
 // ─── Custom Puck header with undo/redo + translated title ─────────────────────
@@ -761,30 +630,16 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
         iframe={{ enabled: false }}
         overrides={{
           puck: ({ children }: { children: React.ReactNode }) => (
-            <div style={{ '--puck-user-left-side-bar-width': `${SIDEBAR_W}px` } as React.CSSProperties}>
-              {/* Collapse sidenav: variable lives on PuckLayout-inner, not :root */}
+            <>
+              {/* Reorder sidenav tabs: Outline (idx 1) floats to top, Blocks (idx 0) to bottom */}
               <style>{`
-                [class*="PuckLayout-inner"]{--puck-side-nav-width:0px!important}
-                [class*="PuckLayout-nav"]{display:none!important}
+                [class*="PuckLayout-nav"]{display:flex!important;flex-direction:column!important}
+                [class*="PuckLayout-nav"]>:nth-child(1){order:2}
+                [class*="PuckLayout-nav"]>:nth-child(2){order:1}
               `}</style>
               {children}
-              {/* Custom sidebar — position:fixed so height works regardless of parent */}
-              <div style={{
-                position: 'fixed',
-                top: 56,
-                left: 0,
-                bottom: 0,
-                width: SIDEBAR_W,
-                background: 'white',
-                zIndex: 200,
-                display: 'flex',
-                flexDirection: 'column',
-                borderRight: '1.5px solid #e5e7eb',
-                boxShadow: '2px 0 10px rgba(0,0,0,0.05)',
-              }}>
-                <PuckCustomSidebar />
-              </div>
-            </div>
+              <PuckSidenavModifier />
+            </>
           ),
           header: ({ actions }: { actions: ReactNode }) => (
             <PuckHeader slug={slug} actions={actions} />

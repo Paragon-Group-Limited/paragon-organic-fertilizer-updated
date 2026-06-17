@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect, useMemo, type ReactNode } from 'react'
+import { useState, useRef, useCallback, useEffect, useMemo, useLayoutEffect, type ReactNode } from 'react'
 import { Puck, usePuck } from '@puckeditor/core'
 import { puckConfig } from '@/puck/config'
 import '@puckeditor/core/dist/index.css'
@@ -266,6 +266,127 @@ function PublishSuccessModal({ pageLabel, slug, onClose }: {
         >
           ✓ ঠিক আছে
         </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── Custom Left Sidebar ──────────────────────────────────────────────────────
+
+const SIDEBAR_W = 272
+
+function PuckCustomSidebar() {
+  const [tab, setTab] = useState<'sections' | 'add'>('sections')
+  const { dispatch } = usePuck()
+  const { lang } = useLanguage()
+  const t = (bn: string, en: string) => lang === 'en' ? en : bn
+
+  // Hide Puck's built-in left panel so our sidebar doesn't overlap badly
+  useLayoutEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dispatch({ type: 'setUi', ui: (ui: any) => ({ ...ui, leftSideBarVisible: false }) } as any)
+  }, [dispatch])
+
+  const tabBtn = (active: boolean): React.CSSProperties => ({
+    flex: 1,
+    padding: '9px 6px 8px',
+    border: 'none',
+    borderBottom: `2.5px solid ${active ? '#1B4D3E' : 'transparent'}`,
+    cursor: 'pointer',
+    fontSize: '11.5px',
+    fontWeight: 700,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    background: 'transparent',
+    color: active ? '#1B4D3E' : '#9ca3af',
+    transition: 'all 0.15s',
+    whiteSpace: 'nowrap',
+  })
+
+  const panelLabel = (text: string, sub?: string) => (
+    <div style={{ padding: '7px 14px 6px', background: '#fafafa', borderBottom: '1px solid #f3f4f6', flexShrink: 0 }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{text}</div>
+      {sub && <div style={{ fontSize: 9.5, color: '#b8bec5', marginTop: 2 }}>{sub}</div>}
+    </div>
+  )
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+
+      {/* ── Tab bar ── */}
+      <div style={{ display: 'flex', background: '#f9fafb', borderBottom: '1px solid #e5e7eb', flexShrink: 0 }}>
+        <button style={tabBtn(tab === 'sections')} onClick={() => setTab('sections')}>
+          <span>📋</span><span>{t('Sections', 'Sections')}</span>
+        </button>
+        <button style={tabBtn(tab === 'add')} onClick={() => setTab('add')}>
+          <span>➕</span><span>{t('Add Block', 'Add Block')}</span>
+        </button>
+      </div>
+
+      {/* ── Sections panel ── */}
+      <div style={{ display: tab === 'sections' ? 'flex' : 'none', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+        {panelLabel(t('পেজের সেকশন', 'Page Sections'))}
+
+        <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+          <Puck.Outline />
+        </div>
+
+        {/* Add block shortcut */}
+        <div style={{ padding: 8, borderTop: '1px solid #f3f4f6', flexShrink: 0 }}>
+          <button
+            onClick={() => setTab('add')}
+            style={{
+              width: '100%', padding: '8px 12px', borderRadius: 8,
+              border: '1.5px dashed #d1d5db', background: '#f9fafb',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
+              textAlign: 'left', transition: 'border-color 0.15s, background 0.15s',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#1B4D3E'; (e.currentTarget as HTMLElement).style.background = '#f0fdf4' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#d1d5db'; (e.currentTarget as HTMLElement).style.background = '#f9fafb' }}
+          >
+            <div style={{
+              width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+              background: 'linear-gradient(135deg,#1B4D3E,#2D7A3A)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 16, color: 'white', fontWeight: 700, lineHeight: 1,
+            }}>+</div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>
+                {t('নতুন Block যোগ করুন', 'Add New Block')}
+              </div>
+              <div style={{ fontSize: 10, color: '#9ca3af' }}>
+                {t('Browse করতে click করুন', 'Click to browse')}
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* ── Add Block panel ── */}
+      <div style={{ display: tab === 'add' ? 'flex' : 'none', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+        {panelLabel(
+          t('নতুন Block যোগ করুন', 'Add New Block'),
+          t('Page-এ drag করুন', 'Drag a block onto the page'),
+        )}
+
+        {/* Back button */}
+        <button
+          onClick={() => setTab('sections')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+            padding: '5px 14px', border: 'none', borderBottom: '1px solid #f3f4f6',
+            background: 'white', cursor: 'pointer', fontSize: 10.5, color: '#6b7280',
+            width: '100%', textAlign: 'left', flexShrink: 0,
+          }}
+        >
+          ← {t('Sections দেখুন', 'View sections')}
+        </button>
+
+        <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+          <Puck.Components />
+        </div>
       </div>
     </div>
   )
@@ -601,6 +722,28 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
         onChange={handleChange}
         iframe={{ enabled: false }}
         overrides={{
+          puck: ({ children }: { children: React.ReactNode }) => (
+            <div style={{ position: 'relative', height: '100%' }}>
+              {/* Default layout — left sidebar hidden via dispatch inside PuckCustomSidebar */}
+              {children}
+              {/* Custom sidebar overlaid on the left panel area, below the 56px header */}
+              <div style={{
+                position: 'absolute',
+                top: 56,
+                left: 0,
+                bottom: 0,
+                width: SIDEBAR_W,
+                background: 'white',
+                zIndex: 200,
+                display: 'flex',
+                flexDirection: 'column',
+                borderRight: '1.5px solid #e5e7eb',
+                boxShadow: '2px 0 10px rgba(0,0,0,0.05)',
+              }}>
+                <PuckCustomSidebar />
+              </div>
+            </div>
+          ),
           header: ({ actions }: { actions: ReactNode }) => (
             <PuckHeader slug={slug} actions={actions} />
           ),

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect, useMemo, useLayoutEffect, type ReactNode } from 'react'
+import { useState, useRef, useCallback, useEffect, useMemo, type ReactNode } from 'react'
 import { Puck, usePuck, Drawer } from '@puckeditor/core'
 import { puckConfig } from '@/puck/config'
 import '@puckeditor/core/dist/index.css'
@@ -301,15 +301,8 @@ const GENERIC_SECTIONS = [
 
 function PuckCustomSidebar() {
   const [mode, setMode] = useState<'outline' | 'add'>('outline')
-  const { dispatch } = usePuck()
   const { lang } = useLanguage()
   const t = (bn: string, en: string) => lang === 'en' ? en : bn
-
-  useLayoutEffect(() => {
-    // Hide Puck's default left panel + the narrow sidenav (plugin tabs)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    dispatch({ type: 'setUi', ui: (ui: any) => ({ ...ui, leftSideBarVisible: false }) } as any)
-  }, [dispatch])
 
   const sectionLabel = (label: string) => (
     <div style={{
@@ -755,14 +748,16 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
         iframe={{ enabled: false }}
         overrides={{
           puck: ({ children }: { children: React.ReactNode }) => (
-            <div style={{ position: 'relative', height: '100%' }}>
-              {/* Hide Puck's sidenav (Blocks/Outline tab icons) — we replace the whole left area */}
-              <style>{`[class*="PuckLayout"][class*="sidenav"],[class*="SideNav"],[class*="sidenav"]{display:none!important}`}</style>
-              {/* Default layout — left sidebar hidden via dispatch inside PuckCustomSidebar */}
+            <div style={{ '--puck-user-left-side-bar-width': `${SIDEBAR_W}px` } as React.CSSProperties}>
+              {/* Collapse the sidenav column (plugin Blocks/Outline tab icons) */}
+              <style>{`
+                :root{--puck-side-nav-width:0px!important}
+                [data-puck-plugin-nav]{display:none!important}
+              `}</style>
               {children}
-              {/* Custom sidebar overlaid on the left panel area, below the 56px header */}
+              {/* Custom sidebar — position:fixed so height works regardless of parent */}
               <div style={{
-                position: 'absolute',
+                position: 'fixed',
                 top: 56,
                 left: 0,
                 bottom: 0,

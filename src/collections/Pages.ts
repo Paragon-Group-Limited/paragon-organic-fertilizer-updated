@@ -27,7 +27,7 @@ export const Pages: CollectionConfig = {
       name: 'layout',
       type: 'json',
       label: 'Page Layout (Puck Editor Data)',
-      admin: { description: 'Auto-managed by Puck visual editor' },
+      admin: { hidden: true },
     },
     {
       name: 'meta',

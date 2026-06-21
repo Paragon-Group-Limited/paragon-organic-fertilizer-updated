@@ -23,6 +23,9 @@ export function PageBannerBlock(props: any) {
       bgGradient={props.bgGradient}
       bgImageUrl={props.bgImageUrl || ''}
       align={props.align}
+      showTag={props.showTag}
+      showTitle={props.showTitle}
+      showSubtitle={props.showSubtitle}
       breadcrumbs={breadcrumbs}
     />
   )

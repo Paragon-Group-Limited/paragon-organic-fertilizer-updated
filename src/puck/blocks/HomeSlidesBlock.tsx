@@ -23,6 +23,11 @@ type SlideItem = {
   accentColor?: string
   cta1Label?: string; cta1LabelEn?: string; cta1Href?: string
   cta2Label?: string; cta2LabelEn?: string; cta2Href?: string
+  align?: 'left' | 'center' | 'right'
+  showTag?: 'yes' | 'no'
+  showHeading?: 'yes' | 'no'
+  showSubtitle?: 'yes' | 'no'
+  showButtons?: 'yes' | 'no'
 }
 
 export function HomeSlidesBlock({ slides }: { slides?: SlideItem[] }) {
@@ -83,57 +88,72 @@ export function HomeSlidesBlock({ slides }: { slides?: SlideItem[] }) {
                     backgroundSize: '60px 60px'
                   }} />
 
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24">
-                  <div className="max-w-3xl">
-                    <AnimatePresence mode="wait">
-                      <motion.div key={key} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        transition={{ duration: 0.4 }} className="space-y-5">
+                {(() => {
+                  const align = slide.align || 'left'
+                  const isCenter = align === 'center'
+                  const isRight = align === 'right'
+                  const showTag = slide.showTag !== 'no'
+                  const showHeading = slide.showHeading !== 'no'
+                  const showSubtitle = slide.showSubtitle !== 'no'
+                  const showButtons = slide.showButtons !== 'no'
+                  return (
+                    <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24">
+                      <div className={`max-w-3xl ${isCenter ? 'mx-auto text-center' : isRight ? 'ml-auto text-right' : ''}`}>
+                        <AnimatePresence mode="wait">
+                          <motion.div key={key} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            transition={{ duration: 0.4 }} className="space-y-5">
 
-                        {slide.tagEn && (
-                          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase"
-                            style={{ background: `rgba(${accentRgb},0.2)`, border: `1px solid ${accent}40`, color: accent, fontFamily: 'var(--font-inter)' }}>
-                            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: accent }} />
-                            <RichText html={slide.tagEn} inline />
-                          </div>
-                        )}
+                            {showTag && slide.tagEn && (
+                              <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase ${isCenter || isRight ? 'mx-auto' : ''}`}
+                                style={{ background: `rgba(${accentRgb},0.2)`, border: `1px solid ${accent}40`, color: accent, fontFamily: 'var(--font-inter)' }}>
+                                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: accent }} />
+                                <RichText html={slide.tagEn} inline />
+                              </div>
+                            )}
 
-                        {lang === 'bn' && slide.tagBn && (
-                          <RichText html={slide.tagBn} inline className="text-lg font-medium" style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-hind)' }} />
-                        )}
+                            {showTag && lang === 'bn' && slide.tagBn && (
+                              <RichText html={slide.tagBn} inline className="text-lg font-medium" style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-hind)' }} />
+                            )}
 
-                        <h1 className="font-bold text-white leading-tight"
-                          style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', fontFamily: 'var(--font-hind)' }}>
-                          <RichText html={heading} inline />
-                        </h1>
+                            {showHeading && (
+                              <h1 className="font-bold text-white leading-tight"
+                                style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', fontFamily: 'var(--font-hind)' }}>
+                                <RichText html={heading} inline />
+                              </h1>
+                            )}
 
-                        {subtitle && (
-                          <RichText html={subtitle}
-                            className="text-base sm:text-lg leading-relaxed max-w-2xl"
-                            style={{ color: 'rgba(255,255,255,0.72)', fontFamily: 'var(--font-hind)' }}
-                          />
-                        )}
+                            {showSubtitle && subtitle && (
+                              <RichText html={subtitle}
+                                className={`text-base sm:text-lg leading-relaxed max-w-2xl ${isCenter || isRight ? 'mx-auto' : ''}`}
+                                style={{ color: 'rgba(255,255,255,0.72)', fontFamily: 'var(--font-hind)' }}
+                              />
+                            )}
 
-                        <div className="flex flex-wrap gap-4 pt-3">
-                          {cta1 && slide.cta1Href && (
-                            <Link href={slide.cta1Href}
-                              className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm hover:scale-105"
-                              style={{ background: `linear-gradient(135deg, ${accent}, #F5C842)`, color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
-                              <RichText html={cta1} inline />
-                              <ArrowRight className="w-4 h-4" />
-                            </Link>
-                          )}
-                          {cta2 && slide.cta2Href && (
-                            <Link href={slide.cta2Href}
-                              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-white/20"
-                              style={{ border: '1.5px solid rgba(255,255,255,0.4)', color: 'white', fontFamily: 'var(--font-hind)' }}>
-                              <RichText html={cta2} inline />
-                            </Link>
-                          )}
-                        </div>
-                      </motion.div>
-                    </AnimatePresence>
-                  </div>
-                </div>
+                            {showButtons && (
+                              <div className={`flex flex-wrap gap-4 pt-3 ${isCenter ? 'justify-center' : isRight ? 'justify-end' : ''}`}>
+                                {cta1 && slide.cta1Href && (
+                                  <Link href={slide.cta1Href}
+                                    className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm hover:scale-105"
+                                    style={{ background: `linear-gradient(135deg, ${accent}, #F5C842)`, color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
+                                    <RichText html={cta1} inline />
+                                    <ArrowRight className="w-4 h-4" />
+                                  </Link>
+                                )}
+                                {cta2 && slide.cta2Href && (
+                                  <Link href={slide.cta2Href}
+                                    className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-white/20"
+                                    style={{ border: '1.5px solid rgba(255,255,255,0.4)', color: 'white', fontFamily: 'var(--font-hind)' }}>
+                                    <RichText html={cta2} inline />
+                                  </Link>
+                                )}
+                              </div>
+                            )}
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                  )
+                })()}
 
                 <div className="absolute bottom-28 right-8 hidden md:block">
                   <div className="text-5xl font-bold" style={{ color: 'rgba(255,255,255,0.06)', fontFamily: 'var(--font-inter)' }}>

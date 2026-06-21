@@ -23,6 +23,7 @@ import { careerBlocks } from './blocks/CareerBlocks'
 import { contactBlocks } from './blocks/ContactBlocks'
 import { productsBlocks } from './blocks/ProductsBlocks'
 import { youTubeVideoGridBlock } from './blocks/YouTubeVideoGridBlock'
+import { genericBlocks } from './blocks/GenericBlocks'
 
 // ── Inline block wrappers that use useLanguage ───────────────────────────────
 
@@ -167,6 +168,9 @@ export const puckConfig: Config = {
     'সাধারণ ব্লক': {
       components: ['HeroBanner', 'ContentBlock', 'SectionHeading', 'StatsRow', 'TextBlock', 'CardGrid', 'CTABanner'],
     },
+    '🧩 Generic Blocks': {
+      components: ['HeroSection', 'ImageText', 'FeatureGrid', 'Testimonials', 'FAQAccordion', 'IconList', 'GalleryGrid', 'Spacer', 'Divider'],
+    },
     // ── Hidden from panel (page-specific blocks, added via Existing Sections) ──
     'পেজ কন্টেন্ট': {
       components: ['StaticPageBlock'],
@@ -228,7 +232,10 @@ export const puckConfig: Config = {
         subtitleEn: richTextField('Subtitle (English)'),
         bgGradient: { type: 'text', label: 'Background Gradient (CSS)' },
         bgImageUrl: imageUploadField('Banner Background Image (optional — overlaid with gradient)'),
-        align: { type: 'radio', label: 'Alignment', options: [{ label: 'Left', value: 'left' }, { label: 'Center', value: 'center' }] },
+        align: { type: 'radio', label: 'Alignment', options: [{ label: 'Left', value: 'left' }, { label: 'Center', value: 'center' }, { label: 'Right', value: 'right' }] },
+        showTag: { type: 'radio', label: '👁 Show Tag Badge', options: [{ label: 'দেখাও', value: 'yes' }, { label: 'লুকাও', value: 'no' }] },
+        showTitle: { type: 'radio', label: '👁 Show Title', options: [{ label: 'দেখাও', value: 'yes' }, { label: 'লুকাও', value: 'no' }] },
+        showSubtitle: { type: 'radio', label: '👁 Show Subtitle', options: [{ label: 'দেখাও', value: 'yes' }, { label: 'লুকাও', value: 'no' }] },
         breadcrumb1Label: richTextField('Breadcrumb 1 Label'),
         breadcrumb1LabelEn: richTextField('Breadcrumb 1 Label (English)'),
         breadcrumb1Href: { type: 'text', label: 'Breadcrumb 1 Href (optional)' },
@@ -242,6 +249,7 @@ export const puckConfig: Config = {
         subtitle: 'প্যারাগন জৈব সার — মাটির প্রাণ, কৃষকের আস্থা।', subtitleEn: 'Paragon Organic Fertilizer — Soul of Soil, Farmer\'s Trust.',
         bgGradient: 'linear-gradient(135deg, #0a1f14 0%, #1B4D3E 55%, #2D7A3A 100%)',
         align: 'left',
+        showTag: 'yes', showTitle: 'yes', showSubtitle: 'yes',
         breadcrumb1Label: 'আমাদের সম্পর্কে', breadcrumb1LabelEn: 'About Us',
         breadcrumb1Href: '/about/our-story',
         breadcrumb2Label: '', breadcrumb2LabelEn: '',
@@ -259,6 +267,7 @@ export const puckConfig: Config = {
     ...contactBlocks,
     ...productsBlocks,
     ...youTubeVideoGridBlock,
+    ...genericBlocks,
 
     // ══════════════════════════════════════════════════════════════
     // HOME PAGE BLOCKS
@@ -288,6 +297,11 @@ export const puckConfig: Config = {
             cta2Label: richTextField('Button 2 Label (বাংলা)'),
             cta2LabelEn: richTextField('Button 2 Label (English)'),
             cta2Href: { type: 'text', label: 'Button 2 Link' },
+            align: { type: 'radio', label: 'Text Alignment', options: [{ label: 'Left', value: 'left' }, { label: 'Center', value: 'center' }, { label: 'Right', value: 'right' }] },
+            showTag: { type: 'radio', label: '👁 Show Tag', options: [{ label: 'দেখাও', value: 'yes' }, { label: 'লুকাও', value: 'no' }] },
+            showHeading: { type: 'radio', label: '👁 Show Heading', options: [{ label: 'দেখাও', value: 'yes' }, { label: 'লুকাও', value: 'no' }] },
+            showSubtitle: { type: 'radio', label: '👁 Show Subtitle', options: [{ label: 'দেখাও', value: 'yes' }, { label: 'লুকাও', value: 'no' }] },
+            showButtons: { type: 'radio', label: '👁 Show Buttons', options: [{ label: 'দেখাও', value: 'yes' }, { label: 'লুকাও', value: 'no' }] },
           },
           defaultItemProps: {
             headingBn: 'নতুন Slide', headingEn: 'New Slide',
@@ -295,6 +309,7 @@ export const puckConfig: Config = {
             imageUrl: '', bgColor: '#1B4D3E', accentColor: '#D4A017',
             cta1Label: 'আরও জানুন', cta1LabelEn: 'Learn More', cta1Href: '/',
             cta2Label: '', cta2LabelEn: '', cta2Href: '',
+            align: 'left', showTag: 'yes', showHeading: 'yes', showSubtitle: 'yes', showButtons: 'yes',
           },
         },
       },
@@ -624,7 +639,7 @@ export const puckConfig: Config = {
         titleEn: richTextField('Title (English)'),
         titleHighlight: richTextField('Highlighted Word (Bengali)'),
         titleHighlightEn: richTextField('Highlighted Word (English)'),
-        align: { type: 'radio', label: 'Alignment', options: [{ label: 'Left', value: 'left' }, { label: 'Center', value: 'center' }] },
+        align: { type: 'radio', label: 'Alignment', options: [{ label: 'Left', value: 'left' }, { label: 'Center', value: 'center' }, { label: 'Right', value: 'right' }] },
       },
       defaultProps: {
         tagBn: 'আমাদের সম্পর্কে', tagEn: 'About Us',

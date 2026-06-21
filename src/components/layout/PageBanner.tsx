@@ -16,7 +16,10 @@ type Props = {
   breadcrumbs?: BreadcrumbItem[]
   bgGradient?: string
   bgImageUrl?: string
-  align?: 'left' | 'center'
+  align?: 'left' | 'center' | 'right'
+  showTag?: 'yes' | 'no'
+  showTitle?: 'yes' | 'no'
+  showSubtitle?: 'yes' | 'no'
 }
 
 export function PageBanner({
@@ -28,7 +31,12 @@ export function PageBanner({
   bgGradient = 'linear-gradient(135deg, #0a1f14 0%, #1B4D3E 55%, #2D7A3A 100%)',
   bgImageUrl = '',
   align = 'left',
+  showTag = 'yes',
+  showTitle = 'yes',
+  showSubtitle = 'yes',
 }: Props) {
+  const alignClass = align === 'center' ? 'text-center' : align === 'right' ? 'text-right' : ''
+  const justifyClass = align === 'center' ? 'justify-center' : align === 'right' ? 'justify-end' : ''
   const { lang } = useLanguage()
   return (
     <>
@@ -113,11 +121,11 @@ export function PageBanner({
 
         {/* Content */}
         <div
-          className={`relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${align === 'center' ? 'text-center' : ''}`}
+          className={`relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${alignClass}`}
         >
           {breadcrumbs.length > 0 && (
             <nav
-              className={`flex items-center gap-1.5 mb-6 text-xs font-medium flex-wrap ${align === 'center' ? 'justify-center' : ''}`}
+              className={`flex items-center gap-1.5 mb-6 text-xs font-medium flex-wrap ${justifyClass}`}
               style={{ fontFamily: 'var(--font-hind)', color: 'rgba(255,255,255,0.5)' }}
             >
               <Link href="/" className="hover:text-white transition-colors">
@@ -145,9 +153,9 @@ export function PageBanner({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, ease: 'easeOut' }}
           >
-            {tagText && (
+            {tagText && showTag !== 'no' && (
               <div
-                className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-5 ${align === 'center' ? 'mx-auto' : ''}`}
+                className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-5 ${align === 'center' || align === 'right' ? 'mx-auto' : ''}`}
                 style={{
                   background: 'rgba(212,160,23,0.18)',
                   border: '1px solid rgba(212,160,23,0.4)',
@@ -163,24 +171,26 @@ export function PageBanner({
               </div>
             )}
 
-            <h1
-              className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-5"
-              style={{ fontFamily: 'var(--font-hind)' }}
-            >
-              <RichText html={title} inline />
-              {titleHighlight && (
-                <>
-                  {' '}
-                  <span style={{ color: '#F5C842' }}>
-                    <RichText html={titleHighlight} inline />
-                  </span>
-                </>
-              )}
-            </h1>
+            {showTitle !== 'no' && (
+              <h1
+                className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-5"
+                style={{ fontFamily: 'var(--font-hind)' }}
+              >
+                <RichText html={title} inline />
+                {titleHighlight && (
+                  <>
+                    {' '}
+                    <span style={{ color: '#F5C842' }}>
+                      <RichText html={titleHighlight} inline />
+                    </span>
+                  </>
+                )}
+              </h1>
+            )}
 
-            {subtitle && (
+            {subtitle && showSubtitle !== 'no' && (
               <div
-                className={`text-base lg:text-lg leading-relaxed ${align === 'center' ? 'max-w-2xl mx-auto' : 'max-w-2xl'}`}
+                className={`text-base lg:text-lg leading-relaxed ${align === 'center' || align === 'right' ? 'max-w-2xl mx-auto' : 'max-w-2xl'}`}
                 style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-hind)' }}
               >
                 <RichText html={subtitle} />

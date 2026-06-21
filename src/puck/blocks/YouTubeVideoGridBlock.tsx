@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { richTextField } from '@/puck/fields/richTextField'
 import { videoUploadField } from '@/puck/fields/videoUploadField'
+import { imageUploadField } from '@/puck/fields/imageUploadField'
 import { RichText } from '@/components/puck/RichText'
 import { useT } from '@/hooks/useT'
 
@@ -32,11 +33,13 @@ function getCloudinaryThumbnail(videoUrl: string): string {
 function VideoCard({
   url,
   title,
+  thumbnailUrl,
   index,
   inView,
 }: {
   url: string
   title?: string
+  thumbnailUrl?: string
   index: number
   inView: boolean
 }) {
@@ -48,9 +51,10 @@ function VideoCard({
 
   if (!youtubeId && !isCloudinary) return null
 
-  const thumbnail = youtubeId
+  const autoThumb = youtubeId
     ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
     : getCloudinaryThumbnail(url)
+  const thumbnail = thumbnailUrl || autoThumb
 
   const embedUrl = youtubeId
     ? `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`
@@ -76,7 +80,7 @@ function VideoCard({
             borderRadius: 16,
             overflow: 'hidden',
             cursor: 'pointer',
-            aspectRatio: '9/16',
+            aspectRatio: '16/9',
             background: '#0a1f14',
             boxShadow: hovered
               ? '0 28px 56px rgba(0,0,0,0.45)'
@@ -253,7 +257,7 @@ function YouTubeVideoGridRender(props: any) {
   const inView = useInView(ref, { once: true, margin: '-60px' })
   const t = useT()
 
-  const videos: { url: string; title?: string }[] = props.videos || []
+  const videos: { url: string; title?: string; thumbnailUrl?: string }[] = props.videos || []
   const validVideos = videos.filter(
     (v) => v.url && (getYouTubeId(v.url) || isCloudinaryVideo(v.url))
   )
@@ -332,6 +336,7 @@ function YouTubeVideoGridRender(props: any) {
               key={i}
               url={video.url}
               title={video.title}
+              thumbnailUrl={video.thumbnailUrl}
               index={i}
               inView={inView}
             />
@@ -361,9 +366,10 @@ export const youTubeVideoGridBlock = {
         getItemSummary: (item: any) => item.title || 'Video',
         arrayFields: {
           url: videoUploadField('ভিডিও Upload করুন (Desktop থেকে → Cloudinary)'),
+          thumbnailUrl: imageUploadField('Thumbnail Image (না দিলে auto-generate হবে)'),
           title: { type: 'text' as const, label: 'Title (optional)' },
         },
-        defaultItemProps: { url: '', title: '' },
+        defaultItemProps: { url: '', thumbnailUrl: '', title: '' },
       },
     },
     defaultProps: {

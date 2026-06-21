@@ -50,7 +50,7 @@ function labeledImageUploadField(label: string) {
 function SoilProblemRender(props: any) {
   const t = useT()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const problems: { icon: string; title: string; desc: string }[] = props.problems || []
+  const problems: { icon: string; imageUrl?: string; title: string; desc: string }[] = props.problems || []
 
   return (
     <section className="py-20 lg:py-28" style={{ background: '#F8F5EE' }}>
@@ -79,7 +79,13 @@ function SoilProblemRender(props: any) {
               className="rounded-2xl p-6 border h-full"
               style={{ background: 'white', borderColor: 'rgba(220,38,38,0.1)' }}
             >
-              <div className="text-4xl mb-4">{p.icon}</div>
+              <div className="mb-4">
+                {p.imageUrl ? (
+                  <img src={p.imageUrl} alt="" className="w-12 h-12 object-contain" />
+                ) : (
+                  <span className="text-4xl">{p.icon}</span>
+                )}
+              </div>
               <div className="flex items-center gap-2 mb-3">
                 <span style={{ color: '#dc2626', fontSize: 16 }}>⚠️</span>
                 <h4
@@ -132,7 +138,7 @@ function SoilProblemRender(props: any) {
 function SoilBenefitCardsRender(props: any) {
   const t = useT()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const benefits: { icon: string; title: string; titleEn: string; desc: string; stat: string; statLabel: string }[] = props.benefits || []
+  const benefits: { icon: string; imageUrl?: string; title: string; titleEn: string; desc: string; stat: string; statLabel: string }[] = props.benefits || []
 
   return (
     <section className="py-20 lg:py-28" style={{ background: 'white' }}>
@@ -162,10 +168,14 @@ function SoilBenefitCardsRender(props: any) {
             >
               <div className="p-6">
                 <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 text-xl"
+                  className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 overflow-hidden"
                   style={{ background: 'linear-gradient(135deg, #1B4D3E, #2D7A3A)', color: '#F5C842' }}
                 >
-                  {b.icon}
+                  {b.imageUrl ? (
+                    <img src={b.imageUrl} alt="" className="w-full h-full object-contain p-1.5" />
+                  ) : (
+                    <span className="text-xl">{b.icon}</span>
+                  )}
                 </div>
                 <h4
                   className="font-bold text-base mb-1"
@@ -548,11 +558,12 @@ export const soilBenefitBlocks = {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         getItemSummary: (item: any) => item.title || 'Problem',
         arrayFields: {
-          icon: { type: 'text' as const, label: 'Icon (emoji)' },
+          icon: { type: 'text' as const, label: 'Icon (emoji — image না দিলে)' },
+          imageUrl: imageUploadField('Icon Image (upload করুন)'),
           title: richTextField('Title'),
           desc: richTextField('Description'),
         },
-        defaultItemProps: { icon: '⚠️', title: 'সমস্যা', desc: 'বিবরণ লিখুন...' },
+        defaultItemProps: { icon: '⚠️', imageUrl: '', title: 'সমস্যা', desc: 'বিবরণ লিখুন...' },
       },
       statNumber: richTextField('Stat Number (big text)'),
       statLabel: richTextField('Stat Label (above number)'),
@@ -589,14 +600,15 @@ export const soilBenefitBlocks = {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         getItemSummary: (item: any) => item.title || 'Benefit',
         arrayFields: {
-          icon: { type: 'text' as const, label: 'Icon (emoji)' },
+          icon: { type: 'text' as const, label: 'Icon (emoji — image না দিলে)' },
+          imageUrl: imageUploadField('Icon Image (upload করুন)'),
           title: richTextField('Title (বাংলা)'),
           titleEn: richTextField('Title (English)'),
           desc: richTextField('Description'),
           stat: richTextField('Stat Value'),
           statLabel: richTextField('Stat Label'),
         },
-        defaultItemProps: { icon: '🌿', title: 'সুবিধা', titleEn: 'Benefit', desc: 'বিবরণ...', stat: '৫০%+', statLabel: 'উন্নতি' },
+        defaultItemProps: { icon: '🌿', imageUrl: '', title: 'সুবিধা', titleEn: 'Benefit', desc: 'বিবরণ...', stat: '৫০%+', statLabel: 'উন্নতি' },
       },
     },
     defaultProps: {

@@ -8,14 +8,25 @@ import { RichText } from '@/components/puck/RichText'
 import { useT } from '@/hooks/useT'
 import { useLanguage } from '@/contexts/LanguageContext'
 
+type ProductItem = {
+  nameBn: string
+  nameEn?: string
+  descBn?: string
+  descEn?: string
+  weight?: string
+  icon?: string
+  imageUrl?: string
+  tag?: string
+  gradient?: string
+  featured?: 'yes' | 'no'
+}
+
 type Props = {
   tagText: string; tagTextEn?: string
   headingBn: string; headingEn?: string
   highlightText: string; highlightTextEn?: string
   allProductsHref: string
-  p1Name: string; p1NameEn: string; p1Desc: string; p1DescEn?: string; p1Weight: string; p1Icon: string; p1Tag: string; p1Gradient: string; p1Featured: boolean
-  p2Name: string; p2NameEn: string; p2Desc: string; p2DescEn?: string; p2Weight: string; p2Icon: string; p2Tag: string; p2Gradient: string
-  p3Name: string; p3NameEn: string; p3Desc: string; p3DescEn?: string; p3Weight: string; p3Icon: string; p3Tag: string; p3Gradient: string
+  products?: ProductItem[]
 }
 
 export function ProductsPreviewBlock(props: Props) {
@@ -24,11 +35,7 @@ export function ProductsPreviewBlock(props: Props) {
   const t = useT()
   const { lang } = useLanguage()
 
-  const products = [
-    { name: props.p1Name, nameEn: props.p1NameEn, desc: props.p1Desc, descEn: props.p1DescEn, weight: props.p1Weight, icon: props.p1Icon, tag: props.p1Tag, gradient: props.p1Gradient, featured: props.p1Featured },
-    { name: props.p2Name, nameEn: props.p2NameEn, desc: props.p2Desc, descEn: props.p2DescEn, weight: props.p2Weight, icon: props.p2Icon, tag: props.p2Tag, gradient: props.p2Gradient, featured: false },
-    { name: props.p3Name, nameEn: props.p3NameEn, desc: props.p3Desc, descEn: props.p3DescEn, weight: props.p3Weight, icon: props.p3Icon, tag: props.p3Tag, gradient: props.p3Gradient, featured: false },
-  ]
+  const products: ProductItem[] = props.products || []
 
   return (
     <section ref={ref} className="py-24 lg:py-32" style={{ background: '#F8F5EE' }}>
@@ -54,47 +61,63 @@ export function ProductsPreviewBlock(props: Props) {
           </Link>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7 items-stretch">
           {products.map((p, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 50 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.15, duration: 0.6 }}>
-              <div className="rounded-3xl overflow-hidden"
+              transition={{ delay: i * 0.15, duration: 0.6 }} className="flex">
+              <div className="rounded-3xl overflow-hidden flex flex-col w-full"
                 style={{ background: 'white', border: '1px solid rgba(27,77,62,0.08)', boxShadow: '0 4px 24px rgba(27,77,62,0.06)' }}>
-                <div className="relative h-52 flex items-center justify-center"
-                  style={{ background: p.gradient || 'linear-gradient(135deg, #1B4D3E, #2D7A3A)' }}>
-                  <div className="text-7xl">{p.icon}</div>
+
+                {/* Image / icon area */}
+                <div className="relative overflow-hidden flex items-center justify-center"
+                  style={{
+                    aspectRatio: p.imageUrl ? '4/3' : undefined,
+                    height: p.imageUrl ? undefined : '13rem',
+                    background: p.imageUrl ? '#f4f1eb' : (p.gradient || 'linear-gradient(135deg, #1B4D3E, #2D7A3A)'),
+                  }}>
+                  {p.imageUrl ? (
+                    <img src={p.imageUrl} alt={lang === 'en' ? (p.nameEn || p.nameBn) : p.nameBn}
+                      className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="text-7xl">{p.icon || '📦'}</div>
+                  )}
                   {p.tag && (
                     <div className="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold"
                       style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', color: 'white', fontFamily: 'var(--font-hind)' }}>
                       <RichText html={p.tag} inline />
                     </div>
                   )}
-                  {p.featured && (
+                  {p.featured === 'yes' && (
                     <div className="absolute top-4 right-4">
                       <Star className="w-5 h-5 fill-current" style={{ color: '#F5C842' }} />
                     </div>
                   )}
                 </div>
-                <div className="p-7">
+
+                {/* Body */}
+                <div className="p-7 flex flex-col flex-1">
                   <h3 className="text-xl font-bold mb-1" style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
-                    <RichText html={lang === 'en' ? (p.nameEn || p.name) : p.name} inline />
+                    <RichText html={lang === 'en' ? (p.nameEn || p.nameBn) : p.nameBn} inline />
                   </h3>
                   {lang === 'bn' && p.nameEn && (
                     <p className="text-xs mb-3" style={{ color: '#9ca3af', fontFamily: 'var(--font-inter)' }}>
-                      <RichText html={p.nameEn} inline /> · <RichText html={p.weight} inline />
+                      <RichText html={p.nameEn} inline />{p.weight ? <> · <RichText html={p.weight} inline /></> : null}
                     </p>
                   )}
-                  {lang === 'en' && (
+                  {lang === 'en' && p.weight && (
                     <p className="text-xs mb-3" style={{ color: '#9ca3af', fontFamily: 'var(--font-inter)' }}>
                       <RichText html={p.weight} inline />
                     </p>
                   )}
-                  <RichText html={t(p.desc, p.descEn)}
-                    className="text-sm leading-relaxed mb-6"
-                    style={{ color: '#6b7280', fontFamily: 'var(--font-hind)' }}
-                  />
+                  <div className="flex-1 mb-6"
+                    style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                    <RichText html={t(p.descBn || '', p.descEn)}
+                      className="text-sm leading-relaxed"
+                      style={{ color: '#6b7280', fontFamily: 'var(--font-hind)' }}
+                    />
+                  </div>
                   <Link href="/products"
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm mt-auto"
                     style={{ background: 'rgba(27,77,62,0.06)', color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
                     {lang === 'en' ? 'View Details' : 'বিস্তারিত দেখুন'} <ArrowRight className="w-4 h-4" />
                   </Link>

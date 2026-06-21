@@ -53,8 +53,14 @@ function OurStoryFoundingRender(props: any) {
             <motion.div initial={{ opacity: 0, x: 40 }} animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.15 }} className="grid grid-cols-1 gap-6 lg:pt-14">
               <div className="rounded-3xl p-8" style={{ background: 'linear-gradient(135deg, #1B4D3E, #0F2E24)' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-lg"
-                  style={{ background: 'rgba(212,160,23,0.2)' }}>🎯</div>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 overflow-hidden"
+                  style={{ background: 'rgba(212,160,23,0.2)' }}>
+                  {props.missionIconUrl ? (
+                    <img src={props.missionIconUrl} alt="" className="w-full h-full object-contain p-1" />
+                  ) : (
+                    <span className="text-lg">🎯</span>
+                  )}
+                </div>
                 <h3 className="text-xl font-bold text-white mb-3" style={{ fontFamily: 'var(--font-hind)' }}>
                   <RichText html={t(props.missionTitle)} inline />
                 </h3>
@@ -62,8 +68,14 @@ function OurStoryFoundingRender(props: any) {
                   style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'var(--font-hind)' }} />
               </div>
               <div className="rounded-3xl p-8 border" style={{ background: '#F8F5EE', borderColor: 'rgba(212,160,23,0.2)' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-lg"
-                  style={{ background: 'rgba(212,160,23,0.12)' }}>👁️</div>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 overflow-hidden"
+                  style={{ background: 'rgba(212,160,23,0.12)' }}>
+                  {props.visionIconUrl ? (
+                    <img src={props.visionIconUrl} alt="" className="w-full h-full object-contain p-1" />
+                  ) : (
+                    <span className="text-lg">👁️</span>
+                  )}
+                </div>
                 <h3 className="text-xl font-bold mb-3" style={{ color: '#D4A017', fontFamily: 'var(--font-hind)' }}>
                   <RichText html={t(props.visionTitle)} inline />
                 </h3>
@@ -323,7 +335,7 @@ function OurStoryValuesRender(props: any) {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
   const t = useT()
-  const values: { icon: string; title: string; desc: string }[] = (props.values || [])
+  const values: { icon: string; imageUrl?: string; title: string; desc: string }[] = (props.values || [])
 
   return (
     <div ref={ref}>
@@ -347,9 +359,13 @@ function OurStoryValuesRender(props: any) {
                 transition={{ delay: i * 0.1, duration: 0.6 }}>
                 <div className="rounded-2xl p-7 text-center border h-full"
                   style={{ background: 'white', borderColor: 'rgba(27,77,62,0.06)', boxShadow: '0 2px 12px rgba(27,77,62,0.04)' }}>
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5 text-2xl"
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5 overflow-hidden"
                     style={{ background: 'linear-gradient(135deg, #1B4D3E, #2D7A3A)' }}>
-                    {v.icon}
+                    {v.imageUrl ? (
+                      <img src={v.imageUrl} alt="" className="w-full h-full object-contain p-2" />
+                    ) : (
+                      <span className="text-2xl">{v.icon}</span>
+                    )}
                   </div>
                   <h4 className="text-lg font-bold mb-3" style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
                     <RichText html={t(v.title)} inline />
@@ -404,8 +420,10 @@ export const ourStoryBlocks = {
       benefitsList: richTextField('Benefits List (HTML <ul> list)'),
       missionTitle: richTextField('Mission Card Title'),
       missionText: richTextField('Mission Card Text'),
+      missionIconUrl: imageUploadField('Mission Icon Image (না দিলে 🎯 দেখাবে)'),
       visionTitle: richTextField('Vision Card Title'),
       visionText: richTextField('Vision Card Text'),
+      visionIconUrl: imageUploadField('Vision Icon Image (না দিলে 👁️ দেখাবে)'),
     },
     defaultProps: {
       tagText: 'আমাদের শুরু',
@@ -416,8 +434,10 @@ export const ourStoryBlocks = {
       benefitsList: '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px"><li style="display:flex;align-items:flex-start;gap:8px"><span style="color:#1B4D3E;font-weight:700;flex-shrink:0">✓</span> মাটির গঠন উন্নত করে</li><li style="display:flex;align-items:flex-start;gap:8px"><span style="color:#1B4D3E;font-weight:700;flex-shrink:0">✓</span> মাটিতে পানি ধারণ ক্ষমতা বৃদ্ধি করে</li><li style="display:flex;align-items:flex-start;gap:8px"><span style="color:#1B4D3E;font-weight:700;flex-shrink:0">✓</span> উপকারী ব্যাকটেরিয়া ও ছত্রাকের কার্যক্রম বাড়ায়</li><li style="display:flex;align-items:flex-start;gap:8px"><span style="color:#1B4D3E;font-weight:700;flex-shrink:0">✓</span> পুষ্টির কার্যকারিতা উন্নত করে</li><li style="display:flex;align-items:flex-start;gap:8px"><span style="color:#1B4D3E;font-weight:700;flex-shrink:0">✓</span> উদ্ভিদের প্রয়োজন অনুযায়ী ধীরে ধীরে পুষ্টি সরবরাহ করে</li><li style="display:flex;align-items:flex-start;gap:8px"><span style="color:#1B4D3E;font-weight:700;flex-shrink:0">✓</span> ফসলের পানি ব্যবহারের দক্ষতা বাড়ায়</li><li style="display:flex;align-items:flex-start;gap:8px"><span style="color:#1B4D3E;font-weight:700;flex-shrink:0">✓</span> পুষ্টি লিচিং কমিয়ে পরিবেশ ও বাস্তুতন্ত্র রক্ষা করে</li><li style="display:flex;align-items:flex-start;gap:8px"><span style="color:#1B4D3E;font-weight:700;flex-shrink:0">✓</span> ভবিষ্যতের ফসলের জন্য মাটিকে আরও উর্বর করে</li></ul>',
       missionTitle: 'আমাদের মিশন',
       missionText: 'মাটির স্বাস্থ্য রক্ষা করা ও কৃষকের জীবনমান উন্নয়ন — বাংলাদেশের কৃষিজমির উর্বরতা পুনরুদ্ধার করা এবং রাসায়নিক সারের উপর নির্ভরশীলতা ক্রমশ কমিয়ে আনা।',
+      missionIconUrl: '',
       visionTitle: 'আমাদের ভিশন',
       visionText: 'রাসায়নিকমুক্ত বাংলাদেশ গড়া — ২০৩০ সালের মধ্যে বাংলাদেশের প্রতিটি জেলায় কৃষকদের কাছে জৈব কৃষির সুবিধা পৌঁছে দেওয়া।',
+      visionIconUrl: '',
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     render: (props: any) => <OurStoryFoundingRender {...props} />,
@@ -547,11 +567,12 @@ export const ourStoryBlocks = {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         getItemSummary: (item: any) => item.title || 'Value',
         arrayFields: {
-          icon: { type: 'text' as const, label: 'Icon (emoji)' },
+          icon: { type: 'text' as const, label: 'Icon (emoji — image না দিলে)' },
+          imageUrl: imageUploadField('Icon Image (upload করুন)'),
           title: richTextField('Title'),
           desc: richTextField('Description'),
         },
-        defaultItemProps: { icon: '🌿', title: 'নতুন মূল্যবোধ', desc: 'বিবরণ লিখুন...' },
+        defaultItemProps: { icon: '🌿', imageUrl: '', title: 'নতুন মূল্যবোধ', desc: 'বিবরণ লিখুন...' },
       },
       ctaTitle: richTextField('CTA Heading'),
       ctaHighlight: richTextField('CTA Highlight (gold)'),

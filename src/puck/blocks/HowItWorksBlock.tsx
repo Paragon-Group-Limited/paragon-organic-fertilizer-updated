@@ -10,10 +10,10 @@ type Props = {
   tagText: string; tagTextEn?: string
   headingBn: string; headingEn?: string
   highlightText: string; highlightTextEn?: string
-  step1No: string; step1Icon: string; step1Title: string; step1En: string; step1Desc: string; step1DescEn?: string
-  step2No: string; step2Icon: string; step2Title: string; step2En: string; step2Desc: string; step2DescEn?: string
-  step3No: string; step3Icon: string; step3Title: string; step3En: string; step3Desc: string; step3DescEn?: string
-  step4No: string; step4Icon: string; step4Title: string; step4En: string; step4Desc: string; step4DescEn?: string
+  step1No: string; step1Icon: string; step1ImageUrl?: string; step1Title: string; step1En: string; step1Desc: string; step1DescEn?: string
+  step2No: string; step2Icon: string; step2ImageUrl?: string; step2Title: string; step2En: string; step2Desc: string; step2DescEn?: string
+  step3No: string; step3Icon: string; step3ImageUrl?: string; step3Title: string; step3En: string; step3Desc: string; step3DescEn?: string
+  step4No: string; step4Icon: string; step4ImageUrl?: string; step4Title: string; step4En: string; step4Desc: string; step4DescEn?: string
 }
 
 export function HowItWorksBlock(props: Props) {
@@ -23,10 +23,10 @@ export function HowItWorksBlock(props: Props) {
   const { lang } = useLanguage()
 
   const steps = [
-    { no: props.step1No, icon: props.step1Icon, title: props.step1Title, en: props.step1En, desc: props.step1Desc, descEn: props.step1DescEn },
-    { no: props.step2No, icon: props.step2Icon, title: props.step2Title, en: props.step2En, desc: props.step2Desc, descEn: props.step2DescEn },
-    { no: props.step3No, icon: props.step3Icon, title: props.step3Title, en: props.step3En, desc: props.step3Desc, descEn: props.step3DescEn },
-    { no: props.step4No, icon: props.step4Icon, title: props.step4Title, en: props.step4En, desc: props.step4Desc, descEn: props.step4DescEn },
+    { no: props.step1No, icon: props.step1Icon, imageUrl: props.step1ImageUrl, title: props.step1Title, en: props.step1En, desc: props.step1Desc, descEn: props.step1DescEn },
+    { no: props.step2No, icon: props.step2Icon, imageUrl: props.step2ImageUrl, title: props.step2Title, en: props.step2En, desc: props.step2Desc, descEn: props.step2DescEn },
+    { no: props.step3No, icon: props.step3Icon, imageUrl: props.step3ImageUrl, title: props.step3Title, en: props.step3En, desc: props.step3Desc, descEn: props.step3DescEn },
+    { no: props.step4No, icon: props.step4Icon, imageUrl: props.step4ImageUrl, title: props.step4Title, en: props.step4En, desc: props.step4Desc, descEn: props.step4DescEn },
   ]
 
   return (
@@ -46,19 +46,23 @@ export function HowItWorksBlock(props: Props) {
           </h2>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 relative items-stretch">
           {steps.map((step, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.15, duration: 0.6 }} className="relative group">
-              <div className="rounded-2xl p-7 text-center"
+              transition={{ delay: i * 0.15, duration: 0.6 }} className="relative group flex">
+              <div className="rounded-2xl p-7 text-center flex flex-col w-full"
                 style={{ background: 'white', border: '1px solid rgba(27,77,62,0.08)', boxShadow: '0 4px 24px rgba(27,77,62,0.06)' }}>
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold"
                   style={{ background: 'linear-gradient(135deg, #1B4D3E, #2D7A3A)', color: 'white', fontFamily: 'var(--font-inter)' }}>
                   {lang === 'en' ? `Step ${step.no}` : `ধাপ ${step.no}`}
                 </div>
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl mt-2"
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 mt-2 overflow-hidden flex-shrink-0"
                   style={{ background: 'linear-gradient(135deg, rgba(27,77,62,0.06), rgba(45,122,58,0.1))' }}>
-                  {step.icon}
+                  {step.imageUrl ? (
+                    <img src={step.imageUrl} alt="" className="w-full h-full object-contain p-1" />
+                  ) : (
+                    <span className="text-3xl">{step.icon}</span>
+                  )}
                 </div>
                 <h3 className="text-lg font-bold mb-1" style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
                   <RichText html={lang === 'en' ? (step.en || step.title) : step.title} inline />
@@ -68,7 +72,10 @@ export function HowItWorksBlock(props: Props) {
                     <RichText html={step.en} inline />
                   </p>
                 )}
-                <RichText html={t(step.desc, step.descEn)} className="text-sm leading-relaxed" style={{ color: '#6b7280', fontFamily: 'var(--font-hind)' }} />
+                <div className="flex-1 overflow-hidden mt-1"
+                  style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                  <RichText html={t(step.desc, step.descEn)} className="text-sm leading-relaxed" style={{ color: '#6b7280', fontFamily: 'var(--font-hind)' }} />
+                </div>
               </div>
             </motion.div>
           ))}

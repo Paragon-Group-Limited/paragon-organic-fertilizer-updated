@@ -19,6 +19,15 @@ export function richTextField(label: string, minHeight = 80) {
     }: {
       value: string
       onChange: (v: string) => void
-    }) => <RichTextEditor value={value || ''} onChange={onChange} minHeight={minHeight} />,
+    }) => (
+      <>
+        {label && (
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 4, padding: '0 2px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            {label}
+          </div>
+        )}
+        <RichTextEditor value={value || ''} onChange={onChange} minHeight={minHeight} />
+      </>
+    ),
   }
 }

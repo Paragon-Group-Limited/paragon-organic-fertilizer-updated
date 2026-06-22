@@ -185,7 +185,59 @@ function PublishSuccessModal({ pageLabel, slug, onClose }: {
   )
 }
 
-// (sidenav reorder + rename is handled entirely via CSS in overrides.puck)
+// ─── Merge defaultProps into stored page data ────────────────────────────────
+// EN field values live only in defaultProps (never saved to DB on first use).
+// Puck's store is initialised from raw stored data, so custom field renderers
+// see undefined for those fields. Pre-merging defaultProps before passing to
+// <Puck data={...}> ensures every field has a value in the store from the start.
+function withDefaultProps(
+  initialData: object | undefined,
+  slug: string
+): object {
+  type Block = { type: string; props: Record<string, unknown> }
+  type PuckData = { content?: Block[]; root?: unknown }
+  const base = (initialData ?? { content: [], root: { props: { title: slug } } }) as PuckData
+  if (!base.content?.length) return base as object
+
+  const content = base.content.map(block => {
+    const comp = puckConfig.components[block.type as keyof typeof puckConfig.components]
+    if (!comp) return block
+    const defaults = (comp as { defaultProps?: Record<string, unknown> }).defaultProps ?? {}
+    return { ...block, props: { ...defaults, ...block.props } }
+  })
+  return { ...base, content } as object
+}
+
+// ─── Stable module-level Puck override components ────────────────────────────
+// These MUST live outside PuckEditor so their function references never change
+// between renders. If they were inline arrow functions, Puck's useMemo would
+// see a new component type on every setSaveStatus update and unmount/remount
+// the canvas (scroll-to-top) or fields panel (focus loss on every keystroke).
+
+const PUCK_NAV_STYLE = `
+  [class*="PuckLayout-nav"]{display:flex!important;flex-direction:column!important;height:100%!important}
+  [class*="PuckLayout-nav"]>*{display:flex!important;flex-direction:column!important;height:100%!important;flex:1!important}
+  [class*="PuckLayout-nav"] [class*="NavItem_"]{flex:1!important;display:flex!important;align-items:center!important;justify-content:center!important}
+  [class*="PuckLayout-nav"] [class*="NavItem_"]:first-child{order:2!important}
+  [class*="PuckLayout-nav"] [class*="NavItem_"]:nth-child(2){order:1!important}
+  [class*="PuckLayout-nav"] [class*="NavItem_"]:not(:first-child):not(:nth-child(2)){display:none!important}
+  [class*="PuckLayout-nav"] [class*="NavItem-link_"]{font-size:0!important}
+  [class*="PuckLayout-nav"] [class*="NavItem_"]:first-child [class*="NavItem-link_"]::after{content:"Add New Blocks";font-size:9px;color:currentColor;display:block;text-align:center;line-height:1.3}
+  [class*="PuckLayout-nav"] [class*="NavItem_"]:nth-child(2) [class*="NavItem-link_"]::after{content:"Existing Sections";font-size:9px;color:currentColor;display:block;text-align:center;line-height:1.3}
+`
+
+function PuckLayoutWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <style>{PUCK_NAV_STYLE}</style>
+      {children}
+    </>
+  )
+}
+
+function FieldsPassthrough({ children }: { children: React.ReactNode }) {
+  return <>{children}</>
+}
 
 // ─── Custom Puck header with undo/redo + translated title ─────────────────────
 
@@ -398,19 +450,16 @@ function HeaderActions({ saveStatus, onSave, onReset, onPublish }: {
 export function PuckEditor({ slug, initialData, singlePage }: Props) {
   const router = useRouter()
   const { lang } = useLanguage()
-  // puckInitData: stable reference passed to <Puck data={...}> — never updated after mount
-  // so re-renders (e.g. setSaveStatus) don't cause Puck to reset scroll position
-  const puckInitData = useRef<object>(initialData ?? { content: [], root: { props: { title: slug } } })
+  // Stable initial data — set once on mount, never updated.
+  // withDefaultProps merges puckConfig defaultProps into every block's stored
+  // props so EN fields (which live only in defaultProps before first save) are
+  // present in Puck's store and shown in the right panel.
+  const puckInitData = useRef<object>(withDefaultProps(initialData, slug))
   // latestData: tracks the latest editor state for saving — updated in onChange
   const latestData = useRef<object>(puckInitData.current)
   const [saveStatus, setSaveStatus] = useState<'saved' | 'unsaved' | 'saving'>('saved')
-  // Skip the first onChange after a lang-switch remount (Puck fires onChange on init)
-  const skipNextChange = useRef(false)
-  const prevLang = useRef(lang)
-  if (prevLang.current !== lang) {
-    prevLang.current = lang
-    skipNextChange.current = true
-  }
+  // Skip the very first onChange Puck fires on mount (before any real user edits)
+  const skipNextChange = useRef(true)
   const [navModal, setNavModal] = useState<{ targetSlug: string } | null>(null)
   const [modalSaving, setModalSaving] = useState(false)
   const [publishState, setPublishState] = useState<'idle' | 'confirm' | 'publishing' | 'success'>('idle')
@@ -418,9 +467,9 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
   const currentPage = flatPages(PAGE_TREE).find(p => p.slug === slug)
   const currentPageLabel = lang === 'en' ? (currentPage?.labelEn || slug) : (currentPage?.label || slug)
 
-  // Filter component fields by language:
-  // EN → show only *En fields + fields that have no En variant
-  // BN → show only non-En fields
+  // EN mode → show only *En fields (+ fields with no En variant)
+  // BN mode → show only non-En fields
+  // This keeps the right panel in sync with the canvas language.
   const langFilteredComponents = useMemo(() => {
     const result: Record<string, unknown> = {}
     for (const [key, comp] of Object.entries(puckConfig.components || {})) {
@@ -587,30 +636,14 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
       )}
 
       <Puck
-        key={lang}
         config={translatedConfig}
         data={puckInitData.current as object}
         onPublish={handlePublish}
         onChange={handleChange}
         iframe={{ enabled: false }}
         overrides={{
-          puck: ({ children }: { children: React.ReactNode }) => (
-            <>
-              {/* Sidenav: Outline→top "Existing Sections", Blocks→bottom "Add New Blocks" */}
-              <style>{`
-                [class*="PuckLayout-nav"]{display:flex!important;flex-direction:column!important;height:100%!important}
-                [class*="PuckLayout-nav"]>*{display:flex!important;flex-direction:column!important;height:100%!important;flex:1!important}
-                [class*="PuckLayout-nav"] [class*="NavItem_"]{flex:1!important;display:flex!important;align-items:center!important;justify-content:center!important}
-                [class*="PuckLayout-nav"] [class*="NavItem_"]:first-child{order:2!important}
-                [class*="PuckLayout-nav"] [class*="NavItem_"]:nth-child(2){order:1!important}
-                [class*="PuckLayout-nav"] [class*="NavItem_"]:not(:first-child):not(:nth-child(2)){display:none!important}
-                [class*="PuckLayout-nav"] [class*="NavItem-link_"]{font-size:0!important}
-                [class*="PuckLayout-nav"] [class*="NavItem_"]:first-child [class*="NavItem-link_"]::after{content:"Add New Blocks";font-size:9px;color:currentColor;display:block;text-align:center;line-height:1.3}
-                [class*="PuckLayout-nav"] [class*="NavItem_"]:nth-child(2) [class*="NavItem-link_"]::after{content:"Existing Sections";font-size:9px;color:currentColor;display:block;text-align:center;line-height:1.3}
-              `}</style>
-              {children}
-            </>
-          ),
+          puck: PuckLayoutWrapper,
+          fields: FieldsPassthrough,
           header: ({ actions }: { actions: ReactNode }) => (
             <PuckHeader slug={slug} actions={actions} singlePage={!!singlePage} onNavigate={handleNavigate} />
           ),
@@ -621,9 +654,6 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
               onReset={handleReset}
               onPublish={handlePublishClick}
             />
-          ),
-          fields: ({ children }: { children: React.ReactNode }) => (
-            <>{children}</>
           ),
         }}
       />

@@ -21,8 +21,15 @@ export function RichText({
   let content = isPlain ? `<p>${html}</p>` : html
 
   if (inline) {
-    // Strip a single wrapping <p>...</p> so text sits cleanly inside <h1>/<h2>/etc.
-    const stripped = content.trim().replace(/^<p>([\s\S]*?)<\/p>$/, '$1').trim()
+    // Collapse all <p> blocks into inline text: join paragraph boundaries with a
+    // space then strip remaining <p> tags. Handles TipTap output like
+    // `<p>text</p><p></p>` which would otherwise leave stray block-level tags
+    // inside a <span> and cause the browser to break the layout.
+    const stripped = content
+      .replace(/<\/p>\s*<p[^>]*>/gi, ' ')
+      .replace(/<p[^>]*>/gi, '')
+      .replace(/<\/p>/gi, '')
+      .trim()
     return (
       <span
         className={className}

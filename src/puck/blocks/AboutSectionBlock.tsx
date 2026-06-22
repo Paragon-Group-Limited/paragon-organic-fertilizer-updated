@@ -69,10 +69,10 @@ export function AboutSectionBlock(props: Props) {
                 className="absolute -bottom-6 -right-6 rounded-2xl p-5 shadow-2xl"
                 style={{ background: 'white', border: '2px solid rgba(27,77,62,0.1)' }}>
                 <div className="text-3xl font-bold text-center" style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
-                  {props.badgeValue}
+                  <RichText html={props.badgeValue} inline />
                 </div>
                 <div className="text-xs text-center mt-0.5" style={{ color: '#2D7A3A', fontFamily: 'var(--font-hind)' }}>
-                  {t(props.badgeLabel, props.badgeLabelEn)}
+                  <RichText html={t(props.badgeLabel, props.badgeLabelEn)} inline />
                 </div>
               </motion.div>
             )}

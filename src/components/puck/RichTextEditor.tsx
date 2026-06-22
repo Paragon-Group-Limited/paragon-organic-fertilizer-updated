@@ -256,7 +256,11 @@ export function RichTextEditor({ value, onChange, placeholder = 'Text লিখ�
   const editor = useEditor({
     extensions: [StarterKit, TextStyle, Color, Underline, FontSize, FontWeight],
     content: value || '',
-    // Toolbar shows on focus — simple, reliable, works for all blocks new or existing
+    // TipTap v3 in Next.js defaults immediatelyRender to false (to avoid
+    // hydration mismatches). The Puck editor is client-only, so we force
+    // immediate creation — otherwise the editor starts as null, misses the
+    // async Puck field-value update, and the panel shows blank forever.
+    immediatelyRender: true,
     onFocus: () => setFocused(true),
     onBlur:  () => setFocused(false),
     onUpdate: ({ editor: ed }) => onChange(ed.getHTML()),
@@ -293,7 +297,9 @@ export function RichTextEditor({ value, onChange, placeholder = 'Text লিখ�
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, editor])
 
-  if (!editor) return null
+  if (!editor) return (
+    <div style={{ minHeight: `${minHeight}px`, border: '1px solid #d1d5db', borderRadius: 6, background: '#f9fafb' }} />
+  )
 
   const stopProp = (e: React.SyntheticEvent) => e.stopPropagation()
 

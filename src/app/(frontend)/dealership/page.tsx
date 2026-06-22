@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 export default async function DealershipPage() {
-  const layout = await getPageLayout('dealership')
+  const layout = (await getPageLayout('dealership')) ?? (await getPageLayout('location'))
 
   if (layout) return <PuckRenderer data={layout} />
 

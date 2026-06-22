@@ -12,7 +12,7 @@ export default function DealerActionsCell({ rowData }: Props) {
   if (!id) return null
 
   const handleDelete = async () => {
-    if (!window.confirm('এই ডিলারের আবেদন মুছে ফেলবেন?')) return
+    if (!window.confirm('Delete this dealer application?')) return
     const res = await fetch(`/api/dealers/${id}`, { method: 'DELETE', credentials: 'include' })
     if (res.ok) router.refresh()
   }
@@ -23,13 +23,13 @@ export default function DealerActionsCell({ rowData }: Props) {
         href={`/admin/collections/dealers/${id}`}
         style={{ fontSize: 11, padding: '4px 10px', borderRadius: 5, background: '#1B4D3E', color: 'white', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}
       >
-        বিস্তারিত
+        Details
       </a>
       <button
         onClick={handleDelete}
         style={{ fontSize: 11, padding: '4px 10px', borderRadius: 5, background: '#fef2f2', color: '#dc2626', fontWeight: 600, border: '1px solid #fecaca', cursor: 'pointer', whiteSpace: 'nowrap' }}
       >
-        মুছুন
+        Delete
       </button>
     </div>
   )

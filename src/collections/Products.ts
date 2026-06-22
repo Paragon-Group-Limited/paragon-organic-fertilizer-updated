@@ -6,16 +6,16 @@ export const Products: CollectionConfig = {
   access: { read: () => true },
   fields: [
     { name: 'name', type: 'text', required: true, label: 'Product Name (English)' },
-    { name: 'nameBn', type: 'text', required: true, label: 'পণ্যের নাম (বাংলা)' },
+    { name: 'nameBn', type: 'text', required: true, label: 'Product Name (Bengali)' },
     { name: 'slug', type: 'text', required: true, unique: true, admin: { position: 'sidebar' } },
     {
       name: 'category',
       type: 'select',
       label: 'Category',
       options: [
-        { label: 'জৈব সার', value: 'organic-fertilizer' },
-        { label: 'জৈব কীটনাশক', value: 'organic-pesticide' },
-        { label: 'মাটি উন্নয়নকারী', value: 'soil-improver' },
+        { label: 'Organic Fertilizer', value: 'organic-fertilizer' },
+        { label: 'Organic Pesticide', value: 'organic-pesticide' },
+        { label: 'Soil Improver', value: 'soil-improver' },
       ],
     },
     { name: 'image', type: 'upload', relationTo: 'media', label: 'Product Image' },
@@ -30,13 +30,13 @@ export const Products: CollectionConfig = {
     {
       name: 'benefits',
       type: 'array',
-      label: 'সুবিধাসমূহ',
+      label: 'Benefits',
       fields: [{ name: 'benefit', type: 'text', label: 'Benefit' }],
     },
     {
       name: 'usage',
       type: 'richText',
-      label: 'ব্যবহারবিধি (How to Use)',
+      label: 'Usage (How to Use)',
     },
     { name: 'price', type: 'number', label: 'Price (BDT)', admin: { position: 'sidebar' } },
     { name: 'weight', type: 'text', label: 'Weight/Size', admin: { position: 'sidebar' } },

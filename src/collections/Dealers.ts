@@ -4,27 +4,27 @@ export const Dealers: CollectionConfig = {
   slug: 'dealers',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'phone', 'district', 'status', 'tradeLicense', 'actions'],
-    description: 'ডিলার আবেদনকারী ও বর্তমান ডিলারদের তথ্য',
+    defaultColumns: ['name', 'phone', 'district', 'tradeLicense', 'actions'],
+    description: 'Dealer applicants and current dealers',
   },
   access: {
     read: () => true,
     create: () => true,
   },
   fields: [
-    { name: 'name', type: 'text', required: true, label: 'নাম' },
-    { name: 'org', type: 'text', label: 'প্রতিষ্ঠান' },
-    { name: 'district', type: 'text', required: true, label: 'জেলা' },
-    { name: 'upazila', type: 'text', label: 'উপজেলা' },
-    { name: 'address', type: 'textarea', label: 'সম্পূর্ণ ঠিকানা' },
-    { name: 'phone', type: 'text', label: 'ফোন' },
-    { name: 'alternatePhone', type: 'text', label: 'বিকল্প ফোন' },
-    { name: 'experience', type: 'textarea', label: 'ব্যবসায়িক অভিজ্ঞতা' },
+    { name: 'name', type: 'text', required: true, label: 'Name' },
+    { name: 'org', type: 'text', label: 'Organization' },
+    { name: 'district', type: 'text', required: true, label: 'District' },
+    { name: 'upazila', type: 'text', label: 'Upazila' },
+    { name: 'address', type: 'textarea', label: 'Full Address' },
+    { name: 'phone', type: 'text', label: 'Phone' },
+    { name: 'alternatePhone', type: 'text', label: 'Alt Phone' },
+    { name: 'experience', type: 'textarea', label: 'Business Experience' },
     {
       name: 'tradeLicense',
       type: 'upload',
       relationTo: 'media',
-      label: 'ট্রেড লাইসেন্স',
+      label: 'Trade License',
       admin: {
         components: {
           Cell: '@/components/payload/DealerLicenseCell',
@@ -34,11 +34,11 @@ export const Dealers: CollectionConfig = {
     {
       name: 'status',
       type: 'select',
-      label: 'অবস্থা',
+      label: 'Status',
       options: [
-        { label: 'নতুন আবেদন', value: 'pending' },
-        { label: 'অনুমোদিত', value: 'approved' },
-        { label: 'প্রত্যাখ্যাত', value: 'rejected' },
+        { label: 'New Application', value: 'pending' },
+        { label: 'Approved', value: 'approved' },
+        { label: 'Rejected', value: 'rejected' },
       ],
       defaultValue: 'pending',
       admin: { position: 'sidebar' },
@@ -46,10 +46,10 @@ export const Dealers: CollectionConfig = {
     {
       name: 'type',
       type: 'select',
-      label: 'ডিলার ধরন',
+      label: 'Dealer Type',
       options: [
-        { label: 'প্রধান ডিলার', value: 'main' },
-        { label: 'উপ-ডিলার', value: 'sub' },
+        { label: 'Main Dealer', value: 'main' },
+        { label: 'Sub Dealer', value: 'sub' },
       ],
       defaultValue: 'sub',
       admin: { position: 'sidebar' },

@@ -23,7 +23,7 @@ const FALLBACK_SLIDES = [
     cta1Label: 'কীভাবে কাজ করে?',
     cta1Href: '/about/soil-benefit',
     cta2Label: 'ডিলার খুঁজুন',
-    cta2Href: '/location',
+    cta2Href: '/dealership',
     bgColor: 'linear-gradient(135deg, #0d2438 0%, #1a3d2b 45%, #0F5132 100%)',
     accentColor: '#4CAF50',
   },

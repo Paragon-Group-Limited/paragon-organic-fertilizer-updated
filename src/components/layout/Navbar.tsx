@@ -19,7 +19,7 @@ const navLinks = [
     ],
   },
   { href: '/products',  bn: 'পণ্য ও ক্রয়',         en: 'Products' },
-  { href: '/location',  bn: 'ডিলারশিপ',             en: 'Dealership' },
+  { href: '/dealership',  bn: 'ডিলারশিপ',             en: 'Dealership' },
   { href: '/career',    bn: 'ক্যারিয়ার',            en: 'Career' },
   { href: '/contact',   bn: 'যোগাযোগ',              en: 'Contact' },
 ]

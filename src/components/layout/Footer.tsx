@@ -43,7 +43,7 @@ const quickLinks = [
   { href: '/', bn: 'হোম', en: 'Home' },
   { href: '/about/our-story', bn: 'আমাদের গল্প', en: 'Our Story' },
   { href: '/products', bn: 'পণ্যসমূহ', en: 'Products' },
-  { href: '/location', bn: 'ডিলারশিপ', en: 'Dealership' },
+  { href: '/dealership', bn: 'ডিলারশিপ', en: 'Dealership' },
   { href: '/career', bn: 'ক্যারিয়ার', en: 'Career' },
   { href: '/contact', bn: 'যোগাযোগ', en: 'Contact' },
 ]

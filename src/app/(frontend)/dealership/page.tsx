@@ -7,12 +7,12 @@ import { getPageLayout } from '@/lib/getPageLayout'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'ডিলারশিপ ও অবস্থান',
+  title: 'ডিলারশিপ',
   description: 'সারাবাংলাদেশে প্যারাগন জৈব সারের ডিলার নেটওয়ার্ক। ডিলারশিপ সুযোগ ও আবেদন প্রক্রিয়া।',
 }
 
-export default async function LocationPage() {
-  const layout = await getPageLayout('location')
+export default async function DealershipPage() {
+  const layout = await getPageLayout('dealership')
 
   if (layout) return <PuckRenderer data={layout} />
 
@@ -21,7 +21,7 @@ export default async function LocationPage() {
       <PageBanner
         tagText="Dealership"
         title="ডিলারশিপ ও"
-        titleHighlight="অবস্থান"
+        titleHighlight="আবেদন"
         subtitle="সারাবাংলাদেশে আমাদের ডিলার নেটওয়ার্ক বিস্তার লাভ করছে। আপনিও হতে পারেন আমাদের অংশীদার।"
         breadcrumbs={[{ label: 'ডিলারশিপ' }]}
         bgGradient="linear-gradient(135deg, #0F2E24 0%, #1B4D3E 55%, #1a4a35 100%)"

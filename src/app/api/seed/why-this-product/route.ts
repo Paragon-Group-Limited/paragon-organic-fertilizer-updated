@@ -143,7 +143,7 @@ const layout = {
         ctaTitle: 'আজই শুরু করুন',
         ctaHighlight: 'জৈব কৃষির যাত্রা',
         ctaBtn1Label: 'ডিলার খুঁজুন',
-        ctaBtn1Href: '/location',
+        ctaBtn1Href: '/dealership',
         ctaBtn2Label: 'সরাসরি যোগাযোগ করুন',
         ctaBtn2Href: '/contact',
       },

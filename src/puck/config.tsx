@@ -331,7 +331,7 @@ export const puckConfig: Config = {
             subtitleEn: 'Revitalize soil damaged by repeated cultivation and overuse of chemical fertilizers.',
             imageUrl: '', bgColor: 'linear-gradient(135deg, #0d2438 0%, #1a3d2b 45%, #0F5132 100%)', accentColor: '#4CAF50',
             cta1Label: 'কীভাবে কাজ করে?', cta1LabelEn: 'How It Works?', cta1Href: '/about/soil-benefit',
-            cta2Label: 'ডিলার খুঁজুন', cta2LabelEn: 'Find a Dealer', cta2Href: '/location',
+            cta2Label: 'ডিলার খুঁজুন', cta2LabelEn: 'Find a Dealer', cta2Href: '/dealership',
           },
           {
             headingBn: 'হাজার কৃষকের বিশ্বাস', headingEn: 'Trusted by Thousands of Farmers',

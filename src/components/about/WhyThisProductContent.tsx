@@ -217,7 +217,7 @@ export function WhyThisProductContent() {
             আপনার কাছের ডিলার থেকে সংগ্রহ করুন অথবা সরাসরি যোগাযোগ করুন।
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/location"
+            <Link href="/dealership"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold"
               style={{ background: 'linear-gradient(135deg, #D4A017, #F5C842)', color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
               ডিলার খুঁজুন <ArrowRight className="w-5 h-5" />

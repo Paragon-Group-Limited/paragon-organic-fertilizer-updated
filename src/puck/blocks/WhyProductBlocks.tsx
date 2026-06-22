@@ -446,7 +446,7 @@ function WhyTestimonialsRender(props: any) {
           </h2>
           <div className="flex flex-wrap gap-4 justify-center mt-8">
             <Link
-              href={props.ctaBtn1Href || '/location'}
+              href={props.ctaBtn1Href || '/dealership'}
               className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold"
               style={{ background: 'linear-gradient(135deg, #D4A017, #F5C842)', color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}
             >
@@ -644,7 +644,7 @@ export const whyProductBlocks = {
       ctaTitle: 'আজই শুরু করুন',
       ctaHighlight: 'জৈব কৃষির যাত্রা',
       ctaBtn1Label: 'ডিলার খুঁজুন',
-      ctaBtn1Href: '/location',
+      ctaBtn1Href: '/dealership',
       ctaBtn2Label: 'সরাসরি যোগাযোগ করুন',
       ctaBtn2Href: '/contact',
     },

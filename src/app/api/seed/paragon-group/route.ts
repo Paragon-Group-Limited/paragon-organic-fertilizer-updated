@@ -107,7 +107,7 @@ const layout = {
         ctaTitle: 'প্যারাগন পরিবারের',
         ctaHighlight: 'অংশ হন',
         ctaBtn1Label: 'ডিলারশিপ সম্পর্কে জানুন',
-        ctaBtn1Href: '/location',
+        ctaBtn1Href: '/dealership',
         ctaBtn2Label: 'যোগাযোগ করুন',
         ctaBtn2Href: '/contact',
       },

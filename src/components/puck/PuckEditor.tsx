@@ -398,7 +398,11 @@ function HeaderActions({ saveStatus, onSave, onReset, onPublish }: {
 export function PuckEditor({ slug, initialData, singlePage }: Props) {
   const router = useRouter()
   const { lang } = useLanguage()
-  const latestData = useRef<object>(initialData ?? { content: [], root: { props: { title: slug } } })
+  // puckInitData: stable reference passed to <Puck data={...}> — never updated after mount
+  // so re-renders (e.g. setSaveStatus) don't cause Puck to reset scroll position
+  const puckInitData = useRef<object>(initialData ?? { content: [], root: { props: { title: slug } } })
+  // latestData: tracks the latest editor state for saving — updated in onChange
+  const latestData = useRef<object>(puckInitData.current)
   const [saveStatus, setSaveStatus] = useState<'saved' | 'unsaved' | 'saving'>('saved')
   // Skip the first onChange after a lang-switch remount (Puck fires onChange on init)
   const skipNextChange = useRef(false)
@@ -585,7 +589,7 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
       <Puck
         key={lang}
         config={translatedConfig}
-        data={latestData.current as object}
+        data={puckInitData.current as object}
         onPublish={handlePublish}
         onChange={handleChange}
         iframe={{ enabled: false }}

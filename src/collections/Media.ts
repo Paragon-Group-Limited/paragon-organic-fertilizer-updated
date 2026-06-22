@@ -10,7 +10,7 @@ export const Media: CollectionConfig = {
       { name: 'hero', width: 1920, height: 1080, position: 'centre' },
     ],
     adminThumbnail: 'thumbnail',
-    mimeTypes: ['image/*', 'video/mp4', 'video/webm'],
+    mimeTypes: ['image/*', 'video/mp4', 'video/webm', 'application/pdf'],
   },
   fields: [
     { name: 'alt', type: 'text', label: 'Alt Text' },

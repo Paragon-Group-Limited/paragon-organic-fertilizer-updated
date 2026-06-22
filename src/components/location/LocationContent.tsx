@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { MapPin, Phone, Mail, CheckCircle2, ArrowRight, Building2, TrendingUp, Users, Handshake } from 'lucide-react'
+import { MapPin, Phone, Mail, CheckCircle2, ArrowRight, Building2, TrendingUp, Users, Handshake, Upload, X, FileText } from 'lucide-react'
 
 function FadeIn({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef(null)
@@ -87,6 +87,7 @@ const requirements = [
   'ব্যবসার ঠিকানা (জেলা, উপজেলা)',
   'সংক্ষিপ্ত ব্যবসায়িক অভিজ্ঞতার বিবরণ',
   'কৃষি পণ্য বা সার ব্যবসার পূর্ব অভিজ্ঞতা (থাকলে)',
+  'ট্রেড লাইসেন্স (ছবি বা PDF — ঐচ্ছিক)',
 ]
 
 const coverageAreas: CoverageArea[] = [
@@ -104,11 +105,43 @@ const statTiles: [string, string][] = [['৬৪', 'জেলা'], ['৮', 'ব�
 
 export function LocationContent() {
   const [formData, setFormData] = useState({ name: '', org: '', phone: '', address: '', experience: '' })
+  const [tradeLicense, setTradeLicense] = useState<File | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleFile = (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      setError('ফাইলের আকার ৫MB-এর বেশি হতে পারবে না')
+      return
+    }
+    setError('')
+    setTradeLicense(file)
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setSubmitted(true)
+    setSubmitting(true)
+    setError('')
+    try {
+      const fd = new FormData()
+      fd.append('name', formData.name)
+      fd.append('org', formData.org)
+      fd.append('phone', formData.phone)
+      fd.append('address', formData.address)
+      fd.append('experience', formData.experience)
+      if (tradeLicense) fd.append('tradeLicense', tradeLicense)
+
+      const res = await fetch('/api/dealer-apply', { method: 'POST', body: fd })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || 'ত্রুটি হয়েছে')
+      setSubmitted(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'সার্ভার ত্রুটি হয়েছে')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -257,6 +290,7 @@ export function LocationContent() {
                         />
                       </div>
                     ))}
+
                     <div>
                       <label className="block text-sm font-semibold mb-1.5"
                         style={{ color: '#374151', fontFamily: 'var(--font-hind)' }}>
@@ -271,10 +305,78 @@ export function LocationContent() {
                         style={{ borderColor: 'rgba(27,77,62,0.2)', fontFamily: 'var(--font-hind)', color: '#1a2e1a' }}
                       />
                     </div>
-                    <button type="submit"
-                      className="w-full py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2"
+
+                    {/* Trade license upload */}
+                    <div>
+                      <label className="block text-sm font-semibold mb-1.5"
+                        style={{ color: '#374151', fontFamily: 'var(--font-hind)' }}>
+                        ট্রেড লাইসেন্স
+                        <span className="ml-1 font-normal text-xs" style={{ color: '#9ca3af' }}>(ছবি বা PDF — ঐচ্ছিক, সর্বোচ্চ ৫MB)</span>
+                      </label>
+
+                      {tradeLicense ? (
+                        <div className="flex items-center gap-3 px-4 py-3 rounded-xl border"
+                          style={{ borderColor: 'rgba(27,77,62,0.3)', background: 'rgba(27,77,62,0.04)' }}>
+                          <FileText className="w-5 h-5 flex-shrink-0" style={{ color: '#1B4D3E' }} />
+                          <span className="text-sm flex-1 truncate" style={{ color: '#1a2e1a', fontFamily: 'var(--font-hind)' }}>
+                            {tradeLicense.name}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => { setTradeLicense(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
+                            className="flex-shrink-0 p-1 rounded-full hover:bg-red-50"
+                            style={{ color: '#ef4444' }}>
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-full px-4 py-5 rounded-xl border-2 border-dashed flex flex-col items-center gap-2 transition-colors"
+                          style={{ borderColor: 'rgba(27,77,62,0.2)', color: '#6b7280' }}
+                          onMouseEnter={e => (e.currentTarget.style.borderColor = '#1B4D3E')}
+                          onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(27,77,62,0.2)')}>
+                          <Upload className="w-6 h-6" style={{ color: '#1B4D3E' }} />
+                          <span className="text-sm" style={{ fontFamily: 'var(--font-hind)' }}>
+                            ক্লিক করুন বা ফাইল এখানে টেনে আনুন
+                          </span>
+                          <span className="text-xs" style={{ color: '#9ca3af', fontFamily: 'var(--font-inter)' }}>
+                            JPG, PNG, PDF — max 5MB
+                          </span>
+                        </button>
+                      )}
+
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*,application/pdf"
+                        className="hidden"
+                        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
+                      />
+                    </div>
+
+                    {error && (
+                      <p className="text-sm rounded-xl px-4 py-3"
+                        style={{ color: '#dc2626', background: '#fef2f2', fontFamily: 'var(--font-hind)' }}>
+                        {error}
+                      </p>
+                    )}
+
+                    <button type="submit" disabled={submitting}
+                      className="w-full py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2 disabled:opacity-60"
                       style={{ background: 'linear-gradient(135deg, #1B4D3E, #2D7A3A)', color: 'white', fontFamily: 'var(--font-hind)' }}>
-                      আবেদন জমা দিন <ArrowRight className="w-5 h-5" />
+                      {submitting ? (
+                        <>
+                          <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                          </svg>
+                          জমা দেওয়া হচ্ছে...
+                        </>
+                      ) : (
+                        <>আবেদন জমা দিন <ArrowRight className="w-5 h-5" /></>
+                      )}
                     </button>
                   </div>
                 </form>

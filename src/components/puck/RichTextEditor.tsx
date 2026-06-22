@@ -276,7 +276,11 @@ export function RichTextEditor({ value, onChange, placeholder = 'Text লিখ�
     },
   })
 
-  // Sync external value without resetting when content hasn't changed
+  // Sync external value.
+  // NOTE: `editor` is in the dep array so this runs when TipTap finishes
+  // initialising (null → Editor object). Without it the effect exits early on
+  // first mount (editor is still null), TipTap then initialises but the effect
+  // never re-runs, leaving the field blank.
   useEffect(() => {
     if (!editor) return
     const incoming = value || ''
@@ -286,8 +290,8 @@ export function RichTextEditor({ value, onChange, placeholder = 'Text লিখ�
     if (normalized !== editorHTML) {
       editor.commands.setContent(incoming, { emitUpdate: false })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, editor])
 
   if (!editor) return null
 

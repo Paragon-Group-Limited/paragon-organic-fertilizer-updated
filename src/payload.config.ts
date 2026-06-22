@@ -19,6 +19,7 @@ const dirname = path.dirname(filename)
 export default buildConfig({
   admin: {
     user: Users.slug,
+    theme: 'light',
     meta: {
       titleSuffix: '— Paragon Admin',
       description: 'Paragon Organic Fertilizer CMS',
@@ -26,6 +27,18 @@ export default buildConfig({
     avatar: {
       Component: '@/app/(payload)/admin/components/UserAvatarDropdown',
     },
+  },
+  onInit: async (payload) => {
+    const email = process.env.ADMIN_EMAIL || 'admin@paragon.com.bd'
+    const password = process.env.ADMIN_PASSWORD || 'Paragon@123'
+    const existing = await payload.find({ collection: 'users', where: { email: { equals: email } }, limit: 1 })
+    if (existing.totalDocs === 0) {
+      await payload.create({
+        collection: 'users',
+        data: { email, password, name: 'Admin', role: 'admin' },
+      })
+      payload.logger.info(`Admin user created: ${email}`)
+    }
   },
   collections: [Users, Media, Pages, Products, Dealers, Careers, HeroSlides],
   globals: [SiteSettings],

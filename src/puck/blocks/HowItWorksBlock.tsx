@@ -54,7 +54,7 @@ export function HowItWorksBlock(props: Props) {
                 style={{ background: 'white', border: '1px solid rgba(27,77,62,0.08)', boxShadow: '0 4px 24px rgba(27,77,62,0.06)' }}>
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold"
                   style={{ background: 'linear-gradient(135deg, #1B4D3E, #2D7A3A)', color: 'white', fontFamily: 'var(--font-inter)' }}>
-                  {lang === 'en' ? `Step ${step.no}` : `ধাপ ${step.no}`}
+                  {lang === 'en' ? 'Step ' : 'ধাপ '}<RichText html={step.no} inline />
                 </div>
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 mt-2 overflow-hidden flex-shrink-0"
                   style={{ background: 'linear-gradient(135deg, rgba(27,77,62,0.06), rgba(45,122,58,0.1))' }}>

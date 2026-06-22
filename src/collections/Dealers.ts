@@ -4,7 +4,7 @@ export const Dealers: CollectionConfig = {
   slug: 'dealers',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'org', 'district', 'phone', 'status', 'createdAt'],
+    defaultColumns: ['name', 'phone', 'district', 'status', 'tradeLicense', 'actions'],
     description: 'ডিলার আবেদনকারী ও বর্তমান ডিলারদের তথ্য',
   },
   access: {
@@ -12,24 +12,29 @@ export const Dealers: CollectionConfig = {
     create: () => true,
   },
   fields: [
-    { name: 'name', type: 'text', required: true, label: 'ডিলারের নাম' },
-    { name: 'org', type: 'text', label: 'প্রতিষ্ঠানের নাম' },
+    { name: 'name', type: 'text', required: true, label: 'নাম' },
+    { name: 'org', type: 'text', label: 'প্রতিষ্ঠান' },
     { name: 'district', type: 'text', required: true, label: 'জেলা' },
     { name: 'upazila', type: 'text', label: 'উপজেলা' },
     { name: 'address', type: 'textarea', label: 'সম্পূর্ণ ঠিকানা' },
-    { name: 'phone', type: 'text', label: 'ফোন নম্বর' },
+    { name: 'phone', type: 'text', label: 'ফোন' },
     { name: 'alternatePhone', type: 'text', label: 'বিকল্প ফোন' },
     { name: 'experience', type: 'textarea', label: 'ব্যবসায়িক অভিজ্ঞতা' },
     {
       name: 'tradeLicense',
       type: 'upload',
       relationTo: 'media',
-      label: 'ট্রেড লাইসেন্স (ছবি বা PDF)',
+      label: 'ট্রেড লাইসেন্স',
+      admin: {
+        components: {
+          Cell: '@/components/payload/DealerLicenseCell',
+        },
+      },
     },
     {
       name: 'status',
       type: 'select',
-      label: 'আবেদনের অবস্থা',
+      label: 'অবস্থা',
       options: [
         { label: 'নতুন আবেদন', value: 'pending' },
         { label: 'অনুমোদিত', value: 'approved' },
@@ -52,11 +57,20 @@ export const Dealers: CollectionConfig = {
     {
       name: 'coordinates',
       type: 'group',
-      label: 'Map Location (Optional)',
+      label: 'Map Location',
       fields: [
         { name: 'lat', type: 'number', label: 'Latitude' },
         { name: 'lng', type: 'number', label: 'Longitude' },
       ],
+    },
+    {
+      name: 'actions',
+      type: 'ui',
+      admin: {
+        components: {
+          Cell: '@/components/payload/DealerActionsCell',
+        },
+      },
     },
   ],
 }

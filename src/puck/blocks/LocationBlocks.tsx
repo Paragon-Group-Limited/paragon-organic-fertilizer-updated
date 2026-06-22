@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { richTextField } from '@/puck/fields/richTextField'
 import { imageUploadField } from '@/puck/fields/imageUploadField'
 import { RichText } from '@/components/puck/RichText'
@@ -263,14 +263,41 @@ function LocationDealerBenefitsRender(props: any) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function LocationApplicationRender(props: any) {
   const t = useT()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const requirements: { text: string }[] = props.requirements || []
   const [formData, setFormData] = useState({ name: '', org: '', phone: '', address: '', experience: '' })
+  const [tradeLicense, setTradeLicense] = useState<File | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleFile = (file: File) => {
+    if (file.size > 5 * 1024 * 1024) { setError(t('ফাইলের আকার ৫MB-এর বেশি হতে পারবে না')); return }
+    setError('')
+    setTradeLicense(file)
+  }
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setSubmitted(true)
+    setSubmitting(true)
+    setError('')
+    try {
+      const fd = new FormData()
+      fd.append('name', formData.name)
+      fd.append('org', formData.org)
+      fd.append('phone', formData.phone)
+      fd.append('address', formData.address)
+      fd.append('experience', formData.experience)
+      if (tradeLicense) fd.append('tradeLicense', tradeLicense)
+      const res = await fetch('/api/dealer-apply', { method: 'POST', body: fd })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || 'ত্রুটি হয়েছে')
+      setSubmitted(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('সার্ভার ত্রুটি হয়েছে'))
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -283,114 +310,62 @@ function LocationApplicationRender(props: any) {
           >
             <RichText html={t(props.tagText)} inline />
           </span>
-          <h2
-            className="text-3xl lg:text-4xl font-bold"
-            style={{ color: '#1a2e1a', fontFamily: 'var(--font-hind)' }}
-          >
+          <h2 className="text-3xl lg:text-4xl font-bold" style={{ color: '#1a2e1a', fontFamily: 'var(--font-hind)' }}>
             <RichText html={t(props.heading)} inline />{' '}
             <span style={{ color: '#D4A017' }}><RichText html={t(props.headingHighlight)} inline /></span>
           </h2>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-10">
-          <div
-            className="bg-white rounded-2xl p-8 border h-full"
-            style={{ borderColor: 'rgba(27,77,62,0.08)' }}
-          >
-            <h3
-              className="text-xl font-bold mb-6"
-              style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}
-            >
+          {/* Left — requirements */}
+          <div className="bg-white rounded-2xl p-8 border h-full" style={{ borderColor: 'rgba(27,77,62,0.08)' }}>
+            <h3 className="text-xl font-bold mb-6" style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
               {t('আবেদনের জন্য প্রয়োজনীয় তথ্য')}
             </h3>
             <ul className="space-y-3 mb-8">
               {requirements.map((r, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span style={{ color: '#1B4D3E', fontSize: 16, marginTop: 2 }}>✓</span>
-                  <span
-                    className="text-sm leading-relaxed"
-                    style={{ color: '#4a5568', fontFamily: 'var(--font-hind)' }}
-                  >
+                  <span className="text-sm leading-relaxed" style={{ color: '#4a5568', fontFamily: 'var(--font-hind)' }}>
                     <RichText html={t(r.text)} inline />
                   </span>
                 </li>
               ))}
             </ul>
-
-            <div
-              className="rounded-2xl p-6 border"
-              style={{ background: 'rgba(27,77,62,0.04)', borderColor: 'rgba(27,77,62,0.1)' }}
-            >
-              <h4
-                className="font-bold text-sm mb-4"
-                style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}
-              >
+            <div className="rounded-2xl p-6 border" style={{ background: 'rgba(27,77,62,0.04)', borderColor: 'rgba(27,77,62,0.1)' }}>
+              <h4 className="font-bold text-sm mb-4" style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
                 {t('সরাসরি যোগাযোগ করুন:')}
               </h4>
               <div className="space-y-3">
-                <a
-                  href={`tel:${props.phone}`}
-                  className="flex items-center gap-3"
-                >
+                <a href={`tel:${props.phone}`} className="flex items-center gap-3">
                   <span style={{ color: '#1B4D3E' }}>📞</span>
-                  <span
-                    className="text-sm font-medium"
-                    style={{ color: '#1B4D3E', fontFamily: 'var(--font-inter)' }}
-                  >
-                    {props.phone}
-                  </span>
+                  <span className="text-sm font-medium" style={{ color: '#1B4D3E', fontFamily: 'var(--font-inter)' }}>{props.phone}</span>
                 </a>
-                <a
-                  href={`mailto:${props.email}`}
-                  className="flex items-center gap-3"
-                >
+                <a href={`mailto:${props.email}`} className="flex items-center gap-3">
                   <span style={{ color: '#1B4D3E' }}>✉️</span>
-                  <span
-                    className="text-sm font-medium"
-                    style={{ color: '#1B4D3E', fontFamily: 'var(--font-inter)' }}
-                  >
-                    {props.email}
-                  </span>
+                  <span className="text-sm font-medium" style={{ color: '#1B4D3E', fontFamily: 'var(--font-inter)' }}>{props.email}</span>
                 </a>
               </div>
             </div>
           </div>
 
+          {/* Right — form */}
           <div>
             {submitted ? (
-              <div
-                className="bg-white rounded-2xl p-8 border flex flex-col items-center justify-center text-center h-full"
-                style={{ borderColor: 'rgba(27,77,62,0.08)' }}
-              >
-                <div
-                  className="w-20 h-20 rounded-full flex items-center justify-center mb-6 text-4xl"
-                  style={{ background: 'rgba(27,77,62,0.08)' }}
-                >
-                  ✓
-                </div>
-                <h3
-                  className="text-xl font-bold mb-3"
-                  style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}
-                >
+              <div className="bg-white rounded-2xl p-8 border flex flex-col items-center justify-center text-center h-full"
+                style={{ borderColor: 'rgba(27,77,62,0.08)' }}>
+                <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6 text-4xl"
+                  style={{ background: 'rgba(27,77,62,0.08)' }}>✓</div>
+                <h3 className="text-xl font-bold mb-3" style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
                   <RichText html={t(props.formSuccessTitle)} inline />
                 </h3>
-                <p
-                  className="text-sm leading-relaxed"
-                  style={{ color: '#6b7280', fontFamily: 'var(--font-hind)' }}
-                >
+                <p className="text-sm leading-relaxed" style={{ color: '#6b7280', fontFamily: 'var(--font-hind)' }}>
                   <RichText html={t(props.formSuccessText)} inline />
                 </p>
               </div>
             ) : (
-              <form
-                onSubmit={handleSubmit}
-                className="bg-white rounded-2xl p-8 border"
-                style={{ borderColor: 'rgba(27,77,62,0.08)' }}
-              >
-                <h3
-                  className="text-xl font-bold mb-6"
-                  style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}
-                >
+              <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 border" style={{ borderColor: 'rgba(27,77,62,0.08)' }}>
+                <h3 className="text-xl font-bold mb-6" style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
                   <RichText html={t(props.formTitle)} inline />
                 </h3>
                 <div className="space-y-4">
@@ -401,10 +376,7 @@ function LocationApplicationRender(props: any) {
                     { id: 'address', label: t('ব্যবসার ঠিকানা *'), placeholder: t('জেলা, উপজেলা'), key: 'address' as const },
                   ].map((field) => (
                     <div key={field.id}>
-                      <label
-                        className="block text-sm font-semibold mb-1.5"
-                        style={{ color: '#374151', fontFamily: 'var(--font-hind)' }}
-                      >
+                      <label className="block text-sm font-semibold mb-1.5" style={{ color: '#374151', fontFamily: 'var(--font-hind)' }}>
                         {field.label}
                       </label>
                       <input
@@ -418,11 +390,9 @@ function LocationApplicationRender(props: any) {
                       />
                     </div>
                   ))}
+
                   <div>
-                    <label
-                      className="block text-sm font-semibold mb-1.5"
-                      style={{ color: '#374151', fontFamily: 'var(--font-hind)' }}
-                    >
+                    <label className="block text-sm font-semibold mb-1.5" style={{ color: '#374151', fontFamily: 'var(--font-hind)' }}>
                       {t('ব্যবসায়িক অভিজ্ঞতা')}
                     </label>
                     <textarea
@@ -434,12 +404,60 @@ function LocationApplicationRender(props: any) {
                       style={{ borderColor: 'rgba(27,77,62,0.2)', fontFamily: 'var(--font-hind)', color: '#1a2e1a' }}
                     />
                   </div>
-                  <button
-                    type="submit"
+
+                  {/* Trade license upload */}
+                  <div>
+                    <label className="block text-sm font-semibold mb-1.5" style={{ color: '#374151', fontFamily: 'var(--font-hind)' }}>
+                      {t('ট্রেড লাইসেন্স')}
+                      <span className="ml-1 font-normal text-xs" style={{ color: '#9ca3af' }}>
+                        ({t('ছবি বা PDF — ঐচ্ছিক, সর্বোচ্চ ৫MB')})
+                      </span>
+                    </label>
+                    {tradeLicense ? (
+                      <div className="flex items-center gap-3 px-4 py-3 rounded-xl border"
+                        style={{ borderColor: 'rgba(27,77,62,0.3)', background: 'rgba(27,77,62,0.04)' }}>
+                        <span style={{ color: '#1B4D3E' }}>📄</span>
+                        <span className="text-sm flex-1 truncate" style={{ color: '#1a2e1a', fontFamily: 'var(--font-hind)' }}>
+                          {tradeLicense.name}
+                        </span>
+                        <button type="button"
+                          onClick={() => { setTradeLicense(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
+                          style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => fileInputRef.current?.click()}
+                        className="w-full px-4 py-5 rounded-xl border-2 border-dashed flex flex-col items-center gap-2"
+                        style={{ borderColor: 'rgba(27,77,62,0.2)', background: 'transparent', cursor: 'pointer' }}>
+                        <span style={{ fontSize: 24 }}>⬆️</span>
+                        <span className="text-sm" style={{ color: '#6b7280', fontFamily: 'var(--font-hind)' }}>
+                          {t('ক্লিক করুন বা ফাইল এখানে টেনে আনুন')}
+                        </span>
+                        <span className="text-xs" style={{ color: '#9ca3af', fontFamily: 'var(--font-inter)' }}>
+                          JPG, PNG, PDF — max 5MB
+                        </span>
+                      </button>
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,application/pdf"
+                      style={{ display: 'none' }}
+                      onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
+                    />
+                  </div>
+
+                  {error && (
+                    <p className="text-sm rounded-xl px-4 py-3" style={{ color: '#dc2626', background: '#fef2f2', fontFamily: 'var(--font-hind)' }}>
+                      {error}
+                    </p>
+                  )}
+
+                  <button type="submit" disabled={submitting}
                     className="w-full py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2"
-                    style={{ background: 'linear-gradient(135deg, #1B4D3E, #2D7A3A)', color: 'white', fontFamily: 'var(--font-hind)' }}
-                  >
-                    <RichText html={t(props.submitLabel)} inline /> →
+                    style={{ background: 'linear-gradient(135deg, #1B4D3E, #2D7A3A)', color: 'white', fontFamily: 'var(--font-hind)', opacity: submitting ? 0.7 : 1, cursor: submitting ? 'not-allowed' : 'pointer' }}>
+                    {submitting ? t('জমা দেওয়া হচ্ছে...') : <><RichText html={t(props.submitLabel)} inline /> →</>}
                   </button>
                 </div>
               </form>

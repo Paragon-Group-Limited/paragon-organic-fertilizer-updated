@@ -12,6 +12,7 @@ export async function GET() {
         ADD COLUMN IF NOT EXISTS alternate_phone text,
         ADD COLUMN IF NOT EXISTS experience text,
         ADD COLUMN IF NOT EXISTS trade_license_id integer,
+        ADD COLUMN IF NOT EXISTS status text DEFAULT 'pending',
         ADD COLUMN IF NOT EXISTS type text DEFAULT 'sub',
         ADD COLUMN IF NOT EXISTS coordinates_lat numeric,
         ADD COLUMN IF NOT EXISTS coordinates_lng numeric;

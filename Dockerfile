@@ -16,6 +16,8 @@ ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV DATABASE_URL=postgresql://build:build@localhost:5432/build
+ENV PAYLOAD_SECRET=build-secret-placeholder
 
 RUN npm run build
 

@@ -60,6 +60,8 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('[dealer-apply]', err)
     const message = err instanceof Error ? err.message : String(err)
-    return NextResponse.json({ error: 'সার্ভার ত্রুটি হয়েছে', detail: message }, { status: 500 })
+    const cause = (err as any)?.cause?.message ?? (err as any)?.cause ?? null
+    const stack = err instanceof Error ? err.stack?.split('\n').slice(0, 5).join(' | ') : null
+    return NextResponse.json({ error: 'সার্ভার ত্রুটি হয়েছে', detail: message, cause, stack }, { status: 500 })
   }
 }

@@ -4,10 +4,72 @@ on:
   push:
     branches: [main]
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+env:
+  IMAGE: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated
 
+jobs:
+  # ── Stage 1: Build the image on the GitHub runner and push to GHCR ──────────
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write          # required to push to ghcr.io (uses built-in GITHUB_TOKEN)
+
+    # Throwaway Postgres so the build (importMap / Payload init) can reach a DB.
+    # This is ephemeral and never touches the production database on the VM.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: paragon_organic
+          POSTGRES_USER: paragon
+          POSTGRES_PASSWORD: paragon123
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U paragon -d paragon_organic"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host    # let build steps reach the localhost Postgres service
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          network: host
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+            DATABASE_URL=postgresql://paragon:paragon123@localhost:5432/paragon_organic
+            PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── Stage 2: SSH into the VM and pull the freshly built image ───────────────
+  deploy:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'   # only deploy from main; feature-branch pushes just test the build
+    runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -20,6 +82,6 @@ jobs:
             set -e
             cd ~/project/paragon-organic-fertilizer-updated
             git pull origin main
-            docker compose build --no-cache
+            docker compose pull app
             docker compose up -d
             docker image prune -f

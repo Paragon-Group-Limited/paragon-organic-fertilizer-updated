@@ -1,19 +1,10 @@
-import { getPayload } from 'payload'
-import config from '@payload-config'
+import { Pool } from 'pg'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
   try {
-    const payload = await getPayload({ config })
-    const db = (payload.db as any).drizzle ?? (payload.db as any).pool ?? (payload.db as any).client
-
-    // Use raw SQL via Payload's db pool
-    const pool = (payload.db as any).pool
-    if (!pool) {
-      return NextResponse.json({ error: 'No pool found' }, { status: 500 })
-    }
-
-    const sql = `
+    const result = await pool.query(`
       ALTER TABLE dealers
         ADD COLUMN IF NOT EXISTS org text,
         ADD COLUMN IF NOT EXISTS upazila text,
@@ -24,14 +15,12 @@ export async function GET() {
         ADD COLUMN IF NOT EXISTS type text DEFAULT 'sub',
         ADD COLUMN IF NOT EXISTS coordinates_lat numeric,
         ADD COLUMN IF NOT EXISTS coordinates_lng numeric;
-    `
-
-    await pool.query(sql)
-
-    return NextResponse.json({ success: true, message: 'Migration complete' })
+    `)
+    return NextResponse.json({ success: true, message: 'Migration complete', result: result.command })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    const cause = (err as any)?.cause?.message ?? null
-    return NextResponse.json({ error: message, cause }, { status: 500 })
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
+  } finally {
+    await pool.end()
   }
 }

@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
     const upazila = parts[1] || ''
 
     let tradeLicenseId: number | string | undefined
+    let uploadError: string | null = null
 
     if (file && file.size > 0) {
       try {
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
         })
         tradeLicenseId = media.id
       } catch (uploadErr) {
+        uploadError = uploadErr instanceof Error ? `${uploadErr.message} | cause: ${(uploadErr as any)?.cause?.message ?? ''}` : String(uploadErr)
         console.error('[dealer-apply] file upload failed:', uploadErr)
       }
     }
@@ -56,7 +58,7 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, tradeLicenseId: tradeLicenseId ?? null, uploadError })
   } catch (err) {
     console.error('[dealer-apply]', err)
     const message = err instanceof Error ? err.message : String(err)

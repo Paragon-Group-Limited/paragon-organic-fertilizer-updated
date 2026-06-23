@@ -17,6 +17,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           command_timeout: 30m
           script: |
+            set -e
             cd ~/project/paragon-organic-fertilizer-updated
             git pull origin main
             docker compose build --no-cache

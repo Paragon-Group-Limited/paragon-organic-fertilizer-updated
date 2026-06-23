@@ -26,14 +26,18 @@ export async function POST(req: NextRequest) {
     let tradeLicenseId: number | string | undefined
 
     if (file && file.size > 0) {
-      const buffer = Buffer.from(await file.arrayBuffer())
-      const media = await payload.create({
-        collection: 'media',
-        overrideAccess: true,
-        data: { alt: `Trade License – ${name}` },
-        file: { data: buffer, mimetype: file.type, name: file.name, size: file.size },
-      })
-      tradeLicenseId = media.id
+      try {
+        const buffer = Buffer.from(await file.arrayBuffer())
+        const media = await payload.create({
+          collection: 'media',
+          overrideAccess: true,
+          data: { alt: `Trade License – ${name}` },
+          file: { data: buffer, mimetype: file.type, name: file.name, size: file.size },
+        })
+        tradeLicenseId = media.id
+      } catch (uploadErr) {
+        console.error('[dealer-apply] file upload failed:', uploadErr)
+      }
     }
 
     await payload.create({

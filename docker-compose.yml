@@ -17,6 +17,8 @@ services:
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    volumes:
+      - media_data:/app/media
     depends_on:
       pg-of:
         condition: service_healthy
@@ -56,3 +58,4 @@ services:
 
 volumes:
   postgres_data:
+  media_data:

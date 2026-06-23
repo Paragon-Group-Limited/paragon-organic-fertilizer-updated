@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[dealer-apply]', err)
-    return NextResponse.json({ error: 'সার্ভার ত্রুটি হয়েছে' }, { status: 500 })
+    const message = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ error: 'সার্ভার ত্রুটি হয়েছে', detail: message }, { status: 500 })
   }
 }

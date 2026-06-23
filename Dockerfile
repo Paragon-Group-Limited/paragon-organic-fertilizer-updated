@@ -21,7 +21,7 @@ ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN npm run build && echo "=== IMPORTMAP AFTER BUILD ===" && grep -c "DealerLicenseCell\|DealerActionsCell" "src/app/(payload)/admin/importMap.js" && echo "=== IMPORTMAP CUSTOM CELLS ===" && grep "DealerLicenseCell\|DealerActionsCell" "src/app/(payload)/admin/importMap.js" || echo "=== CUSTOM CELLS NOT FOUND IN IMPORTMAP ==="
+RUN npm run build
 
 # ── Stage 3: Runner ────────────────────────────────────────────────────────
 FROM node:20-alpine AS runner

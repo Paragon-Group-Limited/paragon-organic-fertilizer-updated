@@ -13,11 +13,6 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
     ],
   },
-  turbopack: {
-    resolveAlias: {
-      '@payload-config': './src/payload.config.ts',
-    },
-  },
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,

@@ -2,9 +2,7 @@ name: Deploy to Azure VM
 
 on:
   push:
-    # NOTE: feature/docker-deploy-setup is here TEMPORARILY to test the build+push
-    # on this branch without deploying. Remove it once merged to main.
-    branches: [main, feature/docker-deploy-setup]
+    branches: [main]
 
 env:
   IMAGE: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated

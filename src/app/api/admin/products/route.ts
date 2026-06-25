@@ -48,7 +48,8 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ product })
   } catch (err) {
     console.error('[admin/products PATCH]', err)
-    return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })
+    const msg = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ error: msg || 'Failed to update product' }, { status: 500 })
   }
 }
 

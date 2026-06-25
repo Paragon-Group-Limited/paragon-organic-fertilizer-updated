@@ -7,16 +7,17 @@ on:
 env:
   IMAGE: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated
 
+env:
+  IMAGE: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated
+
 jobs:
-  # ── Stage 1: Build the image on the GitHub runner and push to GHCR ──────────
+  # ── Stage 1: Build the image on GitHub runner and push to GHCR ─────────────
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write          # required to push to ghcr.io (uses built-in GITHUB_TOKEN)
+      packages: write
 
-    # Throwaway Postgres so the build (importMap / Payload init) can reach a DB.
-    # This is ephemeral and never touches the production database on the VM.
     services:
       postgres:
         image: postgres:16-alpine
@@ -39,7 +40,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          driver-opts: network=host    # let build steps reach the localhost Postgres service
+          driver-opts: network=host
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -65,23 +66,40 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ── Stage 2: SSH into the VM and pull the freshly built image ───────────────
+  # ── Stage 2: Pull new image on the VM and restart ───────────────────────────
   deploy:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
     needs: build-and-push
     if: github.ref == 'refs/heads/main'   # only deploy from main; feature-branch pushes just test the build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           command_timeout: 30m
+          envs: GHCR_TOKEN,GHCR_USER
           script: |
             set -e
             cd ~/project/paragon-organic-fertilizer-updated
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             git pull origin main
             docker compose pull app
             docker compose up -d
             docker image prune -f
+            echo "=== Waiting 25s for app to start ==="
+            sleep 25
+            echo "=== Container Status ==="
+            docker compose ps || true
+            echo "=== App Logs (last 150 lines) ==="
+            docker compose logs app --tail=150 2>&1 || true

@@ -3,13 +3,18 @@ services:
     image: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated:latest
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
+      network: host
+      args:
+        - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+        - DATABASE_URL=postgresql://paragon:paragon123@localhost:5432/paragon_organic
+        - PAYLOAD_SECRET=${PAYLOAD_SECRET:-paragon-secret-change-in-production}
     ports:
       - '3001:3001'
     environment:
-      # Dev mode keeps Payload's `push: true` active so new collections/fields
-      # auto-create their schema on startup (no manual migration step).
-      - NODE_ENV=development
+      # Production build (next start): admin is pre-compiled in CI, so the VM stays
+      # light and fast. Schema is synced separately by a one-shot dev container during
+      # deploy (see .github/workflows/azure-deploy.yml), since prod disables push.
       - DATABASE_URL=postgresql://paragon:paragon123@pg-of:5432/paragon_organic
       - PAYLOAD_SECRET=${PAYLOAD_SECRET}
       - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
@@ -26,6 +31,8 @@ services:
       resources:
         limits:
           cpus: '0.5'
+          # next start serves a pre-built app (no runtime compile), so it needs little
+          # RAM. 768M is comfortable headroom for the Payload runtime.
           memory: 768M
         reservations:
           cpus: '0.1'

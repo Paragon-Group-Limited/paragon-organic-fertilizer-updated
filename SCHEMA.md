@@ -1,54 +1,67 @@
 # Database schema & Payload collections
 
-## How schema stays in sync (the important bit)
+## Architecture (read this before changing collections)
 
-The app is deployed running **`next dev`** (development mode) — see `Dockerfile.dev`.
-The Postgres adapter in `src/payload.config.ts` uses `push: true`, and Payload applies
-that auto-push whenever **`NODE_ENV !== 'production'`**. Because we run in dev mode,
-**push is active in the deployed app**.
+The app is deployed as a **production build** (`Dockerfile` → `next start`). The heavy
+admin-panel compile happens during `next build` **in CI** (GitHub Actions runner, lots
+of RAM), so the small VM only ever serves the pre-built app — fast and light
+(~400 MB), no runtime compile, no crashes.
 
-Consequence (the good kind): when you add a new collection or a new field and deploy,
-Payload creates the missing tables/columns **automatically** on startup / first request.
-You do **not** run any migration command. This is the "it just works" behaviour.
+Payload's postgres adapter uses `push: true`, but Payload only applies push when
+`NODE_ENV !== 'production'`. So the production app does **not** sync schema on its own.
+We handle that with a separate, automatic step at deploy time (below) — you never run a
+migration command.
 
-> Why dev mode and not a production build? This is a small dev/staging server. A
-> production build (`next start`) disables Payload's push, which previously caused the
-> admin panel to 500 with `column ... does not exist` after a new collection was added.
-> Running `next dev` keeps schema sync automatic, which is what this project wants.
+## How schema syncs (automatic, every deploy)
 
-## Deploy pipeline
+`.github/workflows/azure-deploy.yml` deploy job, after pulling the new image:
 
-`.github/workflows/azure-deploy.yml`:
+1. Takes a `pg_dump` backup into `~/backups/` (keeps the last 10).
+2. Briefly starts a **one-shot dev-mode container** from the freshly pulled image
+   (`NODE_ENV=development`, mounting the current source, reusing the image's
+   node_modules) and hits `http://localhost:3001/api/users`. That triggers Payload
+   init → `pushDevSchema`, which creates any missing tables/columns. It compiles only a
+   light API route — **not** the heavy admin UI — so it stays within the VM's RAM.
+3. Removes the one-shot container.
+4. Starts the production app (`docker compose up -d`) with the schema already in place.
 
-1. **build-and-push** — GitHub Actions builds `Dockerfile.dev` (just `npm ci` + copy
-   source, no `next build`, so it is fast and needs no database) and pushes the image to
-   `ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated`.
-2. **deploy** — SSHes to the VM, takes a `pg_dump` backup into `~/backups/` (keeps the
-   last 10), then `docker compose pull app && docker compose up -d`. The VM never builds.
+So your workflow is just: **change a collection in code → push → merge to `main`.** The
+deploy syncs the schema for you.
 
-On startup the app connects to Postgres, Payload initialises, and `push` creates any
-missing schema. No manual step.
+## Safety: additive vs destructive
 
-## Safety: additive vs destructive changes
-
-`push` is **additive and safe** for the common cases — new collections, new fields
+`push` is additive and safe for the common cases — new collections, new fields
 (`CREATE TABLE` / `ADD COLUMN`). It never touches existing rows for those.
 
-Be careful when you **remove or rename** a field/collection: dev push may want to drop
-or alter a column, which can lose data. For those changes:
-
-- A fresh backup is taken automatically on every deploy (`~/backups/`), and
-- review the app logs after deploy to confirm what push did.
-
-Restore a backup if ever needed:
+Removing or renaming a field/collection can make push want to DROP/ALTER a column, which
+can lose data. A fresh `pg_dump` backup is taken automatically before every deploy, so
+you can restore:
 
 ```bash
-cat ~/backups/paragon_organic_YYYYMMDD_HHMMSS.sql \
-  | docker exec -i pg-of psql -U paragon -d paragon_organic
+LATEST=$(ls -1t ~/backups/paragon_organic_*.sql | head -1)
+cat "$LATEST" | docker exec -i pg-of psql -U paragon -d paragon_organic
 ```
 
-## Resource note
+After a deploy that removes/renames schema, check the deploy log's
+"Syncing Payload schema" section to see what push did.
 
-`next dev` compiles routes on demand, so it uses more RAM than `next start` (especially
-the first hit to the Payload admin). The `app` service memory limit lives in
-`docker-compose.yml`; if the container gets OOM-killed under load, raise it there.
+## Why not run the whole app in dev mode?
+
+We tried it. `next dev` compiles routes at runtime, and compiling the Payload admin
+(lexical + puck editors + 10 collections) needs >1.25 GB — more than this 3.8 GB VM can
+spare alongside its other stacks. It crash-looped (Node heap) and pages took minutes.
+Production build moves that compile to CI and keeps the VM healthy.
+
+## Why not Payload migrations?
+
+`payload migrate:create` works locally but adds a manual step on every schema change,
+and the migrate CLI fails inside the stripped runtime image (undici `Illegal
+constructor`). For a fast-moving dev project the automatic deploy-time push above is
+simpler. If this ever becomes a true high-stakes production DB, switch to
+`push: false` + `prodMigrations: true` with committed migration files for a reviewable
+history.
+
+## Collections
+
+`src/payload.config.ts`: Users, Media, Pages, Products, Dealers, Careers,
+AppliedCandidates, HeroSlides, Orders, BlockedPhones + a SiteSettings global.

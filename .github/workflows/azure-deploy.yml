@@ -8,14 +8,31 @@ env:
   IMAGE: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated
 
 jobs:
-  # ── Stage 1: Build the dev-mode image on GitHub runner and push to GHCR ─────
-  # The image runs `next dev` (see Dockerfile.dev), so the build is just
-  # `npm ci` + copy source — no `next build`, hence no database needed at build time.
+  # ── Stage 1: Build the production image on the GitHub runner and push to GHCR ─
+  # `next build` (the heavy admin compile) runs HERE on a roomy runner — never on
+  # the small VM. The VM only runs the pre-built app with `next start`, so it stays
+  # light and fast. A throwaway Postgres is provided because the Payload build
+  # connects to a DB to generate its import map.
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: paragon_organic
+          POSTGRES_USER: paragon
+          POSTGRES_PASSWORD: paragon123
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U paragon -d paragon_organic"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout
@@ -23,6 +40,8 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -35,15 +54,20 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile.dev
+          file: ./Dockerfile
           push: true
+          network: host
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+            DATABASE_URL=postgresql://paragon:paragon123@localhost:5432/paragon_organic
+            PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ── Stage 2: Pull new image on the VM and restart ───────────────────────────
+  # ── Stage 2: Pull on the VM, sync schema, restart ──────────────────────────
   deploy:
     needs: build-and-push
     if: github.ref == 'refs/heads/main'
@@ -69,18 +93,47 @@ jobs:
             cd ~/project/paragon-organic-fertilizer-updated
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             git pull origin main
-            echo "=== Backing up the database before restart (safety net) ==="
+
+            echo "=== Backing up the database before any schema change (safety net) ==="
             mkdir -p ~/backups
             docker exec pg-of pg_dump -U paragon -d paragon_organic \
               > ~/backups/paragon_organic_$(date +%Y%m%d_%H%M%S).sql || echo "WARN: backup skipped"
             # keep only the 10 most recent backups
             ls -1t ~/backups/paragon_organic_*.sql 2>/dev/null | tail -n +11 | xargs -r rm -f || true
+
+            echo "=== Pulling the new image ==="
             docker compose pull app
+
+            echo "=== Syncing Payload schema (one-shot dev container) ==="
+            # Production (next start) disables Payload's push, so new collections/fields
+            # would not create their tables on their own. Briefly run the freshly pulled
+            # image in dev mode (push enabled), mounting the current source and reusing
+            # the image's node_modules, then hit a light Payload API route to trigger
+            # init -> pushDevSchema, then remove it. This compiles only an API route,
+            # NOT the heavy admin UI, so it is light. Schema changes are additive
+            # (CREATE TABLE / ADD COLUMN); a backup was taken just above regardless.
+            docker rm -fv paragon-schema-push >/dev/null 2>&1 || true
+            docker compose run -d --no-deps -u root --name paragon-schema-push \
+              -e NODE_ENV=development -v "$PWD:/app" -v /app/node_modules app npm run dev
+            sleep 15
+            docker exec paragon-schema-push sh -c '
+              for i in $(seq 1 60); do
+                if wget -q -O /dev/null http://localhost:3001/api/users 2>/dev/null; then
+                  echo "    schema sync triggered"; exit 0
+                fi
+                sleep 3
+              done
+              echo "    WARN: could not reach Payload route in time"
+            ' || true
+            docker logs --tail=20 paragon-schema-push 2>&1 | sed 's/^/    /' || true
+            docker rm -fv paragon-schema-push >/dev/null 2>&1 || true
+
+            echo "=== Starting the production app ==="
             docker compose up -d
             docker image prune -f
-            echo "=== Waiting 25s for app to start ==="
-            sleep 25
+            echo "=== Waiting 20s for app to start ==="
+            sleep 20
             echo "=== Container Status ==="
             docker compose ps || true
-            echo "=== App Logs (last 150 lines) ==="
-            docker compose logs app --tail=150 2>&1 || true
+            echo "=== App Logs (last 100 lines) ==="
+            docker compose logs app --tail=100 2>&1 || true

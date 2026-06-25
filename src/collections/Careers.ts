@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-
+//push changes
 export const Careers: CollectionConfig = {
   slug: 'careers',
   admin: {

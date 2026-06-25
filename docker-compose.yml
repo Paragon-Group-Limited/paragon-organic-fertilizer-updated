@@ -1,7 +1,6 @@
 services:
   app:
     image: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated:latest
-<<<<<<< HEAD
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,8 +9,6 @@ services:
         - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
         - DATABASE_URL=postgresql://paragon:paragon123@localhost:5432/paragon_organic
         - PAYLOAD_SECRET=${PAYLOAD_SECRET:-paragon-secret-change-in-production}
-=======
->>>>>>> f81633d615e975141ffab94147d591e97d8068c8
     ports:
       - '3001:3001'
     environment:

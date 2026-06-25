@@ -43,6 +43,7 @@ export async function PATCH(req: NextRequest) {
       collection: 'products',
       id,
       data,
+      overrideAccess: true,
     })
     return NextResponse.json({ product })
   } catch (err) {

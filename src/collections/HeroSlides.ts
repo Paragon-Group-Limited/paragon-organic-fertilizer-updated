@@ -7,6 +7,13 @@ export const HeroSlides: CollectionConfig = {
     useAsTitle: 'headingBn',
     defaultColumns: ['headingBn', 'order', 'active'],
     description: 'Home page banner slides. Add, edit, reorder or disable slides here.',
+    components: {
+      views: {
+        list: {
+          Component: '@/app/(payload)/admin/views/HeroSlidesListView',
+        },
+      },
+    },
   },
   access: { read: () => true },
   fields: [

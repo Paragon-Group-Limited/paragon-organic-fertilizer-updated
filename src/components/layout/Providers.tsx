@@ -1,6 +1,7 @@
 'use client'
 
 import { LanguageProvider } from '@/contexts/LanguageContext'
+import { CartProvider } from '@/contexts/CartContext'
 import Navbar from './Navbar'
 import Footer from './Footer'
 
@@ -24,9 +25,16 @@ export function Providers({
 }) {
   return (
     <LanguageProvider>
-      <Navbar siteSettings={siteSettings} />
-      <main>{children}</main>
-      <Footer socialLinks={siteSettings?.socialLinks} logo={siteSettings?.logo} siteName={siteSettings?.siteName} siteSubtitle={siteSettings?.siteSubtitle} />
+      <CartProvider>
+        <Navbar siteSettings={siteSettings} />
+        <main>{children}</main>
+        <Footer
+          socialLinks={siteSettings?.socialLinks}
+          logo={siteSettings?.logo}
+          siteName={siteSettings?.siteName}
+          siteSubtitle={siteSettings?.siteSubtitle}
+        />
+      </CartProvider>
     </LanguageProvider>
   )
 }

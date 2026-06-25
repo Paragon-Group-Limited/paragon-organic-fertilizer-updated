@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url'
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { cloudStoragePlugin } from '@payloadcms/plugin-cloud-storage'
 import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
@@ -11,12 +12,26 @@ import { Products } from './collections/Products'
 import { Dealers } from './collections/Dealers'
 import { Careers } from './collections/Careers'
 import { HeroSlides } from './collections/HeroSlides'
+import { Orders } from './collections/Orders'
+import { BlockedPhones } from './collections/BlockedPhones'
+import { AppliedCandidates } from './collections/AppliedCandidates'
 import { SiteSettings } from './globals/SiteSettings'
+import { cloudinaryAdapter } from './plugins/cloudinaryAdapter'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  plugins: [
+    cloudStoragePlugin({
+      collections: {
+        media: {
+          adapter: cloudinaryAdapter(),
+          disableLocalStorage: true,
+        },
+      },
+    }),
+  ],
   admin: {
     user: Users.slug,
     theme: 'light',
@@ -40,7 +55,7 @@ export default buildConfig({
       payload.logger.info(`Admin user created: ${email}`)
     }
   },
-  collections: [Users, Media, Pages, Products, Dealers, Careers, HeroSlides],
+  collections: [Users, Media, Pages, Products, Dealers, Careers, AppliedCandidates, HeroSlides, Orders, BlockedPhones],
   globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'paragon-secret-change-in-production',

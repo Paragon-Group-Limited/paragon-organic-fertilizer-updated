@@ -22,6 +22,7 @@ import { locationBlocks } from './blocks/LocationBlocks'
 import { careerBlocks } from './blocks/CareerBlocks'
 import { contactBlocks } from './blocks/ContactBlocks'
 import { productsBlocks } from './blocks/ProductsBlocks'
+import { LiveProductsBlock } from './blocks/LiveProductsBlock'
 import { youTubeVideoGridBlock } from './blocks/YouTubeVideoGridBlock'
 import { genericBlocks } from './blocks/GenericBlocks'
 
@@ -209,7 +210,7 @@ export const puckConfig: Config = {
       visible: false,
     },
     '📦 Products': {
-      components: ['ProductsGridBlock', 'ProductsCtaBannerBlock'],
+      components: ['LiveProductsBlock', 'ProductsGridBlock', 'ProductsCtaBannerBlock'],
       visible: false,
     },
     'হোম পেজ সেকশন': {
@@ -266,6 +267,12 @@ export const puckConfig: Config = {
     ...careerBlocks,
     ...contactBlocks,
     ...productsBlocks,
+    LiveProductsBlock: {
+      label: '📦 Live Products (fetches real data)',
+      fields: {},
+      defaultProps: {},
+      render: () => <LiveProductsBlock />,
+    },
     ...youTubeVideoGridBlock,
     ...genericBlocks,
 

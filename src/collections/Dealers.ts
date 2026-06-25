@@ -6,6 +6,13 @@ export const Dealers: CollectionConfig = {
     useAsTitle: 'name',
     defaultColumns: ['name', 'phone', 'district', 'tradeLicense', 'actions'],
     description: 'Dealer applicants and current dealers',
+    components: {
+      views: {
+        list: {
+          Component: '@/app/(payload)/admin/views/DealersListView',
+        },
+      },
+    },
   },
   access: {
     read: () => true,

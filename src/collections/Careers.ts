@@ -2,7 +2,17 @@ import type { CollectionConfig } from 'payload'
 
 export const Careers: CollectionConfig = {
   slug: 'careers',
-  admin: { useAsTitle: 'title', defaultColumns: ['title', 'department', 'type', 'status'] },
+  admin: {
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'department', 'type', 'status'],
+    components: {
+      views: {
+        list: {
+          Component: '@/app/(payload)/admin/views/CareersListView',
+        },
+      },
+    },
+  },
   access: { read: () => true },
   fields: [
     { name: 'title', type: 'text', required: true, label: 'Position Title' },

@@ -1,12 +1,19 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect, useMemo, type ReactNode } from 'react'
-import { Puck, usePuck } from '@puckeditor/core'
+import { Puck, createUsePuck } from '@puckeditor/core'
+
+// Module-level hook — call with a selector inside the component
+const usePuckSelect = createUsePuck()
 import { puckConfig } from '@/puck/config'
 import '@puckeditor/core/dist/index.css'
 import { useRouter } from 'next/navigation'
 import { LanguageSwitcherDark } from '@/components/LanguageSwitcher'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { ProductManagerPanel } from './ProductManagerPanel'
+
+// Stable reference — defined outside every component so Puck never sees it change
+function ProductsFields() { return <ProductManagerPanel /> }
 
 type Props = {
   slug: string
@@ -36,6 +43,7 @@ const PAGE_TREE: PageItem[] = [
     ],
   },
   { slug: 'products', label: 'পণ্য ও ক্রয়', labelEn: 'Products & Purchase', icon: '🛒' },
+  { slug: 'product-manager', label: 'পণ্য ব্যবস্থাপনা', labelEn: 'Product Manager', icon: '🗂️' },
   { slug: 'location', label: 'লোকেশন / ডিলারশিপ', labelEn: 'Location', icon: '📍' },
   { slug: 'career', label: 'ক্যারিয়ার', labelEn: 'Career', icon: '💼' },
   { slug: 'contact', label: 'যোগাযোগ', labelEn: 'Contact', icon: '📞' },
@@ -250,7 +258,7 @@ function PuckHeader({
   onNavigate: (slug: string) => void
 }) {
   const { lang } = useLanguage()
-  const { history } = usePuck()
+  const history = usePuckSelect((state) => state.history)
   const [dropOpen, setDropOpen] = useState(false)
   const dropRef = useRef<HTMLDivElement>(null)
 
@@ -643,7 +651,7 @@ export function PuckEditor({ slug, initialData, singlePage }: Props) {
         iframe={{ enabled: false }}
         overrides={{
           puck: PuckLayoutWrapper,
-          fields: FieldsPassthrough,
+          fields: slug === 'products' ? ProductsFields : FieldsPassthrough,
           header: ({ actions }: { actions: ReactNode }) => (
             <PuckHeader slug={slug} actions={actions} singlePage={!!singlePage} onNavigate={handleNavigate} />
           ),

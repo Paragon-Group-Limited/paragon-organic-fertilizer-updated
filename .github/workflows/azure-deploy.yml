@@ -80,6 +80,9 @@ jobs:
             docker image prune -f
             echo "=== Waiting 25s for app to start ==="
             sleep 25
+            echo "=== Warming up routes (dev mode compiles on first hit; do it now so the first real visitor isn't slow) ==="
+            curl -s -o /dev/null --max-time 240 http://localhost:3001/            || true
+            curl -s -o /dev/null --max-time 240 http://localhost:3001/admin/login || true
             echo "=== Container Status ==="
             docker compose ps || true
             echo "=== App Logs (last 150 lines) ==="

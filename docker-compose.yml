@@ -26,7 +26,11 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 768M
+          # next dev compiles routes on demand, which spikes RAM. 768M caused the
+          # container to thrash against its own limit (disk I/O, very slow pages).
+          # The old working dev-mode setup used 1G; 1.25G gives the heavier
+          # e-commerce build headroom while leaving the small VM room for others.
+          memory: 1280M
         reservations:
           cpus: '0.1'
           memory: 256M

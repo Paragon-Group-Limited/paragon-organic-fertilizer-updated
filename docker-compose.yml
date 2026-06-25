@@ -3,15 +3,13 @@ services:
     image: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated:latest
     build:
       context: .
-      dockerfile: Dockerfile
-      network: host
-      args:
-        - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
-        - DATABASE_URL=postgresql://paragon:paragon123@localhost:5432/paragon_organic
-        - PAYLOAD_SECRET=${PAYLOAD_SECRET:-paragon-secret-change-in-production}
+      dockerfile: Dockerfile.dev
     ports:
       - '3001:3001'
     environment:
+      # Dev mode keeps Payload's `push: true` active so new collections/fields
+      # auto-create their schema on startup (no manual migration step).
+      - NODE_ENV=development
       - DATABASE_URL=postgresql://paragon:paragon123@pg-of:5432/paragon_organic
       - PAYLOAD_SECRET=${PAYLOAD_SECRET}
       - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}

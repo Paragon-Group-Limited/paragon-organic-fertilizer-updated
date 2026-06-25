@@ -1,9 +1,7 @@
-# Dev-mode runtime image.
-# The app is deliberately run with `next dev` so Payload's postgres adapter keeps
-# `push: true` active (Payload only auto-syncs schema when NODE_ENV !== 'production').
-# This means new collections/fields get their tables/columns created automatically on
-# startup — no manual migration step. Built in CI (GitHub Actions) and pulled by the VM,
-# so the VM never runs a heavy build itself.
+# LOCAL DEVELOPMENT ONLY — not used by the deploy pipeline.
+# The deployed app uses the production `Dockerfile` (next start); schema is synced by a
+# one-shot dev container during deploy (see .github/workflows/azure-deploy.yml).
+# This file is here so you can run the app in dev mode locally (`next dev`, push active).
 FROM node:20-alpine
 WORKDIR /app
 

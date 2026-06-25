@@ -7,9 +7,6 @@ on:
 env:
   IMAGE: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated
 
-env:
-  IMAGE: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated
-
 jobs:
   # ── Stage 1: Build the image on GitHub runner and push to GHCR ─────────────
   build-and-push:
@@ -70,8 +67,6 @@ jobs:
   deploy:
     needs: build-and-push
     if: github.ref == 'refs/heads/main'
-    needs: build-and-push
-    if: github.ref == 'refs/heads/main'   # only deploy from main; feature-branch pushes just test the build
     runs-on: ubuntu-latest
     permissions:
       contents: read

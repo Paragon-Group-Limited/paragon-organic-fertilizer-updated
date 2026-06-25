@@ -21,7 +21,7 @@ const navLinks = [
       { href: '/about/paragon-group',    bn: 'প্যারাগন গ্রুপ',    en: 'Paragon Group' },
     ],
   },
-  { href: '/shop',       bn: 'পণ্য ও ক্রয়',   en: 'Shop' },
+  { href: '/shop',       bn: 'পণ্য ও ক্রয়',   en: 'Products' },
   { href: '/dealership', bn: 'ডিলারশিপ',       en: 'Dealership' },
   { href: '/career',     bn: 'ক্যারিয়ার',      en: 'Career' },
   { href: '/contact',    bn: 'যোগাযোগ',        en: 'Contact' },

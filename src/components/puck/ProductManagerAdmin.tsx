@@ -247,7 +247,7 @@ function ProductFormPanel({
           ? form.benefits.split('\n').filter(Boolean).map(b => ({ benefit: b.trim() }))
           : [],
       }
-      if (imageId) payload.image = imageId
+      if (imageId) payload.image = Number(imageId) || imageId
 
       if (editProduct) {
         payload.id = editProduct.id

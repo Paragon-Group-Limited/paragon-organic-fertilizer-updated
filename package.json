@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --webpack -p 3001",
     "build": "next build --webpack",
-    "start": "next start -p 3001"
+    "start": "NODE_OPTIONS='--max-old-space-size=512' next start -p 3001"
   },
   "dependencies": {
     "@delmaredigital/payload-puck": "^0.6.29",

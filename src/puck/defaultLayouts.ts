@@ -658,6 +658,13 @@ export const defaultLayouts: Record<string, PuckData> = {
 }
 
 export function getDefaultLayout(slug: string): PuckData {
+  // Products page: always render the live product block (overrides any saved layout)
+  if (slug === 'products') {
+    return {
+      root: { props: { title: 'পণ্য ও ক্রয়' } },
+      content: [{ type: 'LiveProductsBlock', props: { id: 'live-products' } }],
+    }
+  }
   if (defaultLayouts[slug]) return defaultLayouts[slug]
   const base = slug.split('/')[0]
   if (defaultLayouts[base]) return defaultLayouts[base]

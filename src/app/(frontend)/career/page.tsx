@@ -1,10 +1,6 @@
 import type { Metadata } from 'next'
 import { PageBanner } from '@/components/layout/PageBanner'
 import { CareerContent } from '@/components/career/CareerContent'
-import { PuckRenderer } from '@/components/puck/PuckRenderer'
-import { getPageLayout } from '@/lib/getPageLayout'
-
-export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'ক্যারিয়ার',
@@ -12,10 +8,6 @@ export const metadata: Metadata = {
 }
 
 export default async function CareerPage() {
-  const layout = await getPageLayout('career')
-
-  if (layout) return <PuckRenderer data={layout} />
-
   return (
     <>
       <PageBanner

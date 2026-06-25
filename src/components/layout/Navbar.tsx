@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Menu, X, ChevronDown, Leaf } from 'lucide-react'
+import { Menu, X, ChevronDown, Leaf, Heart } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useCart } from '@/contexts/CartContext'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import CartDropdown from '@/components/shop/CartDropdown'
+import NavSearch from '@/components/shop/NavSearch'
 
 const navLinks = [
   { href: '/', bn: 'হোম', en: 'Home' },
@@ -18,10 +21,10 @@ const navLinks = [
       { href: '/about/paragon-group',    bn: 'প্যারাগন গ্রুপ',    en: 'Paragon Group' },
     ],
   },
-  { href: '/products',  bn: 'পণ্য ও ক্রয়',         en: 'Products' },
-  { href: '/dealership',  bn: 'ডিলারশিপ',             en: 'Dealership' },
-  { href: '/career',    bn: 'ক্যারিয়ার',            en: 'Career' },
-  { href: '/contact',   bn: 'যোগাযোগ',              en: 'Contact' },
+  { href: '/shop',       bn: 'পণ্য ও ক্রয়',   en: 'Shop' },
+  { href: '/dealership', bn: 'ডিলারশিপ',       en: 'Dealership' },
+  { href: '/career',     bn: 'ক্যারিয়ার',      en: 'Career' },
+  { href: '/contact',    bn: 'যোগাযোগ',        en: 'Contact' },
 ]
 
 type SiteSettings = {
@@ -34,15 +37,14 @@ type SiteSettings = {
 
 export default function Navbar({ siteSettings }: { siteSettings?: SiteSettings | null }) {
   const { lang } = useLanguage()
+  const { wishlist } = useCart()
 
-  const siteName    = siteSettings?.siteName    || 'প্যারাগন'
+  const siteName     = siteSettings?.siteName     || 'প্যারাগন'
   const siteSubtitle = siteSettings?.siteSubtitle || 'Organic Fertilizer'
-  const ctaLabel    = lang === 'en' ? 'Buy Now'   : (siteSettings?.ctaLabel || 'এখনই কিনুন')
-  const ctaHref     = siteSettings?.ctaHref || '/contact'
 
-  const [scrolled,         setScrolled]         = useState(false)
-  const [mobileOpen,       setMobileOpen]       = useState(false)
-  const [activeDropdown,   setActiveDropdown]   = useState<string | null>(null)
+  const [scrolled,       setScrolled]       = useState(false)
+  const [mobileOpen,     setMobileOpen]     = useState(false)
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -105,15 +107,12 @@ export default function Navbar({ siteSettings }: { siteSettings?: SiteSettings |
                   </button>
                 )}
 
-                {/* Dropdown */}
                 {link.children && (
                   <AnimatePresence>
                     {activeDropdown === link.bn && (
                       <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                        transition={{ duration: 0.2 }}
+                        initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.2 }}
                         className="absolute top-full left-0 mt-1 w-52 rounded-xl overflow-hidden"
                         style={{ background: 'rgba(27,77,62,0.97)', backdropFilter: 'blur(12px)', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}>
                         {link.children.map((child) => (
@@ -131,22 +130,51 @@ export default function Navbar({ siteSettings }: { siteSettings?: SiteSettings |
             ))}
           </ul>
 
-          {/* Right side: Language Switcher + CTA */}
-          <div className="hidden lg:flex items-center gap-3">
+          {/* Right side */}
+          <div className="hidden lg:flex items-center gap-2">
             <LanguageSwitcher />
-            <Link href={ctaHref}
+
+            {/* Search */}
+            <NavSearch />
+
+            {/* Wishlist icon — visible when wishlist has items */}
+            <AnimatePresence>
+              {wishlist.length > 0 && (
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
+                  <Link href="/wishlist"
+                    className="relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 hover:bg-white/20"
+                    style={{ color: '#fff' }}>
+                    <Heart className="w-5 h-5" style={{ fill: '#ef4444', color: '#ef4444' }} />
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-xs font-bold px-1"
+                      style={{ background: '#ef4444', color: '#fff' }}>
+                      {wishlist.length}
+                    </span>
+                  </Link>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Cart dropdown */}
+            <CartDropdown />
+
+            <Link href="/shop"
               className="px-5 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 hover:scale-105 active:scale-95"
               style={{ background: 'linear-gradient(135deg, #D4A017, #F5C842)', color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
-              {ctaLabel}
+              {lang === 'en' ? 'Order Now' : 'এখনই কিনুন'}
             </Link>
           </div>
 
-          {/* Mobile toggle */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden p-2 text-white rounded-lg hover:bg-white/10 transition-colors">
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Mobile: cart + toggle */}
+          <div className="lg:hidden flex items-center gap-1">
+            <CartDropdown size="sm" />
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="p-2 text-white rounded-lg hover:bg-white/10 transition-colors">
+              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -154,21 +182,17 @@ export default function Navbar({ siteSettings }: { siteSettings?: SiteSettings |
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3 }}
             className="lg:hidden overflow-hidden"
             style={{ background: 'rgba(15, 46, 36, 0.98)', backdropFilter: 'blur(16px)' }}>
             <div className="px-4 py-4 space-y-1">
               {navLinks.map((link, i) => (
                 <motion.div key={link.bn}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.06 }}>
                   {link.href ? (
-                    <Link href={link.href}
-                      onClick={() => setMobileOpen(false)}
+                    <Link href={link.href} onClick={() => setMobileOpen(false)}
                       className="block px-4 py-3 text-white/90 hover:text-white hover:bg-white/10 rounded-lg text-base font-medium transition-colors"
                       style={{ fontFamily: 'var(--font-hind)' }}>
                       {label(link)}
@@ -180,8 +204,7 @@ export default function Navbar({ siteSettings }: { siteSettings?: SiteSettings |
                         {label(link)}
                       </div>
                       {link.children?.map((child) => (
-                        <Link key={child.href} href={child.href}
-                          onClick={() => setMobileOpen(false)}
+                        <Link key={child.href} href={child.href} onClick={() => setMobileOpen(false)}
                           className="block px-6 py-2.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-sm transition-colors"
                           style={{ fontFamily: 'var(--font-hind)' }}>
                           → {label(child)}
@@ -191,17 +214,15 @@ export default function Navbar({ siteSettings }: { siteSettings?: SiteSettings |
                   )}
                 </motion.div>
               ))}
-              {/* Language switcher in mobile menu */}
               <div className="pt-2 pb-1 px-4 flex items-center gap-3">
                 <span className="text-white/50 text-xs" style={{ fontFamily: 'var(--font-inter)' }}>Language:</span>
                 <LanguageSwitcher size="sm" />
               </div>
               <div className="pt-2 pb-2">
-                <Link href={ctaHref}
-                  onClick={() => setMobileOpen(false)}
+                <Link href="/shop" onClick={() => setMobileOpen(false)}
                   className="block text-center px-6 py-3 font-semibold rounded-full"
                   style={{ background: 'linear-gradient(135deg, #D4A017, #F5C842)', color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
-                  {ctaLabel}
+                  {lang === 'en' ? 'Order Now' : 'এখনই কিনুন'}
                 </Link>
               </div>
             </div>

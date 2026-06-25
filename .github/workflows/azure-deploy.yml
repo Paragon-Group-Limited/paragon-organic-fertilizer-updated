@@ -125,8 +125,13 @@ jobs:
               -e NODE_ENV=development -v "$PWD:/app" -v /app/node_modules app npm run dev
             timeout 300 docker exec paragon-schema-push sh -c '
               for i in $(seq 1 90); do
-                if wget -q -O /dev/null http://localhost:3001/api/users 2>/dev/null; then
-                  echo "    schema sync triggered"; exit 0
+                wget -q -O /dev/null http://localhost:3001/api/users
+                rc=$?
+                # rc 0 = 2xx, rc 8 = HTTP error response (e.g. 403 because /api/users
+                # needs auth). EITHER means Payload answered the request, which only
+                # happens after init -> pushDevSchema has run. rc 4 = not up yet.
+                if [ "$rc" = "0" ] || [ "$rc" = "8" ]; then
+                  echo "    schema sync triggered (Payload initialised)"; exit 0
                 fi
                 sleep 3
               done

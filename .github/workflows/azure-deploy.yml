@@ -4,22 +4,97 @@ on:
   push:
     branches: [main]
 
+env:
+  IMAGE: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated
+
 jobs:
-  deploy:
+  # ── Stage 1: Build the image on GitHub runner and push to GHCR ─────────────
+  build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: paragon_organic
+          POSTGRES_USER: paragon
+          POSTGRES_PASSWORD: paragon123
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U paragon -d paragon_organic"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          network: host
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+            DATABASE_URL=postgresql://paragon:paragon123@localhost:5432/paragon_organic
+            PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── Stage 2: Pull new image on the VM and restart ───────────────────────────
+  deploy:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
 
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           command_timeout: 30m
+          envs: GHCR_TOKEN,GHCR_USER
           script: |
             set -e
             cd ~/project/paragon-organic-fertilizer-updated
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             git pull origin main
-            docker compose build --no-cache
+            docker compose pull app
             docker compose up -d
             docker image prune -f
+            echo "=== Waiting 25s for app to start ==="
+            sleep 25
+            echo "=== Container Status ==="
+            docker compose ps || true
+            echo "=== App Logs (last 150 lines) ==="
+            docker compose logs app --tail=150 2>&1 || true

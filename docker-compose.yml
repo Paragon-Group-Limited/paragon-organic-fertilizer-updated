@@ -1,5 +1,6 @@
 services:
   app:
+    image: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated:latest
     build:
       context: .
       dockerfile: Dockerfile

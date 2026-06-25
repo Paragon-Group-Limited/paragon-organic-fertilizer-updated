@@ -104,36 +104,39 @@ jobs:
             echo "=== Pulling the new image ==="
             docker compose pull app
 
-            echo "=== Syncing Payload schema (one-shot dev container) ==="
+            echo "=== Starting the production app (next start; pre-built, light) ==="
+            # App comes up FIRST: the site is live immediately, the old container is
+            # replaced, and RAM is freed for the schema step below. This guarantees the
+            # deploy is never blocked or delayed by schema syncing.
+            docker compose up -d
+            docker image prune -f
+
+            echo "=== Syncing Payload schema (one-shot dev container, non-fatal + time-bounded) ==="
             # Production (next start) disables Payload's push, so new collections/fields
-            # would not create their tables on their own. Briefly run the freshly pulled
-            # image in dev mode (push enabled), mounting the current source and reusing
-            # the image's node_modules, then hit a light Payload API route to trigger
-            # init -> pushDevSchema, then remove it. This compiles only an API route,
-            # NOT the heavy admin UI, so it is light. Schema changes are additive
-            # (CREATE TABLE / ADD COLUMN); a backup was taken just above regardless.
-            docker rm -fv paragon-schema-push >/dev/null 2>&1 || true
+            # would not get their tables on their own. With the app already up and light
+            # (~90MB), briefly run the freshly pulled image in dev mode (push enabled),
+            # mounting the current source + reusing node_modules, and hit a Payload API
+            # route to trigger init -> pushDevSchema. Wrapped in `set +e` and a hard
+            # `timeout` so it can NEVER fail or hang the deploy. A backup was taken above;
+            # if it ever does not finish, it simply retries on the next deploy.
+            set +e
+            docker rm -fv paragon-schema-push >/dev/null 2>&1
             docker compose run -d --no-deps -u root --name paragon-schema-push \
               -e NODE_ENV=development -v "$PWD:/app" -v /app/node_modules app npm run dev
-            sleep 15
-            docker exec paragon-schema-push sh -c '
-              for i in $(seq 1 60); do
+            timeout 300 docker exec paragon-schema-push sh -c '
+              for i in $(seq 1 90); do
                 if wget -q -O /dev/null http://localhost:3001/api/users 2>/dev/null; then
                   echo "    schema sync triggered"; exit 0
                 fi
                 sleep 3
               done
-              echo "    WARN: could not reach Payload route in time"
-            ' || true
-            docker logs --tail=20 paragon-schema-push 2>&1 | sed 's/^/    /' || true
-            docker rm -fv paragon-schema-push >/dev/null 2>&1 || true
+              echo "    schema sync not finished in time (will retry next deploy)"
+            '
+            docker logs --tail=20 paragon-schema-push 2>&1 | sed 's/^/    /'
+            docker rm -fv paragon-schema-push >/dev/null 2>&1
+            set -e
 
-            echo "=== Starting the production app ==="
-            docker compose up -d
-            docker image prune -f
-            echo "=== Waiting 20s for app to start ==="
-            sleep 20
             echo "=== Container Status ==="
             docker compose ps || true
-            echo "=== App Logs (last 100 lines) ==="
-            docker compose logs app --tail=100 2>&1 || true
+            echo "=== App Logs (last 60 lines) ==="
+            docker compose logs app --tail=60 2>&1 || true

@@ -8,27 +8,14 @@ env:
   IMAGE: ghcr.io/paragon-group-limited/paragon-organic-fertilizer-updated
 
 jobs:
-  # ── Stage 1: Build the image on GitHub runner and push to GHCR ─────────────
+  # ── Stage 1: Build the dev-mode image on GitHub runner and push to GHCR ─────
+  # The image runs `next dev` (see Dockerfile.dev), so the build is just
+  # `npm ci` + copy source — no `next build`, hence no database needed at build time.
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: paragon_organic
-          POSTGRES_USER: paragon
-          POSTGRES_PASSWORD: paragon123
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U paragon -d paragon_organic"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - name: Checkout
@@ -36,8 +23,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: network=host
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -50,16 +35,11 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile.dev
           push: true
-          network: host
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ github.sha }}
-          build-args: |
-            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
-            DATABASE_URL=postgresql://paragon:paragon123@localhost:5432/paragon_organic
-            PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -89,6 +69,12 @@ jobs:
             cd ~/project/paragon-organic-fertilizer-updated
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             git pull origin main
+            echo "=== Backing up the database before restart (safety net) ==="
+            mkdir -p ~/backups
+            docker exec pg-of pg_dump -U paragon -d paragon_organic \
+              > ~/backups/paragon_organic_$(date +%Y%m%d_%H%M%S).sql || echo "WARN: backup skipped"
+            # keep only the 10 most recent backups
+            ls -1t ~/backups/paragon_organic_*.sql 2>/dev/null | tail -n +11 | xargs -r rm -f || true
             docker compose pull app
             docker compose up -d
             docker image prune -f

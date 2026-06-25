@@ -1,5 +1,15 @@
+# Dev-mode runtime image.
+# The app is deliberately run with `next dev` so Payload's postgres adapter keeps
+# `push: true` active (Payload only auto-syncs schema when NODE_ENV !== 'production').
+# This means new collections/fields get their tables/columns created automatically on
+# startup — no manual migration step. Built in CI (GitHub Actions) and pulled by the VM,
+# so the VM never runs a heavy build itself.
 FROM node:20-alpine
 WORKDIR /app
+
+# Keep dev mode explicit; npm ci installs devDependencies (needed by `next dev`).
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -7,4 +17,6 @@ RUN npm ci
 COPY . .
 
 EXPOSE 3001
+ENV PORT=3001
+ENV HOSTNAME="0.0.0.0"
 CMD ["npm", "run", "dev"]

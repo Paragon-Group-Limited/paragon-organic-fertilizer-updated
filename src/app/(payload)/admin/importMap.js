@@ -32,6 +32,7 @@ import { default as default_430e65ffbe54c0fb89bb856b1552aed1 } from '@/app/(payl
 import { default as default_0b71a1dff9ba4f492405379e705689bf } from '@/app/(payload)/admin/views/HeroSlidesListView'
 import { default as default_f49a19f88ae0ef7a4ffdc2700660e972 } from '@/app/(payload)/admin/views/OrdersListView'
 import { default as default_056935ad8ed5f2c396cc63b77fee2b3e } from '@/app/(payload)/admin/views/BlockedPhonesListView'
+import { default as default_02f85e832a647f3b03b62f657fb1fe4e } from '@/app/(payload)/admin/components/LayoutEditorSection'
 import { default as default_b59c32bc5e5728adcfef305d6283cff3 } from '@/app/(payload)/admin/components/UserAvatarDropdown'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -71,6 +72,7 @@ export const importMap = {
   "@/app/(payload)/admin/views/HeroSlidesListView#default": default_0b71a1dff9ba4f492405379e705689bf,
   "@/app/(payload)/admin/views/OrdersListView#default": default_f49a19f88ae0ef7a4ffdc2700660e972,
   "@/app/(payload)/admin/views/BlockedPhonesListView#default": default_056935ad8ed5f2c396cc63b77fee2b3e,
+  "@/app/(payload)/admin/components/LayoutEditorSection#default": default_02f85e832a647f3b03b62f657fb1fe4e,
   "@/app/(payload)/admin/components/UserAvatarDropdown#default": default_b59c32bc5e5728adcfef305d6283cff3,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

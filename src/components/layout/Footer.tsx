@@ -5,6 +5,26 @@ import { Leaf, Phone, Mail, MapPin } from 'lucide-react'
 import { useT } from '@/hooks/useT'
 
 type SocialLink = { icon?: string; url?: string; label?: string }
+type FooterLink = { href?: string; bn: string; en: string }
+
+type FooterPuckProps = {
+  logoUrl?: string
+  description?: string
+  descriptionEn?: string
+  contactAddress?: string
+  contactAddressEn?: string
+  contactPhone?: string
+  contactEmail?: string
+  quickLinks?: FooterLink[]
+  productLinks?: FooterLink[]
+}
+
+function extractFooterPuck(data: unknown): FooterPuckProps | null {
+  if (!data || typeof data !== 'object') return null
+  const d = data as { content?: Array<{ type: string; props: FooterPuckProps }> }
+  const block = d.content?.find(b => b.type === 'FooterConfigBlock')
+  return block?.props ?? null
+}
 
 const SocialIcon = ({ type }: { type?: string }) => {
   if (type === 'facebook') return (
@@ -59,13 +79,26 @@ export default function Footer({
   logo,
   siteName,
   siteSubtitle,
+  footerPuckData,
 }: {
   socialLinks?: SocialLink[]
   logo?: { url?: string; alt?: string }
   siteName?: string
   siteSubtitle?: string
+  footerPuckData?: unknown
 }) {
   const t = useT()
+  const puck = extractFooterPuck(footerPuckData)
+
+  const description    = puck?.description    || 'উপকারী অণুজীব সমৃদ্ধ ১০০% অর্গানিক জৈব সার। বাংলাদেশের কৃষকদের মাটির সুস্বাস্থ্য ফিরিয়ে আনতে আমরা প্রতিশ্রুতিবদ্ধ।'
+  const descriptionEn  = puck?.descriptionEn  || '100% organic fertilizer enriched with beneficial microorganisms. We are committed to restoring soil health for Bangladeshi farmers.'
+  const contactAddr    = puck?.contactAddress  || 'প্যারাগন গ্রুপ, ঢাকা, বাংলাদেশ'
+  const contactAddrEn  = puck?.contactAddressEn || 'Paragon Group, Dhaka, Bangladesh'
+  const contactPhone   = puck?.contactPhone    || '+880 1XXX-XXXXXX'
+  const contactEmail   = puck?.contactEmail    || 'info@paragonorganic.com.bd'
+  const activeLogo         = puck?.logoUrl || logo?.url || ''
+  const activeQuickLinks   = (puck?.quickLinks   && puck.quickLinks.length   > 0) ? puck.quickLinks   : quickLinks
+  const activeProductLinks = (puck?.productLinks && puck.productLinks.length > 0) ? puck.productLinks : products
 
   return (
     <footer style={{ background: '#0F2E24' }} className="text-white">
@@ -75,8 +108,8 @@ export default function Footer({
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2.5 mb-5">
-              {logo?.url ? (
-                <img src={logo.url} alt={logo.alt || 'Logo'} className="h-10 w-auto object-contain" />
+              {activeLogo ? (
+                <img src={activeLogo} alt={logo?.alt || 'Logo'} className="h-10 w-auto object-contain" />
               ) : (
                 <div className="w-10 h-10 rounded-full flex items-center justify-center"
                   style={{ background: 'linear-gradient(135deg, #D4A017, #F5C842)' }}>
@@ -89,7 +122,7 @@ export default function Footer({
               </div>
             </Link>
             <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-hind)' }}>
-              {t('উপকারী অণুজীব সমৃদ্ধ ১০০% অর্গানিক জৈব সার। বাংলাদেশের কৃষকদের মাটির সুস্বাস্থ্য ফিরিয়ে আনতে আমরা প্রতিশ্রুতিবদ্ধ।', '100% organic fertilizer enriched with beneficial microorganisms. We are committed to restoring soil health for Bangladeshi farmers.')}
+              {t(description, descriptionEn)}
             </p>
             {socialLinks && socialLinks.length > 0 && (
               <div className="flex flex-wrap gap-2">
@@ -116,9 +149,9 @@ export default function Footer({
               {t('দ্রুত লিঙ্ক', 'Quick Links')}
             </h3>
             <ul className="space-y-2.5">
-              {quickLinks.map((link) => (
-                <li key={link.href + link.bn}>
-                  <Link href={link.href}
+              {activeQuickLinks.map((link) => (
+                <li key={(link.href ?? '') + link.bn}>
+                  <Link href={link.href || '/'}
                     className="text-sm transition-colors duration-200 hover:text-golden flex items-center gap-2 group"
                     style={{ color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-hind)' }}>
                     <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-all duration-200 group-hover:scale-125"
@@ -136,9 +169,9 @@ export default function Footer({
               {t('আমাদের পণ্য', 'Our Products')}
             </h3>
             <ul className="space-y-2.5">
-              {products.map((p) => (
+              {activeProductLinks.map((p) => (
                 <li key={p.bn}>
-                  <Link href={p.href}
+                  <Link href={p.href || '/products'}
                     className="text-sm transition-colors duration-200 flex items-center gap-2 group"
                     style={{ color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-hind)' }}>
                     <span className="w-1.5 h-1.5 rounded-full flex-shrink-0"
@@ -159,21 +192,21 @@ export default function Footer({
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#D4A017' }} />
                 <span className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-hind)' }}>
-                  {t('প্যারাগন গ্রুপ, ঢাকা, বাংলাদেশ', 'Paragon Group, Dhaka, Bangladesh')}
+                  {t(contactAddr, contactAddrEn)}
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 flex-shrink-0" style={{ color: '#D4A017' }} />
-                <a href="tel:+8801XXXXXXXXX" className="text-sm hover:text-white transition-colors"
+                <a href={`tel:${contactPhone.replace(/\s/g, '')}`} className="text-sm hover:text-white transition-colors"
                   style={{ color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-inter)' }}>
-                  +880 1XXX-XXXXXX
+                  {contactPhone}
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 flex-shrink-0" style={{ color: '#D4A017' }} />
-                <a href="mailto:info@paragonorganic.com.bd" className="text-sm hover:text-white transition-colors"
+                <a href={`mailto:${contactEmail}`} className="text-sm hover:text-white transition-colors"
                   style={{ color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-inter)' }}>
-                  info@paragonorganic.com.bd
+                  {contactEmail}
                 </a>
               </li>
             </ul>

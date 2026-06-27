@@ -47,6 +47,8 @@ const PAGE_TREE: PageItem[] = [
   { slug: 'location', label: 'লোকেশন / ডিলারশিপ', labelEn: 'Location', icon: '📍' },
   { slug: 'career', label: 'ক্যারিয়ার', labelEn: 'Career', icon: '💼' },
   { slug: 'contact', label: 'যোগাযোগ', labelEn: 'Contact', icon: '📞' },
+  { slug: 'navbar', label: 'নেভবার', labelEn: 'Navbar', icon: '🔝' },
+  { slug: 'footer', label: 'ফুটার', labelEn: 'Footer', icon: '🔻' },
 ]
 
 function flatPages(tree: PageItem[]): PageItem[] {

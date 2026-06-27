@@ -14,6 +14,8 @@ type SiteSettings = {
   ctaHref?: string
   logo?: { url?: string; alt?: string }
   socialLinks?: SocialLink[]
+  navbarData?: unknown
+  footerData?: unknown
 }
 
 export function Providers({
@@ -26,13 +28,14 @@ export function Providers({
   return (
     <LanguageProvider>
       <CartProvider>
-        <Navbar siteSettings={siteSettings} />
+        <Navbar siteSettings={siteSettings} navbarPuckData={siteSettings?.navbarData} />
         <main>{children}</main>
         <Footer
           socialLinks={siteSettings?.socialLinks}
           logo={siteSettings?.logo}
           siteName={siteSettings?.siteName}
           siteSubtitle={siteSettings?.siteSubtitle}
+          footerPuckData={siteSettings?.footerData}
         />
       </CartProvider>
     </LanguageProvider>

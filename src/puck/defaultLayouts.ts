@@ -655,6 +655,72 @@ export const defaultLayouts: Record<string, PuckData> = {
     ],
   },
 
+  // ── Site layout blocks ──────────────────────────────────────────────────────
+
+  navbar: {
+    root: { props: { title: 'Navbar Configuration' } },
+    content: [
+      {
+        type: 'NavbarConfigBlock',
+        props: {
+          id: 'navbar-config',
+          siteName: 'প্যারাগন',
+          siteSubtitle: 'Organic Fertilizer',
+          ctaLabel: 'এখনই কিনুন',
+          ctaLabelEn: 'Order Now',
+          ctaHref: '/shop',
+          logoUrl: '',
+          navLinks: [
+            { href: '/', bn: 'হোম', en: 'Home' },
+            { href: '', bn: 'সম্পর্কে', en: 'About' },
+            { href: '/shop', bn: 'পণ্য ও ক্রয়', en: 'Products' },
+            { href: '/dealership', bn: 'ডিলারশিপ', en: 'Dealership' },
+            { href: '/career', bn: 'ক্যারিয়ার', en: 'Career' },
+            { href: '/contact', bn: 'যোগাযোগ', en: 'Contact' },
+          ],
+          aboutChildren: [
+            { href: '/about/our-story', bn: 'আমাদের গল্প', en: 'Our Story' },
+            { href: '/about/soil-benefit', bn: 'মাটির উপকার', en: 'Soil Benefit' },
+            { href: '/about/why-this-product', bn: 'কেন এই পণ্য?', en: 'Why This Product?' },
+            { href: '/about/paragon-group', bn: 'প্যারাগন গ্রুপ', en: 'Paragon Group' },
+          ],
+        },
+      },
+    ],
+  },
+
+  footer: {
+    root: { props: { title: 'Footer Configuration' } },
+    content: [
+      {
+        type: 'FooterConfigBlock',
+        props: {
+          id: 'footer-config',
+          logoUrl: '',
+          description: 'উপকারী অণুজীব সমৃদ্ধ ১০০% অর্গানিক জৈব সার। বাংলাদেশের কৃষকদের মাটির সুস্বাস্থ্য ফিরিয়ে আনতে আমরা প্রতিশ্রুতিবদ্ধ।',
+          descriptionEn: '100% organic fertilizer enriched with beneficial microorganisms. We are committed to restoring soil health for Bangladeshi farmers.',
+          contactAddress: 'প্যারাগন গ্রুপ, ঢাকা, বাংলাদেশ',
+          contactAddressEn: 'Paragon Group, Dhaka, Bangladesh',
+          contactPhone: '+880 1XXX-XXXXXX',
+          contactEmail: 'info@paragonorganic.com.bd',
+          quickLinks: [
+            { href: '/', bn: 'হোম', en: 'Home' },
+            { href: '/about/our-story', bn: 'আমাদের গল্প', en: 'Our Story' },
+            { href: '/products', bn: 'পণ্যসমূহ', en: 'Products' },
+            { href: '/dealership', bn: 'ডিলারশিপ', en: 'Dealership' },
+            { href: '/career', bn: 'ক্যারিয়ার', en: 'Career' },
+            { href: '/contact', bn: 'যোগাযোগ', en: 'Contact' },
+          ],
+          productLinks: [
+            { href: '/products', bn: 'প্যারাগন জৈব সার', en: 'Paragon Organic Fertilizer' },
+            { href: '/products', bn: 'জৈব কীটনাশক', en: 'Organic Pesticide' },
+            { href: '/products', bn: 'মাটি উন্নয়নকারী', en: 'Soil Improver' },
+          ],
+        },
+      },
+    ],
+  },
+
 }
 
 export function getDefaultLayout(slug: string): PuckData {

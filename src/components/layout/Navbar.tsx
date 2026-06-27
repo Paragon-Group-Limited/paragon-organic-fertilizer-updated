@@ -35,12 +35,57 @@ type SiteSettings = {
   logo?: { url?: string; alt?: string }
 }
 
-export default function Navbar({ siteSettings }: { siteSettings?: SiteSettings | null }) {
+type NavLink = { href?: string; bn: string; en: string }
+
+type NavbarPuckProps = {
+  siteName?: string
+  siteSubtitle?: string
+  ctaLabel?: string
+  ctaLabelEn?: string
+  ctaHref?: string
+  logoUrl?: string
+  navLinks?: NavLink[]
+  aboutChildren?: NavLink[]
+}
+
+function extractNavbarPuck(data: unknown): NavbarPuckProps | null {
+  if (!data || typeof data !== 'object') return null
+  const d = data as { content?: Array<{ type: string; props: NavbarPuckProps }> }
+  const block = d.content?.find(b => b.type === 'NavbarConfigBlock')
+  return block?.props ?? null
+}
+
+export default function Navbar({
+  siteSettings,
+  navbarPuckData,
+}: {
+  siteSettings?: SiteSettings | null
+  navbarPuckData?: unknown
+}) {
   const { lang } = useLanguage()
   const { wishlist } = useCart()
 
-  const siteName     = siteSettings?.siteName     || 'প্যারাগন'
-  const siteSubtitle = siteSettings?.siteSubtitle || 'Organic Fertilizer'
+  const puck = extractNavbarPuck(navbarPuckData)
+
+  const siteName     = puck?.siteName     || siteSettings?.siteName     || 'প্যারাগন'
+  const siteSubtitle = puck?.siteSubtitle || siteSettings?.siteSubtitle || 'Organic Fertilizer'
+  const ctaHref      = puck?.ctaHref      || siteSettings?.ctaHref      || '/shop'
+  const ctaLabel     = lang === 'en'
+    ? (puck?.ctaLabelEn || 'Order Now')
+    : (puck?.ctaLabel   || siteSettings?.ctaLabel || 'এখনই কিনুন')
+  const logoUrl      = puck?.logoUrl      || (siteSettings as { logo?: { url?: string } } | null)?.logo?.url || ''
+
+  // Build active nav links — use Puck data when available, fallback to hardcoded
+  const activeNavLinks = puck?.navLinks?.length
+    ? puck.navLinks.map(l => ({
+        href: l.href || '',
+        bn: l.bn,
+        en: l.en,
+        children: (!l.href && puck.aboutChildren?.length)
+          ? puck.aboutChildren.map(c => ({ href: c.href || '/', bn: c.bn, en: c.en }))
+          : undefined,
+      }))
+    : navLinks
 
   const [scrolled,       setScrolled]       = useState(false)
   const [mobileOpen,     setMobileOpen]     = useState(false)
@@ -70,10 +115,15 @@ export default function Navbar({ siteSettings }: { siteSettings?: SiteSettings |
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #D4A017, #F5C842)' }}>
-              <Leaf className="w-5 h-5 text-white" strokeWidth={2.5} />
-            </div>
+            {logoUrl
+              ? <img src={logoUrl} alt="Logo" className="h-10 w-auto object-contain" />
+              : (
+                <div className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, #D4A017, #F5C842)' }}>
+                  <Leaf className="w-5 h-5 text-white" strokeWidth={2.5} />
+                </div>
+              )
+            }
             <div className="leading-tight">
               <div className="text-white font-bold text-base tracking-wide" style={{ fontFamily: 'var(--font-hind)' }}>
                 {siteName}
@@ -87,7 +137,7 @@ export default function Navbar({ siteSettings }: { siteSettings?: SiteSettings |
 
           {/* Desktop Nav */}
           <ul className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {activeNavLinks.map((link) => (
               <li key={link.bn} className="relative"
                 onMouseEnter={() => link.children && setActiveDropdown(link.bn)}
                 onMouseLeave={() => setActiveDropdown(null)}>
@@ -159,10 +209,10 @@ export default function Navbar({ siteSettings }: { siteSettings?: SiteSettings |
             {/* Cart dropdown */}
             <CartDropdown />
 
-            <Link href="/shop"
+            <Link href={ctaHref}
               className="px-5 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 hover:scale-105 active:scale-95"
               style={{ background: 'linear-gradient(135deg, #D4A017, #F5C842)', color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
-              {lang === 'en' ? 'Order Now' : 'এখনই কিনুন'}
+              {ctaLabel}
             </Link>
           </div>
 
@@ -187,7 +237,7 @@ export default function Navbar({ siteSettings }: { siteSettings?: SiteSettings |
             className="lg:hidden overflow-hidden"
             style={{ background: 'rgba(15, 46, 36, 0.98)', backdropFilter: 'blur(16px)' }}>
             <div className="px-4 py-4 space-y-1">
-              {navLinks.map((link, i) => (
+              {activeNavLinks.map((link, i) => (
                 <motion.div key={link.bn}
                   initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.06 }}>
@@ -219,10 +269,10 @@ export default function Navbar({ siteSettings }: { siteSettings?: SiteSettings |
                 <LanguageSwitcher size="sm" />
               </div>
               <div className="pt-2 pb-2">
-                <Link href="/shop" onClick={() => setMobileOpen(false)}
+                <Link href={ctaHref} onClick={() => setMobileOpen(false)}
                   className="block text-center px-6 py-3 font-semibold rounded-full"
                   style={{ background: 'linear-gradient(135deg, #D4A017, #F5C842)', color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
-                  {lang === 'en' ? 'Order Now' : 'এখনই কিনুন'}
+                  {ctaLabel}
                 </Link>
               </div>
             </div>

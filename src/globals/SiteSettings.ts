@@ -2,9 +2,20 @@ import type { GlobalConfig } from 'payload'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
-  label: 'Site Settings (Navbar & Logo)',
+  label: 'Site Settings',
   access: { read: () => true },
   fields: [
+    // ── Layout Editor section (shows Navbar / Footer edit cards) ──────────────
+    {
+      name: 'layoutEditorSection',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/app/(payload)/admin/components/LayoutEditorSection',
+        },
+      },
+    },
+    // ── Basic branding ────────────────────────────────────────────────────────
     {
       type: 'row',
       fields: [
@@ -25,6 +36,7 @@ export const SiteSettings: GlobalConfig = {
         { name: 'ctaHref', type: 'text', label: 'CTA Button Link', defaultValue: '/contact' },
       ],
     },
+    // ── Social links ──────────────────────────────────────────────────────────
     {
       name: 'socialLinks',
       type: 'array',
@@ -45,6 +57,19 @@ export const SiteSettings: GlobalConfig = {
         { name: 'url', type: 'text', label: 'URL' },
         { name: 'label', type: 'text', label: 'Aria Label (for accessibility)' },
       ],
+    },
+    // ── Puck layout data (hidden — managed via Puck editor) ───────────────────
+    {
+      name: 'navbarData',
+      type: 'json',
+      label: 'Navbar Layout Data (Puck)',
+      admin: { hidden: true },
+    },
+    {
+      name: 'footerData',
+      type: 'json',
+      label: 'Footer Layout Data (Puck)',
+      admin: { hidden: true },
     },
   ],
 }

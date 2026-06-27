@@ -163,6 +163,10 @@ function CTABannerRender(props: any) {
 export const puckConfig: Config = {
   categories: {
     // ── Visible in "Add New Blocks" panel ──────────────────────────
+    '🎨 Site Layout': {
+      components: ['NavbarConfigBlock', 'FooterConfigBlock'],
+      visible: false,
+    },
     '🎬 YouTube ভিডিও': {
       components: ['YouTubeVideoGridBlock'],
     },
@@ -769,6 +773,180 @@ export const puckConfig: Config = {
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (props: any) => <CTABannerRender {...props} />,
+    },
+
+    // ══════════════════════════════════════════════════════════════
+    // SITE LAYOUT BLOCKS (Navbar / Footer editors)
+    // ══════════════════════════════════════════════════════════════
+
+    NavbarConfigBlock: {
+      label: '🔝 Navbar Configuration',
+      fields: {
+        siteName:    { type: 'text', label: 'Site Name (বাংলা)' },
+        siteSubtitle:{ type: 'text', label: 'Site Subtitle (English)' },
+        ctaLabel:    { type: 'text', label: 'CTA বাটন লেবেল (বাংলা)' },
+        ctaLabelEn:  { type: 'text', label: 'CTA Button Label (English)' },
+        ctaHref:     { type: 'text', label: 'CTA Link (e.g. /shop)' },
+        logoUrl:     imageUploadField('Logo Image (browser থেকে upload করুন)'),
+        navLinks: {
+          type: 'array',
+          label: 'Navigation Links',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          getItemSummary: (item: any) => item.en || item.bn || 'Link',
+          arrayFields: {
+            href: { type: 'text', label: 'URL (dropdown এর জন্য খালি রাখুন)' },
+            bn:   { type: 'text', label: 'লেবেল (বাংলা)' },
+            en:   { type: 'text', label: 'Label (English)' },
+          },
+          defaultItemProps: { href: '/', bn: 'লিঙ্ক', en: 'Link' },
+        },
+        aboutChildren: {
+          type: 'array',
+          label: 'About Dropdown Items',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          getItemSummary: (item: any) => item.en || item.bn || 'About item',
+          arrayFields: {
+            href: { type: 'text', label: 'URL' },
+            bn:   { type: 'text', label: 'লেবেল (বাংলা)' },
+            en:   { type: 'text', label: 'Label (English)' },
+          },
+          defaultItemProps: { href: '/about/our-story', bn: 'আমাদের গল্প', en: 'Our Story' },
+        },
+      },
+      defaultProps: {
+        siteName: 'প্যারাগন',
+        siteSubtitle: 'Organic Fertilizer',
+        ctaLabel: 'এখনই কিনুন',
+        ctaLabelEn: 'Order Now',
+        ctaHref: '/shop',
+        logoUrl: '',
+        navLinks: [
+          { href: '/', bn: 'হোম', en: 'Home' },
+          { href: '', bn: 'সম্পর্কে', en: 'About' },
+          { href: '/shop', bn: 'পণ্য ও ক্রয়', en: 'Products' },
+          { href: '/dealership', bn: 'ডিলারশিপ', en: 'Dealership' },
+          { href: '/career', bn: 'ক্যারিয়ার', en: 'Career' },
+          { href: '/contact', bn: 'যোগাযোগ', en: 'Contact' },
+        ],
+        aboutChildren: [
+          { href: '/about/our-story', bn: 'আমাদের গল্প', en: 'Our Story' },
+          { href: '/about/soil-benefit', bn: 'মাটির উপকার', en: 'Soil Benefit' },
+          { href: '/about/why-this-product', bn: 'কেন এই পণ্য?', en: 'Why This Product?' },
+          { href: '/about/paragon-group', bn: 'প্যারাগন গ্রুপ', en: 'Paragon Group' },
+        ],
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      render: (props: any) => (
+        <div style={{ background: 'rgba(27,77,62,0.97)', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, borderRadius: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {props.logoUrl
+              ? <img src={props.logoUrl} alt="Logo" style={{ height: 36, objectFit: 'contain' }} />
+              : <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#D4A017,#F5C842)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🌿</div>
+            }
+            <div>
+              <div style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>{props.siteName || 'প্যারাগন'}</div>
+              <div style={{ color: '#D4A017', fontSize: 10, letterSpacing: 2 }}>{props.siteSubtitle || 'ORGANIC FERTILIZER'}</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            {(props.navLinks || []).map((l: { bn: string; en: string; href: string }, i: number) => (
+              <span key={i} style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12 }}>{l.en || l.bn}</span>
+            ))}
+          </div>
+          <div style={{ background: 'linear-gradient(135deg,#D4A017,#F5C842)', color: '#1B4D3E', padding: '6px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700 }}>
+            {props.ctaLabelEn || props.ctaLabel || 'Order Now'}
+          </div>
+        </div>
+      ),
+    },
+
+    FooterConfigBlock: {
+      label: '🔻 Footer Configuration',
+      fields: {
+        logoUrl:          imageUploadField('Logo Image (browser থেকে upload করুন)'),
+        description:      { type: 'textarea', label: 'Footer Description (বাংলা)' },
+        descriptionEn:    { type: 'textarea', label: 'Footer Description (English)' },
+        contactAddress:   { type: 'text', label: 'ঠিকানা (বাংলা)' },
+        contactAddressEn: { type: 'text', label: 'Address (English)' },
+        contactPhone:     { type: 'text', label: 'ফোন নম্বর' },
+        contactEmail:     { type: 'text', label: 'ইমেইল' },
+        quickLinks: {
+          type: 'array',
+          label: 'Quick Links',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          getItemSummary: (item: any) => item.en || item.bn || 'Link',
+          arrayFields: {
+            href: { type: 'text', label: 'URL' },
+            bn:   { type: 'text', label: 'লেবেল (বাংলা)' },
+            en:   { type: 'text', label: 'Label (English)' },
+          },
+          defaultItemProps: { href: '/', bn: 'লিঙ্ক', en: 'Link' },
+        },
+        productLinks: {
+          type: 'array',
+          label: 'Our Products Links',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          getItemSummary: (item: any) => item.en || item.bn || 'Product',
+          arrayFields: {
+            href: { type: 'text', label: 'URL' },
+            bn:   { type: 'text', label: 'নাম (বাংলা)' },
+            en:   { type: 'text', label: 'Name (English)' },
+          },
+          defaultItemProps: { href: '/products', bn: 'পণ্য', en: 'Product' },
+        },
+      },
+      defaultProps: {
+        logoUrl: '',
+        description: 'উপকারী অণুজীব সমৃদ্ধ ১০০% অর্গানিক জৈব সার। বাংলাদেশের কৃষকদের মাটির সুস্বাস্থ্য ফিরিয়ে আনতে আমরা প্রতিশ্রুতিবদ্ধ।',
+        descriptionEn: '100% organic fertilizer enriched with beneficial microorganisms. We are committed to restoring soil health for Bangladeshi farmers.',
+        contactAddress: 'প্যারাগন গ্রুপ, ঢাকা, বাংলাদেশ',
+        contactAddressEn: 'Paragon Group, Dhaka, Bangladesh',
+        contactPhone: '+880 1XXX-XXXXXX',
+        contactEmail: 'info@paragonorganic.com.bd',
+        quickLinks: [
+          { href: '/', bn: 'হোম', en: 'Home' },
+          { href: '/about/our-story', bn: 'আমাদের গল্প', en: 'Our Story' },
+          { href: '/products', bn: 'পণ্যসমূহ', en: 'Products' },
+          { href: '/dealership', bn: 'ডিলারশিপ', en: 'Dealership' },
+          { href: '/career', bn: 'ক্যারিয়ার', en: 'Career' },
+          { href: '/contact', bn: 'যোগাযোগ', en: 'Contact' },
+        ],
+        productLinks: [
+          { href: '/products', bn: 'প্যারাগন জৈব সার', en: 'Paragon Organic Fertilizer' },
+          { href: '/products', bn: 'জৈব কীটনাশক', en: 'Organic Pesticide' },
+          { href: '/products', bn: 'মাটি উন্নয়নকারী', en: 'Soil Improver' },
+        ],
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      render: (props: any) => (
+        <div style={{ background: '#0F2E24', color: '#fff', padding: '24px 32px', borderRadius: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }}>
+            <div>
+              <div style={{ fontWeight: 700, marginBottom: 6, color: '#fff' }}>প্যারাগন</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>{props.description || ''}</div>
+              <div style={{ marginTop: 8, fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>📱 {props.contactPhone}</div>
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, marginBottom: 8, color: '#D4A017', fontSize: 12 }}>Quick Links</div>
+              {(props.quickLinks || []).map((l: { en: string; bn: string }, i: number) => (
+                <div key={i} style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>· {l.en || l.bn}</div>
+              ))}
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, marginBottom: 8, color: '#D4A017', fontSize: 12 }}>Our Products</div>
+              {(props.productLinks || []).map((l: { en: string; bn: string }, i: number) => (
+                <div key={i} style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>· {l.en || l.bn}</div>
+              ))}
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, marginBottom: 8, color: '#D4A017', fontSize: 12 }}>Contact</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>📍 {props.contactAddressEn || props.contactAddress}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>📞 {props.contactPhone}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>✉️ {props.contactEmail}</div>
+            </div>
+          </div>
+        </div>
+      ),
     },
   },
 

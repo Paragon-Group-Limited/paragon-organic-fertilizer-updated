@@ -67,6 +67,12 @@ export function HomeSlidesBlock({ slides }: { slides?: SlideItem[] }) {
           const cta1 = slide.cta1Label ? t(slide.cta1Label, slide.cta1LabelEn) : undefined
           const cta2 = slide.cta2Label ? t(slide.cta2Label, slide.cta2LabelEn) : undefined
 
+          const hasSlideText =
+            slide.showTag !== 'no' ||
+            slide.showHeading !== 'no' ||
+            slide.showSubtitle !== 'no' ||
+            slide.showButtons !== 'no'
+
           return (
             <SwiperSlide key={idx}>
               <div className="relative w-full h-full flex items-center"
@@ -76,20 +82,30 @@ export function HomeSlidesBlock({ slides }: { slides?: SlideItem[] }) {
                   <img src={slide.imageUrl} alt={heading}
                     className="absolute inset-0 w-full h-full object-cover" />
                 )}
+
+                {/* Top-edge fade — always on image slides so navbar stays readable */}
                 {slide.imageUrl && (
+                  <div className="absolute inset-0 z-[1]"
+                    style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, transparent 26%)' }} />
+                )}
+                {/* Full overlay only when slide text is visible */}
+                {hasSlideText && slide.imageUrl && (
                   <div className="absolute inset-0"
                     style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%)' }} />
                 )}
+                {hasSlideText && (
+                  <>
+                    <div className="absolute top-20 right-20 w-80 h-80 rounded-full opacity-10"
+                      style={{ background: 'radial-gradient(circle, #fff 0%, transparent 70%)', filter: 'blur(40px)' }} />
+                    <div className="absolute inset-0 opacity-5"
+                      style={{
+                        backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
+                        backgroundSize: '60px 60px'
+                      }} />
+                  </>
+                )}
 
-                <div className="absolute top-20 right-20 w-80 h-80 rounded-full opacity-10"
-                  style={{ background: 'radial-gradient(circle, #fff 0%, transparent 70%)', filter: 'blur(40px)' }} />
-                <div className="absolute inset-0 opacity-5"
-                  style={{
-                    backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-                    backgroundSize: '60px 60px'
-                  }} />
-
-                {(() => {
+                {hasSlideText && (() => {
                   const align = slide.align || 'left'
                   const isCenter = align === 'center'
                   const isRight = align === 'right'

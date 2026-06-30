@@ -98,38 +98,4 @@ section {
   box-shadow: 0 20px 60px rgba(27, 77, 62, 0.15);
 }
 
-/* Hero slide images: landscape photos crop to portrait on mobile.
-   Shift the focus point right-of-center in portrait orientation so
-   subjects (typically center-right in field/outdoor photography)
-   stay visible instead of being cropped off the edge. */
-.hero-slide-img {
-  object-position: center;
-}
-@media (max-width: 767px) and (orientation: portrait) {
-  .hero-slide-img {
-    object-position: 65% center;
-  }
-}
 
-/* Hero slider — full-viewport height with mobile-browser fallback.
-   Inline `height: 100svh` is silently dropped on iOS Safari < 15.4 and
-   older Android Chrome, leaving only min-height which prevents h-full
-   inside Swiper from resolving correctly. This cascade ensures an explicit
-   height is always set so Swiper children can inherit it via h-full. */
-.hero-banner {
-  height: 100vh;   /* universal fallback */
-  height: 100svh;  /* static viewport: iOS 15.4+, Chrome 108+ */
-  min-height: 560px;
-}
-
-/* Inner-page banner — responsive min-height so the banner
-   doesn't take up the entire screen on small portrait devices. */
-.page-banner {
-  min-height: 360px;
-}
-@media (min-width: 640px) {
-  .page-banner { min-height: 480px; }
-}
-@media (min-width: 1024px) {
-  .page-banner { min-height: 660px; }
-}

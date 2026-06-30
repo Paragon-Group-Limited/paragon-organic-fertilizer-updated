@@ -45,7 +45,7 @@ export function HomeSlidesBlock({ slides }: { slides?: SlideItem[] }) {
   }
 
   return (
-    <section className="relative w-full hero-banner">
+    <section className="relative w-full aspect-[4/3] md:aspect-auto md:min-h-[560px] md:[height:100svh]">
       <Swiper
         modules={[Autoplay, EffectFade, Pagination, Navigation]}
         effect="fade"
@@ -74,7 +74,7 @@ export function HomeSlidesBlock({ slides }: { slides?: SlideItem[] }) {
 
                 {slide.imageUrl && (
                   <img src={slide.imageUrl} alt={heading}
-                    className="absolute inset-0 w-full h-full object-cover hero-slide-img" />
+                    className="absolute inset-0 w-full h-full object-cover" />
                 )}
                 {slide.imageUrl && (
                   <div className="absolute inset-0"

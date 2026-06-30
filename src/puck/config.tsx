@@ -259,6 +259,14 @@ export const puckConfig: Config = {
         breadcrumb1Href: '/about/our-story',
         breadcrumb2Label: '', breadcrumb2LabelEn: '',
       },
+      resolveData: (data) => {
+        const { showTag, showTitle, showSubtitle } = data.props as Record<string, string>
+        const allHidden = showTag === 'no' && showTitle === 'no' && showSubtitle === 'no'
+        return {
+          ...data,
+          props: { ...data.props, bgGradient: allHidden ? '' : data.props.bgGradient },
+        }
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (props: any) => <PageBannerBlock {...props} />,
     },

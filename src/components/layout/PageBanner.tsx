@@ -60,11 +60,10 @@ export function PageBanner({
       </svg>
 
       <section
-        className="relative pt-28 pb-36 lg:pt-32 lg:pb-44 overflow-hidden"
+        className="relative pt-20 pb-28 sm:pt-24 sm:pb-32 lg:pt-32 lg:pb-44 overflow-hidden page-banner"
         style={{
           background: bgGradient,
           clipPath: 'url(#page-banner-clip)',
-          minHeight: 660,
         }}
       >
         {/* Background image + tint */}

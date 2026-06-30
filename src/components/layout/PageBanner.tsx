@@ -84,6 +84,14 @@ export function PageBanner({
           />
         )}
 
+        {/* Top-edge fade — always on image banners so navbar stays readable */}
+        {bgImageUrl && (
+          <div
+            className="absolute inset-0 z-[1]"
+            style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, transparent 26%)' }}
+          />
+        )}
+
         {/* Gradient tint + decorations — only when text is present for readability */}
         {hasText && (
           <>

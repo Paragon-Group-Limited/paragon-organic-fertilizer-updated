@@ -103,11 +103,11 @@ export default function Navbar({
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
       style={{
-        background: scrolled
+        background: (scrolled || mobileOpen)
           ? 'rgba(27, 77, 62, 0.97)'
           : 'linear-gradient(to bottom, rgba(0,0,0,0.4), transparent)',
-        backdropFilter: scrolled ? 'blur(12px)' : 'none',
-        boxShadow: scrolled ? '0 4px 30px rgba(0,0,0,0.15)' : 'none',
+        backdropFilter: (scrolled || mobileOpen) ? 'blur(12px)' : 'none',
+        boxShadow: (scrolled || mobileOpen) ? '0 4px 30px rgba(0,0,0,0.15)' : 'none',
       }}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

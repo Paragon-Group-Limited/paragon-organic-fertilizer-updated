@@ -45,7 +45,7 @@ export function HomeSlidesBlock({ slides }: { slides?: SlideItem[] }) {
   }
 
   return (
-    <section className="relative w-full" style={{ height: '100svh', minHeight: 600 }}>
+    <section className="relative w-full hero-banner">
       <Swiper
         modules={[Autoplay, EffectFade, Pagination, Navigation]}
         effect="fade"
@@ -57,6 +57,7 @@ export function HomeSlidesBlock({ slides }: { slides?: SlideItem[] }) {
         speed={1000}
         onSlideChange={() => setKey(k => k + 1)}
         className="w-full h-full"
+        style={{ height: '100%', width: '100%' }}
       >
         {list.map((slide, idx) => {
           const accent = slide.accentColor || '#D4A017'
@@ -73,7 +74,7 @@ export function HomeSlidesBlock({ slides }: { slides?: SlideItem[] }) {
 
                 {slide.imageUrl && (
                   <img src={slide.imageUrl} alt={heading}
-                    className="absolute inset-0 w-full h-full object-cover" />
+                    className="absolute inset-0 w-full h-full object-cover hero-slide-img" />
                 )}
                 {slide.imageUrl && (
                   <div className="absolute inset-0"

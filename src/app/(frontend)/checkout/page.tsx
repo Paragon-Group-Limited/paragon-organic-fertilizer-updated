@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useCart } from '@/contexts/CartContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -301,8 +302,8 @@ export default function CheckoutPage() {
                     {items.map(item => (
                       <div key={item.id} className="flex items-center gap-3">
                         {item.image && (
-                          <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                          <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 relative">
+                            <Image src={item.image} alt={item.name} fill sizes="48px" className="object-cover" />
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
@@ -348,8 +349,9 @@ export default function CheckoutPage() {
                 {items.map(item => (
                   <div key={item.id} className="flex items-start gap-2">
                     {item.image && (
-                      <img src={item.image} alt={item.name}
-                        className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                      <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 relative">
+                        <Image src={item.image} alt={item.name} fill sizes="40px" className="object-cover" />
+                      </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-800 text-xs leading-snug truncate" style={{ fontFamily: 'var(--font-hind)' }}>

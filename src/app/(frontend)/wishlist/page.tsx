@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { useCart } from '@/contexts/CartContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import Link from 'next/link'
@@ -173,8 +174,9 @@ export default function WishlistPage() {
                     {/* Image */}
                     <div className="relative overflow-hidden" style={{ height: 220 }}>
                       {imageUrl ? (
-                        <img src={imageUrl} alt={product.image?.alt || product.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        <Image src={imageUrl} alt={product.image?.alt || product.name}
+                          fill sizes="(max-width: 768px) 100vw, 50vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center"
                           style={{ background: 'linear-gradient(135deg, #e8f5e9, #c8e6c9)' }}>

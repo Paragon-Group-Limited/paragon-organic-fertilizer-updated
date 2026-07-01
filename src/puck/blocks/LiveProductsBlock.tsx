@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 type Product = {
@@ -75,7 +76,7 @@ export function LiveProductsBlock() {
               {/* Image */}
               <div style={{ height: 130, background: p.image?.url ? '#f9fafb' : 'linear-gradient(135deg,#e8f5e9,#c8e6c9)', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {p.image?.url ? (
-                  <img src={p.image.url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <Image src={p.image.url} alt={p.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                 ) : (
                   <span style={{ fontSize: 36, opacity: 0.4 }}>📦</span>
                 )}

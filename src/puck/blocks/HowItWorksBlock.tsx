@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import Image from 'next/image'
 import { motion, useInView } from 'framer-motion'
 import { RichText } from '@/components/puck/RichText'
 import { useT } from '@/hooks/useT'
@@ -59,7 +60,7 @@ export function HowItWorksBlock(props: Props) {
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 mt-2 overflow-hidden flex-shrink-0"
                   style={{ background: 'linear-gradient(135deg, rgba(27,77,62,0.06), rgba(45,122,58,0.1))' }}>
                   {step.imageUrl ? (
-                    <img src={step.imageUrl} alt="" className="w-full h-full object-contain p-1" />
+                    <Image src={step.imageUrl} alt="" width={64} height={64} className="w-full h-full object-contain p-1" />
                   ) : (
                     <span className="text-3xl">{step.icon}</span>
                   )}

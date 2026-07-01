@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Star, Tag } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -90,8 +91,9 @@ export default function ProductCard({ product }: { product: Product }) {
       {/* Image area */}
       <div className="relative overflow-hidden" style={{ height: 220 }}>
         {imageUrl ? (
-          <img src={imageUrl} alt={product.image?.alt || product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <Image src={imageUrl} alt={product.image?.alt || product.name}
+            fill sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105" />
         ) : (
           <div className="w-full h-full flex items-center justify-center"
             style={{ background: 'linear-gradient(135deg, #e8f5e9, #c8e6c9)' }}>

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { RichText } from '@/components/puck/RichText'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, EffectFade, Pagination, Navigation } from 'swiper/modules'
@@ -79,8 +80,14 @@ export function HomeSlidesBlock({ slides }: { slides?: SlideItem[] }) {
                 style={{ background: slide.imageUrl ? 'transparent' : (slide.bgColor || '#1B4D3E') }}>
 
                 {slide.imageUrl && (
-                  <img src={slide.imageUrl} alt={heading}
-                    className="absolute inset-0 w-full h-full object-cover" />
+                  <Image
+                    src={slide.imageUrl}
+                    alt={heading}
+                    fill
+                    priority={idx === 0}
+                    sizes="100vw"
+                    className="object-cover"
+                  />
                 )}
 
                 {/* Top-edge fade — always on image slides so navbar stays readable */}

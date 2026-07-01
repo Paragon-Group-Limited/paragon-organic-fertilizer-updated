@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import Image from 'next/image'
 import { Leaf, CheckCircle, Package, Star, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import AddToCartButton from '@/components/shop/AddToCartButton'
@@ -84,8 +85,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <div className="rounded-2xl overflow-hidden aspect-square relative"
               style={{ background: '#fff', boxShadow: '0 2px 20px rgba(0,0,0,0.08)' }}>
               {mainImage?.url ? (
-                <img src={mainImage.url} alt={mainImage.alt || product.name}
-                  className="w-full h-full object-cover" />
+                <Image src={mainImage.url} alt={mainImage.alt || product.name}
+                  fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" priority />
               ) : (
                 <div className="w-full h-full flex items-center justify-center"
                   style={{ background: 'linear-gradient(135deg, #e8f5e9, #c8e6c9)' }}>
@@ -106,10 +107,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             {gallery.length > 0 && (
               <div className="flex gap-3 overflow-x-auto pb-1">
                 {[{ image: mainImage }, ...gallery].filter(g => g.image?.url).map((g, i) => (
-                  <div key={i} className="w-16 h-16 rounded-xl overflow-hidden shrink-0"
+                  <div key={i} className="w-16 h-16 rounded-xl overflow-hidden shrink-0 relative"
                     style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-                    <img src={(g.image as { url?: string | null }).url!} alt=""
-                      className="w-full h-full object-cover" />
+                    <Image src={(g.image as { url?: string | null }).url!} alt=""
+                      fill sizes="64px" className="object-cover" />
                   </div>
                 ))}
               </div>

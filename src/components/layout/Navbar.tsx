@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Menu, X, ChevronDown, Leaf, Heart } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -116,7 +117,7 @@ export default function Navbar({
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
             {logoUrl
-              ? <img src={logoUrl} alt="Logo" className="h-10 w-auto object-contain" />
+              ? <Image src={logoUrl} alt="Logo" width={160} height={40} className="h-10 w-auto object-contain" />
               : (
                 <div className="w-10 h-10 rounded-full flex items-center justify-center"
                   style={{ background: 'linear-gradient(135deg, #D4A017, #F5C842)' }}>

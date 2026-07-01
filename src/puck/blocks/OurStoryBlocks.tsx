@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { richTextField } from '@/puck/fields/richTextField'
@@ -56,7 +57,7 @@ function OurStoryFoundingRender(props: any) {
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 overflow-hidden"
                   style={{ background: 'rgba(212,160,23,0.2)' }}>
                   {props.missionIconUrl ? (
-                    <img src={props.missionIconUrl} alt="" className="w-full h-full object-contain p-1" />
+                    <Image src={props.missionIconUrl} alt="" width={40} height={40} className="w-full h-full object-contain p-1" />
                   ) : (
                     <span className="text-lg">🎯</span>
                   )}
@@ -71,7 +72,7 @@ function OurStoryFoundingRender(props: any) {
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 overflow-hidden"
                   style={{ background: 'rgba(212,160,23,0.12)' }}>
                   {props.visionIconUrl ? (
-                    <img src={props.visionIconUrl} alt="" className="w-full h-full object-contain p-1" />
+                    <Image src={props.visionIconUrl} alt="" width={40} height={40} className="w-full h-full object-contain p-1" />
                   ) : (
                     <span className="text-lg">👁️</span>
                   )}
@@ -171,16 +172,15 @@ function StoryCard({ story, index, inView }: { story: StorySlot; index: number; 
       <div className="rounded-3xl overflow-hidden h-full flex flex-col"
         style={{ background: 'white', border: '1px solid rgba(27,77,62,0.08)', boxShadow: '0 8px 32px rgba(27,77,62,0.08)' }}>
 
-        {/* Image — natural ratio, no cropping */}
+        {/* Image — 4:3 aspect ratio */}
         <div className="relative w-full"
-          style={{ background: story.bgGradient || 'linear-gradient(135deg, #1B4D3E 0%, #2D7A3A 100%)' }}>
+          style={{ paddingTop: '75%', background: story.bgGradient || 'linear-gradient(135deg, #1B4D3E 0%, #2D7A3A 100%)' }}>
           {story.imageUrl ? (
-            <img src={story.imageUrl} alt={story.heading}
-              className="w-full h-auto block" style={{ display: 'block' }} />
+            <Image src={story.imageUrl} alt={story.heading}
+              fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
           ) : (
             <>
-              {/* height spacer for emoji placeholder (4:3 ratio) */}
-              <div style={{ paddingTop: '75%' }} />
+              {/* emoji placeholder absolutely positioned */}
               <div className="absolute inset-0 opacity-10"
                 style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
               <div className="absolute inset-0 flex items-center justify-center">
@@ -362,7 +362,7 @@ function OurStoryValuesRender(props: any) {
                   <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5 overflow-hidden"
                     style={{ background: 'linear-gradient(135deg, #1B4D3E, #2D7A3A)' }}>
                     {v.imageUrl ? (
-                      <img src={v.imageUrl} alt="" className="w-full h-full object-contain p-2" />
+                      <Image src={v.imageUrl} alt="" width={56} height={56} className="w-full h-full object-contain p-2" />
                     ) : (
                       <span className="text-2xl">{v.icon}</span>
                     )}

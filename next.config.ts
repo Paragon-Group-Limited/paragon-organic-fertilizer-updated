@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ['98.70.33.131'],
   serverExternalPackages: ['cloudinary'],
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },

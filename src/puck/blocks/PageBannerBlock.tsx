@@ -22,6 +22,7 @@ export function PageBannerBlock(props: any) {
       subtitle={t(props.subtitle, props.subtitleEn)}
       bgGradient={props.bgGradient}
       bgImageUrl={props.bgImageUrl || ''}
+      bgImageFit={props.bgImageFit || 'cover'}
       align={props.align}
       showTag={props.showTag}
       showTitle={props.showTitle}

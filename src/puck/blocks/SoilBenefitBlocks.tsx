@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { richTextField } from '@/puck/fields/richTextField'
 import { imageUploadField } from '@/puck/fields/imageUploadField'
 import { RichText } from '@/components/puck/RichText'
@@ -81,7 +82,7 @@ function SoilProblemRender(props: any) {
             >
               <div className="mb-4">
                 {p.imageUrl ? (
-                  <img src={p.imageUrl} alt="" className="w-12 h-12 object-contain" />
+                  <Image src={p.imageUrl} alt="" width={48} height={48} className="w-12 h-12 object-contain" />
                 ) : (
                   <span className="text-4xl">{p.icon}</span>
                 )}
@@ -172,7 +173,7 @@ function SoilBenefitCardsRender(props: any) {
                   style={{ background: 'linear-gradient(135deg, #1B4D3E, #2D7A3A)', color: '#F5C842' }}
                 >
                   {b.imageUrl ? (
-                    <img src={b.imageUrl} alt="" className="w-full h-full object-contain p-1.5" />
+                    <Image src={b.imageUrl} alt="" width={48} height={48} className="w-full h-full object-contain p-1.5" />
                   ) : (
                     <span className="text-xl">{b.icon}</span>
                   )}
@@ -528,12 +529,12 @@ function SoilApplicationTableRender(props: any) {
 
         {/* Bottom image */}
         {props.bottomImageUrl && (
-          <div className="mt-4 rounded-2xl overflow-hidden">
-            <img
+          <div className="mt-4 rounded-2xl overflow-hidden relative" style={{ height: 520 }}>
+            <Image
               src={props.bottomImageUrl}
               alt={t('প্যারাগন জৈব সার প্রয়োগ')}
-              className="w-full"
-              style={{ display: 'block', objectFit: 'cover', maxHeight: 520 }}
+              fill sizes="100vw"
+              className="object-cover"
             />
           </div>
         )}

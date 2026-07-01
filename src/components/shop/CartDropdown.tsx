@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ShoppingCart, X, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '@/contexts/CartContext'
@@ -109,7 +110,7 @@ export default function CartDropdown({ size = 'md' }: { size?: 'sm' | 'md' }) {
                     <div className="w-11 h-11 rounded-xl overflow-hidden shrink-0"
                       style={{ background: 'linear-gradient(135deg, #e8f5e9, #c8e6c9)' }}>
                       {item.image ? (
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        <Image src={item.image} alt={item.name} width={44} height={44} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <ShoppingBag className="w-4 h-4" style={{ color: '#1B4D3E', opacity: 0.3 }} />

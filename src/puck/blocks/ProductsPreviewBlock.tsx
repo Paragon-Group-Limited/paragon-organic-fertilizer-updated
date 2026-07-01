@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import Image from 'next/image'
 import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, Star } from 'lucide-react'
@@ -76,8 +77,8 @@ export function ProductsPreviewBlock(props: Props) {
                     background: p.imageUrl ? '#f4f1eb' : (p.gradient || 'linear-gradient(135deg, #1B4D3E, #2D7A3A)'),
                   }}>
                   {p.imageUrl ? (
-                    <img src={p.imageUrl} alt={lang === 'en' ? (p.nameEn || p.nameBn) : p.nameBn}
-                      className="absolute inset-0 w-full h-full object-cover" />
+                    <Image src={p.imageUrl} alt={lang === 'en' ? (p.nameEn || p.nameBn) : p.nameBn}
+                      fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                   ) : (
                     <div className="text-7xl">{p.icon || '📦'}</div>
                   )}

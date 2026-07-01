@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { richTextField } from '@/puck/fields/richTextField'
 import { imageUploadField } from '@/puck/fields/imageUploadField'
 import { RichText } from '@/components/puck/RichText'
@@ -62,7 +63,9 @@ function ImageTextRender(props: any) {
       <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexDirection: imageLeft ? 'row' : 'row-reverse', gap: 60, alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ flex: `0 0 ${props.imageWidthPct || 45}%`, minWidth: 260 }}>
           {props.imageUrl
-            ? <img src={props.imageUrl} alt={props.imageAlt || ''} style={{ width: '100%', borderRadius: props.imageRadius !== undefined ? props.imageRadius : 20, objectFit: 'cover', aspectRatio: props.imageAspect || '4/3', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }} />
+            ? <div style={{ position: 'relative', width: '100%', aspectRatio: props.imageAspect || '4/3', borderRadius: props.imageRadius !== undefined ? props.imageRadius : 20, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}>
+                <Image src={props.imageUrl} alt={props.imageAlt || ''} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+              </div>
             : <div style={{ width: '100%', aspectRatio: props.imageAspect || '4/3', borderRadius: 20, background: 'linear-gradient(135deg,#1B4D3E22,#2D7A3A33)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 80 }}>🖼️</div>}
         </div>
         <div style={{ flex: 1, minWidth: 260 }}>
@@ -114,7 +117,9 @@ function FeatureGridRender(props: any) {
           {items.map((item: any, i: number) => (
             <div key={i} style={{ background: 'white', borderRadius: 16, padding: 32, border: '1px solid rgba(27,77,62,0.08)', boxShadow: '0 4px 24px rgba(27,77,62,0.06)', textAlign: props.cardAlign || 'left' }}>
               {item.imageUrl
-                ? <img src={item.imageUrl} alt={item.imageAlt || ''} style={{ width: '100%', borderRadius: 12, objectFit: 'cover', aspectRatio: '16/9', marginBottom: 20 }} />
+                ? <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: 12, overflow: 'hidden', marginBottom: 20 }}>
+                    <Image src={item.imageUrl} alt={item.imageAlt || ''} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
+                  </div>
                 : item.icon
                   ? <div style={{ fontSize: 48, marginBottom: 16 }}>{item.icon}</div>
                   : null}
@@ -158,7 +163,7 @@ function TestimonialsRender(props: any) {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 {item.avatarUrl
-                  ? <img src={item.avatarUrl} alt={item.author || ''} style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover' }} />
+                  ? <Image src={item.avatarUrl} alt={item.author || ''} width={44} height={44} style={{ borderRadius: '50%', objectFit: 'cover' }} />
                   : <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg,#1B4D3E,#2D7A3A)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: 18 }}>{(item.author || 'A')[0]}</div>}
                 <div>
                   <div style={{ fontWeight: 700, color: '#1B4D3E', fontSize: 15, fontFamily: 'var(--font-hind)' }}>{item.author}</div>
@@ -267,7 +272,9 @@ function GalleryGridRender(props: any) {
           {items.map((item: any, i: number) => (
             <div key={i} style={{ borderRadius: 12, overflow: 'hidden', position: 'relative' }}>
               {item.imageUrl
-                ? <img src={item.imageUrl} alt={item.caption || ''} style={{ width: '100%', aspectRatio: props.aspectRatio || '1/1', objectFit: 'cover', display: 'block' }} />
+                ? <div style={{ position: 'relative', width: '100%', aspectRatio: props.aspectRatio || '1/1' }}>
+                    <Image src={item.imageUrl} alt={item.caption || ''} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" style={{ display: 'block' }} />
+                  </div>
                 : <div style={{ width: '100%', aspectRatio: props.aspectRatio || '1/1', background: 'linear-gradient(135deg,#1B4D3E22,#2D7A3A33)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>🖼️</div>}
               {item.caption && (
                 <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.6))', color: 'white', padding: '20px 12px 10px', fontSize: 13, fontFamily: 'var(--font-hind)' }}>

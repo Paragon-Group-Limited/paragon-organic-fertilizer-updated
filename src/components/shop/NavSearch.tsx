@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Search, X, ShoppingBag } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
 
@@ -215,7 +216,7 @@ export default function NavSearch() {
                       <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0"
                         style={{ background: 'linear-gradient(135deg, #e8f5e9, #c8e6c9)' }}>
                         {s.image ? (
-                          <img src={s.image} alt={s.name} className="w-full h-full object-cover" />
+                          <Image src={s.image} alt={s.name} width={40} height={40} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             <ShoppingBag className="w-4 h-4" style={{ color: '#1B4D3E', opacity: 0.3 }} />

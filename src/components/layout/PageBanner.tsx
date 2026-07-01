@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ChevronRight } from 'lucide-react'
 import { RichText } from '@/components/puck/RichText'
@@ -16,6 +17,7 @@ type Props = {
   breadcrumbs?: BreadcrumbItem[]
   bgGradient?: string
   bgImageUrl?: string
+  bgImageFit?: 'cover' | 'contain'
   align?: 'left' | 'center' | 'right'
   showTag?: 'yes' | 'no'
   showTitle?: 'yes' | 'no'
@@ -30,6 +32,7 @@ export function PageBanner({
   breadcrumbs = [],
   bgGradient = 'linear-gradient(135deg, #0a1f14 0%, #1B4D3E 55%, #2D7A3A 100%)',
   bgImageUrl = '',
+  bgImageFit = 'cover',
   align = 'left',
   showTag = 'yes',
   showTitle = 'yes',
@@ -39,13 +42,16 @@ export function PageBanner({
   const justifyClass = align === 'center' ? 'justify-center' : align === 'right' ? 'justify-end' : ''
   const { lang } = useLanguage()
 
-  // Gradient overlay, decorations and padding are only needed when text is visible.
-  // Image-only banners (all text off) show the image clearly without any overlay.
   const hasText =
     showTitle !== 'no' ||
     (tagText && showTag !== 'no') ||
     (subtitle && showSubtitle !== 'no') ||
     breadcrumbs.length > 0
+
+  // cover  → object-cover (fills section, may crop photo edges — fine for landscape photos)
+  // contain → object-fill  (stretches to fill section exactly — no crop, no gaps, slight
+  //           vertical stretch; best for wide promotional banners where full width must show)
+  const imageClass = bgImageFit === 'contain' ? 'object-fill' : 'object-cover'
 
   return (
     <>
@@ -69,25 +75,27 @@ export function PageBanner({
             : 'aspect-[4/3] sm:aspect-auto sm:min-h-[480px] lg:min-h-[660px]'
         }`}
         style={{
-          background: (hasText || !bgImageUrl) ? bgGradient : 'transparent',
+          background: bgGradient,
           clipPath: 'url(#page-banner-clip)',
         }}
       >
         {/* Background image */}
         {bgImageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={bgImageUrl}
             alt=""
             aria-hidden="true"
-            className="absolute inset-0 w-full h-full object-cover"
+            fill
+            priority
+            sizes="100vw"
+            className={imageClass}
           />
         )}
 
-        {/* Top-edge fade — always on image banners so navbar stays readable */}
+        {/* Top-edge dark fade — so navbar stays readable over any image */}
         {bgImageUrl && (
           <div
-            className="absolute inset-0 z-[1]"
+            className="absolute inset-0 z-[1] pointer-events-none"
             style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, transparent 26%)' }}
           />
         )}

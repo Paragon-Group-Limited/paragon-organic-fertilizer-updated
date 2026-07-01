@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import Image from 'next/image'
 import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
@@ -47,7 +48,7 @@ export function AboutSectionBlock(props: Props) {
             <div className="relative rounded-3xl overflow-hidden aspect-[4/3]"
               style={{ background: 'linear-gradient(135deg, #1B4D3E 0%, #2D7A3A 100%)' }}>
               {props.imageUrl
-                ? <img src={props.imageUrl} alt={t(props.headingLine1, props.headingLine1En)} className="w-full h-full object-cover" />
+                ? <Image src={props.imageUrl} alt={t(props.headingLine1, props.headingLine1En)} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                 : (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center text-white px-8">

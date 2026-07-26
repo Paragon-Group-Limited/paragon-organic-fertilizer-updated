@@ -6,8 +6,10 @@ import { getPageLayout } from '@/lib/getPageLayout'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'পণ্য ও ক্রয় — প্যারাগন জৈব সার',
+  title: 'পণ্য ও ক্রয়',
   description: 'প্যারাগন জৈব সার — ১ কেজি, ৫ কেজি ও ৪০ কেজি প্যাকেজে পাওয়া যায়। অর্ডার করুন এখনই।',
+  alternates: { canonical: '/products' },
+  openGraph: { url: '/products', title: 'পণ্য ও ক্রয় | প্যারাগন জৈব সার' },
 }
 
 export default async function ProductsPage() {

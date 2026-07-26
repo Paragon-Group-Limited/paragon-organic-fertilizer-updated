@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { sendNotificationEmail } from '@/lib/sendEmail'
 
 export async function POST(req: NextRequest) {
   try {
@@ -50,6 +51,23 @@ export async function POST(req: NextRequest) {
       data: candidateData as Parameters<typeof payload.create>[0]['data'],
       overrideAccess: true,
     })
+
+    sendNotificationEmail({
+      subject: `👤 নতুন চাকরির আবেদন: ${fullName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+          <h2 style="color: #1B4D3E; border-bottom: 2px solid #1B4D3E; padding-bottom: 10px;">👤 নতুন চাকরির আবেদন</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+            <tr><td style="padding: 8px; font-weight: bold; color: #374151; width: 140px;">নাম</td><td style="padding: 8px;">${fullName}</td></tr>
+            <tr style="background:#f9fafb;"><td style="padding: 8px; font-weight: bold; color: #374151;">মোবাইল</td><td style="padding: 8px;">${mobile}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold; color: #374151;">পদ</td><td style="padding: 8px;">${applyingFor || '—'}</td></tr>
+            <tr style="background:#f9fafb;"><td style="padding: 8px; font-weight: bold; color: #374151;">ঠিকানা</td><td style="padding: 8px;">${address || '—'}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold; color: #374151;">CV</td><td style="padding: 8px;">${cvId ? 'সংযুক্ত আছে ✅' : 'নেই'}</td></tr>
+          </table>
+          <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">Admin Dashboard: <a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/collections/applied-candidates">আবেদন দেখুন</a></p>
+        </div>
+      `,
+    }).catch(err => console.error('[career/apply] email error:', err))
 
     return NextResponse.json({ success: true })
   } catch (err) {

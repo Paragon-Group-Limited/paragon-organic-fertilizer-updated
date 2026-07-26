@@ -8,7 +8,9 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'প্যারাগন গ্রুপ',
-  description: 'প্যারাগন গ্রুপ — বাংলাদেশের অন্যতম শীর্ষস্থানীয় শিল্প প্রতিষ্ঠান এবং কৃষি উন্নয়নে অবদান।',
+  description: 'প্যারাগন গ্রুপ বাংলাদেশের অন্যতম বৃহৎ শিল্প প্রতিষ্ঠান। কৃষি, খাদ্য ও শিল্পে আমাদের বিস্তৃত কার্যক্রম সম্পর্কে জানুন।',
+  alternates: { canonical: '/about/paragon-group' },
+  openGraph: { url: '/about/paragon-group' },
 }
 
 export default async function ParagonGroupPage() {

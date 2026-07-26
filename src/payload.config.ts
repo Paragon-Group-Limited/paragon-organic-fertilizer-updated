@@ -15,6 +15,7 @@ import { HeroSlides } from './collections/HeroSlides'
 import { Orders } from './collections/Orders'
 import { BlockedPhones } from './collections/BlockedPhones'
 import { AppliedCandidates } from './collections/AppliedCandidates'
+import { ContactMessages } from './collections/ContactMessages'
 import { SiteSettings } from './globals/SiteSettings'
 import { cloudinaryAdapter } from './plugins/cloudinaryAdapter'
 
@@ -55,7 +56,7 @@ export default buildConfig({
       payload.logger.info(`Admin user created: ${email}`)
     }
   },
-  collections: [Users, Media, Pages, Products, Dealers, Careers, AppliedCandidates, HeroSlides, Orders, BlockedPhones],
+  collections: [Users, Media, Pages, Products, Dealers, Careers, AppliedCandidates, HeroSlides, Orders, BlockedPhones, ContactMessages],
   globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'paragon-secret-change-in-production',

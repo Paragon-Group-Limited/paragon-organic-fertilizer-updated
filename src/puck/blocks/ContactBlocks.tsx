@@ -89,10 +89,23 @@ function ContactFormMapRender(props: any) {
   const t = useT()
   const [form, setForm] = useState({ name: '', phone: '', subject: '', message: '' })
   const [sent, setSent] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
-    setSent(true)
+    setLoading(true)
+    try {
+      await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      setSent(true)
+    } catch {
+      setSent(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -189,10 +202,11 @@ function ContactFormMapRender(props: any) {
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2"
+                  disabled={loading}
+                  className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-60"
                   style={{ background: 'linear-gradient(135deg, #1B4D3E, #2D7A3A)', color: 'white', fontFamily: 'var(--font-hind)' }}
                 >
-                  ✉️ {t('বার্তা পাঠান')}
+                  ✉️ {loading ? t('পাঠানো হচ্ছে...') : t('বার্তা পাঠান')}
                 </button>
               </form>
             )}

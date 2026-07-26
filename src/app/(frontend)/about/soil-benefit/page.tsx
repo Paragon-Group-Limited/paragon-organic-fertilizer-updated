@@ -7,8 +7,10 @@ import { getPageLayout } from '@/lib/getPageLayout'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'মাটির উপকার',
-  description: 'জৈব সার মাটির উর্বরতা কীভাবে বৃদ্ধি করে এবং বাংলাদেশের কৃষিজমির সংকট সমাধানে কী ভূমিকা রাখে।',
+  title: 'মাটির উপকারিতা',
+  description: 'জৈব সার মাটিকে কীভাবে সমৃদ্ধ করে জানুন। অণুজীব সমৃদ্ধ সার মাটির গঠন, পানি ধারণক্ষমতা ও ফসলের উৎপাদন বৃদ্ধি করে।',
+  alternates: { canonical: '/about/soil-benefit' },
+  openGraph: { url: '/about/soil-benefit' },
 }
 
 export default async function SoilBenefitPage() {

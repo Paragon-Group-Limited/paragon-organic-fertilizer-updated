@@ -67,6 +67,7 @@ const quickLinks = [
   { href: '/dealership', bn: 'ডিলারশিপ', en: 'Dealership' },
   { href: '/career', bn: 'ক্যারিয়ার', en: 'Career' },
   { href: '/contact', bn: 'যোগাযোগ', en: 'Contact' },
+  { href: '/faq', bn: 'সাধারণ প্রশ্নোত্তর', en: 'FAQ' },
 ]
 
 const products = [
@@ -98,7 +99,10 @@ export default function Footer({
   const contactPhone   = puck?.contactPhone    || '+880 1XXX-XXXXXX'
   const contactEmail   = puck?.contactEmail    || 'info@paragonorganic.com.bd'
   const activeLogo         = puck?.logoUrl || logo?.url || ''
-  const activeQuickLinks   = (puck?.quickLinks   && puck.quickLinks.length   > 0) ? puck.quickLinks   : quickLinks
+  const baseQuickLinks     = (puck?.quickLinks   && puck.quickLinks.length   > 0) ? puck.quickLinks   : quickLinks
+  const activeQuickLinks   = baseQuickLinks.some(l => l.href === '/faq')
+    ? baseQuickLinks
+    : [...baseQuickLinks, { href: '/faq', bn: 'সাধারণ প্রশ্নোত্তর', en: 'FAQ' }]
   const activeProductLinks = (puck?.productLinks && puck.productLinks.length > 0) ? puck.productLinks : products
 
   return (
@@ -149,19 +153,23 @@ export default function Footer({
             <h3 className="font-bold text-base mb-5 pb-2 border-b" style={{ fontFamily: 'var(--font-hind)', borderColor: 'rgba(212,160,23,0.4)' }}>
               {t('দ্রুত লিঙ্ক', 'Quick Links')}
             </h3>
-            <ul className="space-y-2.5">
-              {activeQuickLinks.map((link) => (
-                <li key={(link.href ?? '') + link.bn}>
-                  <Link href={link.href || '/'}
-                    className="text-sm transition-colors duration-200 hover:text-golden flex items-center gap-2 group"
-                    style={{ color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-hind)' }}>
-                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-all duration-200 group-hover:scale-125"
-                      style={{ background: '#D4A017' }} />
-                    {t(link.bn, link.en)}
-                  </Link>
-                </li>
+            <div className="grid grid-cols-2 gap-x-4">
+              {[activeQuickLinks.slice(0, 4), activeQuickLinks.slice(4)].map((col, ci) => (
+                <ul key={ci} className="space-y-2.5">
+                  {col.map((link) => (
+                    <li key={(link.href ?? '') + link.bn}>
+                      <Link href={link.href || '/'}
+                        className="text-sm transition-colors duration-200 hover:text-golden flex items-center gap-2 group"
+                        style={{ color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-hind)' }}>
+                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-all duration-200 group-hover:scale-125"
+                          style={{ background: '#D4A017' }} />
+                        {t(link.bn, link.en)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               ))}
-            </ul>
+            </div>
           </div>
 
           {/* Products */}

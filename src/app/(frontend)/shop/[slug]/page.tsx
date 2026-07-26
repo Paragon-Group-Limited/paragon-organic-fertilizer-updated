@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@payload-config'
@@ -9,6 +10,31 @@ import WishlistButton from '@/components/shop/WishlistButton'
 import OrderNowButton from '@/components/shop/OrderNowButton'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const product = await fetchProduct(slug)
+  if (!product) return { title: 'পণ্য পাওয়া যায়নি' }
+
+  const p = product as Record<string, unknown>
+  const nameBn = p.nameBn as string | undefined
+  const shortDesc = p.shortDescription as string | undefined
+  const mainImage = product.image as { url?: string | null; alt?: string } | null
+  const title = nameBn || product.name
+
+  return {
+    title,
+    description: shortDesc || `${title} — প্যারাগন জৈব সারের পণ্য। সেরা মানের অর্গানিক সার সরাসরি আপনার দরজায়।`,
+    alternates: { canonical: `/shop/${slug}` },
+    openGraph: {
+      title,
+      url: `/shop/${slug}`,
+      images: mainImage?.url
+        ? [{ url: mainImage.url, width: 1200, height: 630, alt: mainImage.alt || title }]
+        : undefined,
+    },
+  }
+}
 
 async function fetchProduct(slug: string) {
   try {
@@ -67,7 +93,32 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     weight: weight,
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://paragonorganicfertilizer.com'
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: nameBn || product.name,
+    description: shortDesc || '',
+    image: mainImage?.url || undefined,
+    brand: { '@type': 'Brand', name: 'Paragon Organic Fertilizer' },
+    offers: {
+      '@type': 'Offer',
+      url: `${siteUrl}/shop/${product.slug}`,
+      priceCurrency: 'BDT',
+      price: price || 0,
+      availability: isUpcoming
+        ? 'https://schema.org/PreOrder'
+        : 'https://schema.org/InStock',
+    },
+    ...(rating && { aggregateRating: { '@type': 'AggregateRating', ratingValue: rating, reviewCount: reviewCount || 1 } }),
+  }
+
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
     <div className="min-h-screen pt-20" style={{ backgroundColor: '#F4F7F4' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -218,5 +269,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </div>
       </div>
     </div>
+    </>
   )
 }

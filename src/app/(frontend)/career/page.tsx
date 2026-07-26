@@ -3,8 +3,10 @@ import { PageBanner } from '@/components/layout/PageBanner'
 import { CareerContent } from '@/components/career/CareerContent'
 
 export const metadata: Metadata = {
-  title: 'ক্যারিয়ার',
-  description: 'প্যারাগন জৈব সারে ক্যারিয়ার গড়ুন। পরিবেশবান্ধব কৃষির উন্নয়নে অবদান রাখুন।',
+  title: 'ক্যারিয়ার সুযোগ',
+  description: 'প্যারাগন গ্রুপে ক্যারিয়ার গড়ুন। আমাদের দলে যোগ দিন এবং বাংলাদেশের কৃষি উন্নয়নে অবদান রাখুন।',
+  alternates: { canonical: '/career' },
+  openGraph: { url: '/career' },
 }
 
 export default async function CareerPage() {

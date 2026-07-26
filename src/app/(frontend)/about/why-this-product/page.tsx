@@ -7,8 +7,10 @@ import { getPageLayout } from '@/lib/getPageLayout'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'কেন এই পণ্য?',
-  description: 'প্যারাগন জৈব সার কেন বাংলাদেশের কৃষকদের প্রথম পছন্দ — কারণ, সুবিধা ও পার্থক্য।',
+  title: 'কেন প্যারাগন জৈব সার?',
+  description: 'রাসায়নিক সার ছেড়ে জৈব সারে আসুন। প্যারাগন জৈব সার ব্যবহারে ফসল ভালো হয়, মাটি বাঁচে, খরচ কমে।',
+  alternates: { canonical: '/about/why-this-product' },
+  openGraph: { url: '/about/why-this-product' },
 }
 
 export default async function WhyThisProductPage() {

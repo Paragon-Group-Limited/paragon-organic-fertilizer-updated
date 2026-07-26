@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
+import { sendNotificationEmail } from '@/lib/sendEmail'
 
 export async function POST(req: NextRequest) {
   try {
@@ -57,6 +58,24 @@ export async function POST(req: NextRequest) {
         ...(tradeLicenseId !== undefined ? { tradeLicense: tradeLicenseId } : {}),
       },
     })
+
+    sendNotificationEmail({
+      subject: `🤝 নতুন ডিলারশিপ আবেদন: ${name}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+          <h2 style="color: #1B4D3E; border-bottom: 2px solid #1B4D3E; padding-bottom: 10px;">🤝 নতুন ডিলারশিপ আবেদন</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+            <tr><td style="padding: 8px; font-weight: bold; color: #374151; width: 140px;">নাম</td><td style="padding: 8px;">${name}</td></tr>
+            <tr style="background:#f9fafb;"><td style="padding: 8px; font-weight: bold; color: #374151;">প্রতিষ্ঠান</td><td style="padding: 8px;">${org || '—'}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold; color: #374151;">ফোন</td><td style="padding: 8px;">${phone}</td></tr>
+            <tr style="background:#f9fafb;"><td style="padding: 8px; font-weight: bold; color: #374151;">জেলা</td><td style="padding: 8px;">${district}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold; color: #374151;">উপজেলা</td><td style="padding: 8px;">${upazila || '—'}</td></tr>
+            <tr style="background:#f9fafb;"><td style="padding: 8px; font-weight: bold; color: #374151; vertical-align: top;">অভিজ্ঞতা</td><td style="padding: 8px; white-space: pre-wrap;">${experience || '—'}</td></tr>
+          </table>
+          <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">Admin Dashboard: <a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/collections/dealers">আবেদন দেখুন</a></p>
+        </div>
+      `,
+    }).catch(err => console.error('[dealer-apply] email error:', err))
 
     return NextResponse.json({ success: true, tradeLicenseId: tradeLicenseId ?? null, uploadError })
   } catch (err) {

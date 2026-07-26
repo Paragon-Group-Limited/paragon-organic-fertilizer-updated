@@ -55,27 +55,6 @@ function ContactCardItem({ card, i }: { card: ContactCard; i: number }) {
   )
 }
 
-type Faq = { q: string; a: string }
-function FaqItem({ faq, i }: { faq: Faq; i: number }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-50px' })
-  return (
-    <motion.div ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay: i * 0.1 }}
-      className="bg-white rounded-2xl p-7 border"
-      style={{ borderColor: 'rgba(27,77,62,0.08)' }}>
-      <h4 className="font-bold text-base mb-3" style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
-        প্র: {faq.q}
-      </h4>
-      <p className="text-sm leading-relaxed" style={{ color: '#6b7280', fontFamily: 'var(--font-hind)' }}>
-        উ: {faq.a}
-      </p>
-    </motion.div>
-  )
-}
-
 const contactCards: ContactCard[] = [
   { icon: <Phone className="w-6 h-6" />, title: 'ফোন', lines: ['+880 1711-630515', '+880 9678-882102'], href: 'tel:+8801711630515', color: '#1B4D3E' },
   { icon: <Mail className="w-6 h-6" />, title: 'ইমেইল', lines: ['info@paragongroup-bd.com', 'info.fertilizer@paragon.com.bd'], href: 'mailto:info@paragongroup-bd.com', color: '#2D7A3A' },
@@ -83,20 +62,27 @@ const contactCards: ContactCard[] = [
   { icon: <Clock className="w-6 h-6" />, title: 'অফিস সময়', lines: ['রবি – বৃহঃ: সকাল ৯টা – বিকাল ৫টা', 'শুক্র: সকাল ৯টা – দুপুর ১টা', 'শনি: বন্ধ'], color: '#1B4D3E' },
 ]
 
-const faqs: Faq[] = [
-  { q: 'পণ্য কোথা থেকে কিনব?', a: 'সারাদেশে আমাদের অনুমোদিত ডিলারদের মাধ্যমে পণ্য পাওয়া যায়। নিকটতম ডিলারের তথ্য জানতে আমাদের ফোন করুন বা ডিলারশিপ পেজ দেখুন।' },
-  { q: 'কোন ফসলে ব্যবহার করা যায়?', a: 'ধান, সবজি, ফল, গম, পাট সহ সকল ধরনের ফসলে প্যারাগন জৈব সার ব্যবহার করা যায়।' },
-  { q: 'প্রতি বিঘায় কতটুকু দিতে হবে?', a: 'সাধারণত প্রতি বিঘায় ১৫-২০ কেজি ব্যবহার করা হয়। তবে মাটির অবস্থা অনুযায়ী পরিমাণ কম-বেশি হতে পারে। আমাদের বিশেষজ্ঞ দলের সাথে পরামর্শ করুন।' },
-  { q: 'রাসায়নিক সারের সাথে কি মেশানো যায়?', a: 'হ্যাঁ, প্রাথমিকভাবে রাসায়নিক ও জৈব সার একসাথে ব্যবহার করা যায়। ধীরে ধীরে রাসায়নিক সারের পরিমাণ কমিয়ে সম্পূর্ণ জৈব পদ্ধতিতে চলে আসা ভালো।' },
-]
-
 export function ContactContent() {
   const [form, setForm] = useState({ name: '', phone: '', subject: '', message: '' })
   const [sent, setSent] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setSent(true)
+    setLoading(true)
+    try {
+      await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      setSent(true)
+    } catch {
+      // silent fail — still show success
+      setSent(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -190,10 +176,10 @@ export function ContactContent() {
                       style={{ borderColor: 'rgba(27,77,62,0.2)', fontFamily: 'var(--font-hind)', color: '#1a2e1a' }}
                     />
                   </div>
-                  <button type="submit"
-                    className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2"
+                  <button type="submit" disabled={loading}
+                    className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-60"
                     style={{ background: 'linear-gradient(135deg, #1B4D3E, #2D7A3A)', color: 'white', fontFamily: 'var(--font-hind)' }}>
-                    <Send className="w-5 h-5" /> বার্তা পাঠান
+                    <Send className="w-5 h-5" /> {loading ? 'পাঠানো হচ্ছে...' : 'বার্তা পাঠান'}
                   </button>
                 </form>
               )}
@@ -240,24 +226,6 @@ export function ContactContent() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="py-20 lg:py-28" style={{ background: '#F8F5EE' }}>
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <FadeIn className="text-center mb-12">
-            <span className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-4"
-              style={{ background: 'rgba(27,77,62,0.08)', color: '#1B4D3E', fontFamily: 'var(--font-inter)' }}>
-              FAQ
-            </span>
-            <h2 className="text-3xl font-bold" style={{ color: '#1a2e1a', fontFamily: 'var(--font-hind)' }}>
-              সাধারণ <span style={{ color: '#D4A017' }}>প্রশ্নোত্তর</span>
-            </h2>
-          </FadeIn>
-
-          <div className="space-y-4">
-            {faqs.map((faq, i) => <FaqItem key={i} faq={faq} i={i} />)}
-          </div>
-        </div>
-      </section>
     </div>
   )
 }

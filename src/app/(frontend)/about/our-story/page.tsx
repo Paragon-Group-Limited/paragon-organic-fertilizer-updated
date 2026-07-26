@@ -8,7 +8,9 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'আমাদের গল্প',
-  description: 'প্যারাগন জৈব সারের সূচনা, লক্ষ্য এবং বাংলাদেশের কৃষির প্রতি আমাদের প্রতিশ্রুতির গল্প।',
+  description: '১৯৮৫ সাল থেকে প্যারাগন গ্রুপের যাত্রা। বাংলাদেশের কৃষিকে টেকসই করতে আমাদের প্রতিশ্রুতি ও উদ্যোগ জানুন।',
+  alternates: { canonical: '/about/our-story' },
+  openGraph: { url: '/about/our-story' },
 }
 
 export default async function OurStoryPage() {

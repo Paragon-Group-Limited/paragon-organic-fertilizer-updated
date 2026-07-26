@@ -7,8 +7,10 @@ import { getPageLayout } from '@/lib/getPageLayout'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'যোগাযোগ',
-  description: 'প্যারাগন জৈব সারের সাথে যোগাযোগ করুন। ঠিকানা, ফোন, ইমেইল ও অনলাইন ফর্ম।',
+  title: 'যোগাযোগ করুন',
+  description: 'প্যারাগন জৈব সার সম্পর্কে যেকোনো প্রশ্ন বা ডিলারশিপের জন্য আমাদের সাথে যোগাযোগ করুন। ফোন, ইমেইল বা ফর্মের মাধ্যমে।',
+  alternates: { canonical: '/contact' },
+  openGraph: { url: '/contact' },
 }
 
 export default async function ContactPage() {

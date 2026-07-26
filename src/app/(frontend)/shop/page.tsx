@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { getPayload } from 'payload'
 import type { Where } from 'payload'
@@ -5,6 +6,16 @@ import config from '@payload-config'
 import { Leaf } from 'lucide-react'
 import ShopClientLayout from '@/components/shop/ShopClientLayout'
 import type { ShopProduct } from '@/components/shop/ShopClientLayout'
+
+export const metadata: Metadata = {
+  title: 'পণ্যের দোকান',
+  description: 'প্যারাগন অর্গানিক ফার্টিলাইজার, ভার্মিকম্পোস্ট ও মাটি উন্নয়নকারী পণ্য অনলাইনে কিনুন। সেরা মানের জৈব সার সরাসরি আপনার দরজায়।',
+  alternates: { canonical: '/shop' },
+  openGraph: {
+    url: '/shop',
+    title: 'পণ্যের দোকান | প্যারাগন জৈব সার',
+  },
+}
 
 type SearchParams = { category?: string; sort?: string; status?: string; q?: string }
 

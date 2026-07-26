@@ -7,8 +7,10 @@ import { getPageLayout } from '@/lib/getPageLayout'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'ডিলারশিপ',
-  description: 'সারাবাংলাদেশে প্যারাগন জৈব সারের ডিলার নেটওয়ার্ক। ডিলারশিপ সুযোগ ও আবেদন প্রক্রিয়া।',
+  title: 'ডিলারশিপ আবেদন',
+  description: 'প্যারাগন জৈব সারের অনুমোদিত ডিলার হন। সারাদেশে ডিলার নেটওয়ার্কে যোগ দিন এবং লাভজনক ব্যবসা করুন।',
+  alternates: { canonical: '/dealership' },
+  openGraph: { url: '/dealership' },
 }
 
 export default async function DealershipPage() {

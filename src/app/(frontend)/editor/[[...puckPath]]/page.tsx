@@ -1,4 +1,5 @@
 import { PuckEditorWrapper } from '@/components/puck/PuckEditorWrapper'
+import { ProductEditorPage } from '@/components/editor/ProductEditorPage'
 import { getDefaultLayout } from '@/puck/defaultLayouts'
 import { getPageLayout } from '@/lib/getPageLayout'
 import { getPayload } from 'payload'
@@ -29,6 +30,12 @@ export default async function EditorPage({ params, searchParams }: Props) {
   const sp = await searchParams
   const slug = puckPath?.join('/') ?? 'home'
   const singlePage = sp?.from === 'admin'
+
+  // Handle product detail editing: /editor/products/[slug]
+  if (slug.startsWith('products/') && slug.split('/').length === 2) {
+    const productSlug = slug.split('/')[1]
+    return <ProductEditorPage productSlug={productSlug} />
+  }
 
   let initialData: object = getDefaultLayout(slug)
 

@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Star, Tag } from 'lucide-react'
@@ -78,15 +77,12 @@ export default function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <div className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
+    <div
+      className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 cursor-pointer"
       style={{ background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}
+      onClick={() => router.push(`/shop/${product.slug}`)}
       onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 8px 32px rgba(27,77,62,0.15)')}
       onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)')}>
-
-      {/* Invisible overlay link — covers the whole card but sits behind buttons */}
-      <Link href={`/shop/${product.slug}`}
-        className="absolute inset-0 z-0"
-        aria-label={product.name} />
 
       {/* Image area */}
       <div className="relative overflow-hidden" style={{ height: 220 }}>
@@ -126,15 +122,16 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
         </div>
 
+        {/* stopPropagation so wishlist click doesn't also navigate to product page */}
         {!isUpcoming && (
-          <div className="absolute top-3 right-3 z-10">
+          <div className="absolute top-3 right-3 z-10" onClick={e => e.stopPropagation()}>
             <WishlistButton productId={String(product.id)} />
           </div>
         )}
       </div>
 
       {/* Info */}
-      <div className="p-4 relative z-0">
+      <div className="p-4">
         {product.rating != null && product.rating > 0 && (
           <div className="mb-2">
             <StarRating rating={product.rating} count={product.reviewCount} />
@@ -167,8 +164,8 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
         </div>
 
-        {/* Action buttons — z-10 so they sit above the overlay link */}
-        <div className="relative z-10">
+        {/* stopPropagation so button clicks don't double-fire the card navigation */}
+        <div onClick={e => e.stopPropagation()}>
           {!isUpcoming ? (
             <div className="flex gap-2">
               <AddToCartButton product={cartProduct} variant="icon" />

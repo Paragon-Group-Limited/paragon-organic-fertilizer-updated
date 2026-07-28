@@ -76,6 +76,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const category = product.category as string | undefined
   const status = product.status as string | undefined
   const isUpcoming = status === 'upcoming'
+  const deliveryNoteRaw = p.deliveryNote as string | null | undefined
+  // '__HIDDEN__' = explicitly hidden; null/undefined/other text = shown
+  const showDeliveryNote = deliveryNoteRaw !== '__HIDDEN__'
+  const deliveryNote = (deliveryNoteRaw && deliveryNoteRaw !== '__HIDDEN__')
+    ? deliveryNoteRaw
+    : 'Free delivery on orders above Tk 500. Cash on Delivery available.'
 
   const mainImage = product.image as { url?: string | null; alt?: string } | null
   const gallery = (p.gallery as Array<{ image: { url?: string | null } }> | undefined) || []
@@ -259,10 +265,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             )}
 
             {/* Shipping note */}
-            {!isUpcoming && (
+            {!isUpcoming && showDeliveryNote && (
               <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
                 <Package className="w-4 h-4" style={{ color: '#1B4D3E' }} />
-                Free delivery on orders above Tk 500. Cash on Delivery available.
+                {deliveryNote}
               </div>
             )}
           </div>

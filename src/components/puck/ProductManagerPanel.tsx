@@ -17,6 +17,8 @@ type Product = {
   reviewCount?: number | null
   shortDescription?: string | null
   featured?: boolean | null
+  showDeliveryNote?: boolean | null
+  deliveryNote?: string | null
   image?: MediaDoc | null
   benefits?: { benefit: string }[]
 }
@@ -25,12 +27,14 @@ type FormData = {
   name: string; nameBn: string; slug: string; category: string; status: string
   price: string; comparePrice: string; weight: string; rating: string
   reviewCount: string; shortDescription: string; featured: boolean; benefits: string
+  showDeliveryNote: boolean; deliveryNote: string
 }
 
 const EMPTY: FormData = {
   name: '', nameBn: '', slug: '', category: 'organic-fertilizer', status: 'published',
   price: '', comparePrice: '', weight: '', rating: '', reviewCount: '',
   shortDescription: '', featured: false, benefits: '',
+  showDeliveryNote: true, deliveryNote: 'Free delivery on orders above Tk 500. Cash on Delivery available.',
 }
 
 const CATS = [
@@ -48,7 +52,13 @@ const STATUSES = [
 function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
 }
+const DEFAULT_DELIVERY_NOTE = 'Free delivery on orders above Tk 500. Cash on Delivery available.'
+const HIDDEN_SENTINEL = '__HIDDEN__'
+
 function toForm(p: Product): FormData {
+  // '__HIDDEN__' = explicitly hidden; null/undefined/other text = shown
+  const raw = p.deliveryNote ?? null
+  const isHidden = raw === HIDDEN_SENTINEL
   return {
     name: p.name, nameBn: p.nameBn, slug: p.slug,
     category: p.category || 'organic-fertilizer',
@@ -59,6 +69,8 @@ function toForm(p: Product): FormData {
     reviewCount: p.reviewCount != null ? String(p.reviewCount) : '',
     shortDescription: p.shortDescription || '', featured: !!p.featured,
     benefits: (p.benefits || []).map(b => b.benefit).join('\n'),
+    showDeliveryNote: !isHidden,
+    deliveryNote: isHidden ? DEFAULT_DELIVERY_NOTE : (raw || DEFAULT_DELIVERY_NOTE),
   }
 }
 
@@ -162,6 +174,7 @@ function ProductForm({
   )
   const [imgUrl, setImgUrl] = useState<string | null>(editProduct?.image?.url ?? null)
   const [saving, setSaving] = useState(false)
+  const [saveOk, setSaveOk] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const set = (k: keyof FormData, v: string | boolean) =>
@@ -194,8 +207,16 @@ function ProductForm({
         shortDescription: form.shortDescription || null,
         featured: form.featured,
         benefits: form.benefits.trim() ? form.benefits.split('\n').filter(Boolean).map(b => ({ benefit: b.trim() })) : [],
+        // '__HIDDEN__' = explicitly hidden; actual text = shown (non-empty string, Payload won't strip it)
+        deliveryNote: form.showDeliveryNote
+          ? (form.deliveryNote.trim() || DEFAULT_DELIVERY_NOTE)
+          : HIDDEN_SENTINEL,
       }
-      if (imgId) body.image = imgId
+      if (imgId) {
+        // Payload postgres uses integer IDs; send as number if numeric, string otherwise (UUID)
+        const numId = parseInt(imgId, 10)
+        body.image = isNaN(numId) ? imgId : numId
+      }
 
       const method = editProduct ? 'PATCH' : 'POST'
       if (editProduct) body.id = editProduct.id
@@ -204,21 +225,33 @@ function ProductForm({
       if (!res.ok) { alert(data.error ?? 'Failed'); return }
       const saved = data.product as Product
       if (imgUrl) saved.image = { id: imgId ?? undefined, url: imgUrl }
-      onSaved(saved)
+      setSaveOk(true)
+      setTimeout(() => { setSaveOk(false); onSaved(saved) }, 1200)
     } finally { setSaving(false) }
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Form header */}
-      <div style={{ padding: '10px 12px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: 8, background: '#fff', flexShrink: 0 }}>
-        <button onClick={onBack} style={btn('#f3f4f6', '#374151')}>← Back</button>
-        <span style={{ flex: 1, fontSize: 12, fontWeight: 800, color: '#1a2e1a' }}>
-          {editProduct ? '✏️ Edit Product' : '➕ New Product'}
-        </span>
-        <button onClick={save} disabled={saving} style={btn(saving ? '#9ca3af' : '#1B4D3E')}>
-          {saving ? '⏳' : '💾'} Save
-        </button>
+      {/* Form header — sticky so it stays visible even when Puck panel scrolls */}
+      <div style={{ padding: '10px 12px', borderBottom: '1px solid #e5e7eb', background: '#fff', flexShrink: 0, position: 'sticky', top: 0, zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: saveOk ? 6 : 0 }}>
+          <button onClick={onBack} style={btn('#f3f4f6', '#374151')}>← Back</button>
+          <span style={{ flex: 1, fontSize: 12, fontWeight: 800, color: '#1a2e1a' }}>
+            {editProduct ? '✏️ Edit Product' : '➕ New Product'}
+          </span>
+          <button onClick={save} disabled={saving || saveOk}
+            style={btn(saveOk ? '#16a34a' : saving ? '#9ca3af' : '#1B4D3E')}>
+            {saveOk ? '✅ Saved!' : saving ? '⏳ Saving…' : '💾 Save'}
+          </button>
+        </div>
+        {saveOk && (
+          <div style={{ fontSize: 11, color: '#16a34a', fontWeight: 700, textAlign: 'center', padding: '2px 0' }}>
+            ✅ পণ্য সফলভাবে সংরক্ষিত হয়েছে!
+          </div>
+        )}
+        <div style={{ fontSize: 10, color: '#6b7280', marginTop: 4, background: '#fef9c3', padding: '3px 6px', borderRadius: 4 }}>
+          ⚠️ পণ্যের তথ্য সংরক্ষণ করতে এই <strong>💾 Save</strong> বাটন চাপুন — উপরের Publish বাটন নয়
+        </div>
       </div>
 
       {/* Form body */}
@@ -285,6 +318,47 @@ function ProductForm({
           <input type="checkbox" id="pm-featured" checked={form.featured} onChange={e => set('featured', e.target.checked)}
             style={{ width: 14, height: 14, accentColor: '#D4A017', cursor: 'pointer' }} />
           <label htmlFor="pm-featured" style={{ fontSize: 12, color: '#374151', cursor: 'pointer' }}>⭐ Featured / Best Seller</label>
+        </div>
+
+        {/* Delivery Note */}
+        <div style={{ marginTop: 12, padding: '10px 10px 12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <input type="checkbox" id="pm-show-delivery" checked={form.showDeliveryNote} onChange={e => set('showDeliveryNote', e.target.checked)}
+              style={{ width: 14, height: 14, accentColor: '#1B4D3E', cursor: 'pointer' }} />
+            <label htmlFor="pm-show-delivery" style={{ fontSize: 12, color: '#374151', cursor: 'pointer', fontWeight: 700 }}>
+              📦 Show Delivery Note
+            </label>
+          </div>
+          {form.showDeliveryNote && (
+            <div>
+              <label style={{ ...lbl, color: '#166534' }}>Delivery Note Text</label>
+              <input
+                style={{ ...inp, borderColor: '#86efac' }}
+                value={form.deliveryNote}
+                onChange={e => set('deliveryNote', e.target.value)}
+                placeholder="Free delivery on orders above Tk 500..."
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Bottom save button — always visible after scrolling */}
+        <div style={{ marginTop: 16, paddingBottom: 8 }}>
+          <button
+            onClick={save}
+            disabled={saving || saveOk}
+            style={{
+              width: '100%', padding: '12px', borderRadius: 8, border: 'none',
+              cursor: saving || saveOk ? 'default' : 'pointer',
+              fontSize: 14, fontWeight: 800,
+              background: saveOk ? '#16a34a' : saving ? '#9ca3af' : '#1B4D3E',
+              color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}>
+            {saveOk ? '✅ সংরক্ষিত হয়েছে!' : saving ? '⏳ সংরক্ষণ হচ্ছে…' : '💾 পণ্য সংরক্ষণ করুন (Save)'}
+          </button>
+          <p style={{ fontSize: 10, color: '#dc2626', textAlign: 'center', margin: '6px 0 0', fontWeight: 600 }}>
+            ⚠️ উপরের সবুজ Publish বাটন নয়, এই বাটনে চাপুন
+          </p>
         </div>
       </div>
     </div>

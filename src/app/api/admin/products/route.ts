@@ -38,6 +38,7 @@ export async function PATCH(req: NextRequest) {
     const payload = await getPayload({ config })
     const body = await req.json()
     const { id, ...data } = body
+    console.log('[admin/products PATCH] id:', id, '| deliveryNote:', JSON.stringify(data.deliveryNote))
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
     const product = await payload.update({
       collection: 'products',

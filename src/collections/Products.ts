@@ -64,5 +64,7 @@ export const Products: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     { name: 'featured', type: 'checkbox', label: 'Featured Product', admin: { position: 'sidebar' } },
+    { name: 'showDeliveryNote', type: 'checkbox', label: 'Show Delivery Note', defaultValue: true, admin: { position: 'sidebar' } },
+    { name: 'deliveryNote', type: 'text', label: 'Delivery Note Text', admin: { position: 'sidebar' } },
   ],
 }

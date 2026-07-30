@@ -90,10 +90,10 @@ export default function Navbar({
 
   const puck = extractNavbarPuck(navbarPuckData)
 
-  const siteNameBn   = puck?.siteName     || siteSettings?.siteName     || 'প্যারাগন'
-  const siteName     = lang === 'bn' ? siteNameBn : (puck?.siteNameEn || 'Paragon')
+  const siteNameBn   = puck?.siteName || siteSettings?.siteName || 'প্যারাগন'
+  const siteName     = lang === 'bn' ? siteNameBn : 'Paragon'
   const siteSubtitleEn = puck?.siteSubtitle || siteSettings?.siteSubtitle || 'Organic Fertilizer'
-  const siteSubtitle = lang === 'bn' ? (puck?.siteSubtitleBn || 'জৈব সার') : siteSubtitleEn
+  const siteSubtitle = lang === 'bn' ? 'জৈব সার' : siteSubtitleEn
   const ctaHref      = puck?.ctaHref      || siteSettings?.ctaHref      || '/shop'
   const ctaLabel     = lang === 'en'
     ? (puck?.ctaLabelEn || 'Order Now')

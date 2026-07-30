@@ -11,10 +11,15 @@ type BreadcrumbItem = { label: string; href?: string }
 
 type Props = {
   tagText?: string
+  tagTextEn?: string
   title: string
+  titleEn?: string
   titleHighlight?: string
+  titleHighlightEn?: string
   subtitle?: string
+  subtitleEn?: string
   breadcrumbs?: BreadcrumbItem[]
+  breadcrumbsEn?: BreadcrumbItem[]
   bgGradient?: string
   bgImageUrl?: string
   bgImageFit?: 'cover' | 'contain'
@@ -26,10 +31,15 @@ type Props = {
 
 export function PageBanner({
   tagText,
+  tagTextEn,
   title,
+  titleEn,
   titleHighlight,
+  titleHighlightEn,
   subtitle,
+  subtitleEn,
   breadcrumbs = [],
+  breadcrumbsEn,
   bgGradient = 'linear-gradient(135deg, #0a1f14 0%, #1B4D3E 55%, #2D7A3A 100%)',
   bgImageUrl = '',
   bgImageFit = 'cover',
@@ -41,6 +51,12 @@ export function PageBanner({
   const alignClass = align === 'center' ? 'text-center' : align === 'right' ? 'text-right' : ''
   const justifyClass = align === 'center' ? 'justify-center' : align === 'right' ? 'justify-end' : ''
   const { lang } = useLanguage()
+  const isEn = lang === 'en'
+  const displayTag = isEn ? (tagTextEn || tagText) : tagText
+  const displayTitle = isEn ? (titleEn || title) : title
+  const displayTitleHighlight = isEn ? (titleHighlightEn || titleHighlight) : titleHighlight
+  const displaySubtitle = isEn ? (subtitleEn || subtitle) : subtitle
+  const displayBreadcrumbs = isEn ? (breadcrumbsEn || breadcrumbs) : breadcrumbs
 
   const hasText =
     showTitle !== 'no' ||
@@ -150,15 +166,15 @@ export function PageBanner({
         {/* Content */}
         {hasText && (
           <div className={`relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${alignClass}`}>
-            {breadcrumbs.length > 0 && (
+            {displayBreadcrumbs.length > 0 && (
               <nav
                 className={`flex items-center gap-1.5 mb-6 text-xs font-medium flex-wrap ${justifyClass}`}
                 style={{ fontFamily: 'var(--font-hind)', color: 'rgba(255,255,255,0.5)' }}
               >
                 <Link href="/" className="hover:text-white transition-colors">
-                  {lang === 'en' ? 'Home' : 'হোম'}
+                  {isEn ? 'Home' : 'হোম'}
                 </Link>
-                {breadcrumbs.map((crumb, i) => (
+                {displayBreadcrumbs.map((crumb, i) => (
                   <span key={i} className="flex items-center gap-1.5">
                     <ChevronRight className="w-3 h-3 opacity-60" />
                     {crumb.href ? (
@@ -180,7 +196,7 @@ export function PageBanner({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, ease: 'easeOut' }}
             >
-              {tagText && showTag !== 'no' && (
+              {displayTag && showTag !== 'no' && (
                 <div
                   className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-5 ${align === 'center' || align === 'right' ? 'mx-auto' : ''}`}
                   style={{
@@ -191,7 +207,7 @@ export function PageBanner({
                   }}
                 >
                   <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#F5C842' }} />
-                  <RichText html={tagText} inline />
+                  <RichText html={displayTag} inline />
                 </div>
               )}
 
@@ -200,24 +216,24 @@ export function PageBanner({
                   className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-5"
                   style={{ fontFamily: 'var(--font-hind)' }}
                 >
-                  <RichText html={title} inline />
-                  {titleHighlight && (
+                  <RichText html={displayTitle} inline />
+                  {displayTitleHighlight && (
                     <>
                       {' '}
                       <span style={{ color: '#F5C842' }}>
-                        <RichText html={titleHighlight} inline />
+                        <RichText html={displayTitleHighlight} inline />
                       </span>
                     </>
                   )}
                 </h1>
               )}
 
-              {subtitle && showSubtitle !== 'no' && (
+              {displaySubtitle && showSubtitle !== 'no' && (
                 <div
                   className={`text-base lg:text-lg leading-relaxed ${align === 'center' || align === 'right' ? 'max-w-2xl mx-auto' : 'max-w-2xl'}`}
                   style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-hind)' }}
                 >
-                  <RichText html={subtitle} />
+                  <RichText html={displaySubtitle} />
                 </div>
               )}
             </motion.div>

@@ -52,9 +52,10 @@ const SLUG_TITLES: Record<string, string> = {
 export default function PagesListView() {
   const [pages, setPages]     = useState<Page[]>([])
   const [loading, setLoading] = useState(true)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
-  const [togglingId, setTogglingId] = useState<string | null>(null)
-  const [search, setSearch]   = useState('')
+  const [deletingId, setDeletingId]     = useState<string | null>(null)
+  const [togglingId, setTogglingId]     = useState<string | null>(null)
+  const [togglingStatusId, setTogglingStatusId] = useState<string | null>(null)
+  const [search, setSearch]             = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -109,6 +110,26 @@ export default function PagesListView() {
     } finally { setTogglingId(null) }
   }
 
+  const toggleStatus = async (p: Page) => {
+    const next = p.status === 'published' ? 'draft' : 'published'
+    setTogglingStatusId(p.id)
+    setPages(prev => prev.map(x => x.id === p.id ? { ...x, status: next } : x))
+    try {
+      const res = await fetch('/api/admin/pages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: p.id, status: next }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        alert(`Status পরিবর্তন ব্যর্থ: ${err.error || res.status}`)
+        setPages(prev => prev.map(x => x.id === p.id ? { ...x, status: p.status } : x))
+      }
+    } catch {
+      setPages(prev => prev.map(x => x.id === p.id ? { ...x, status: p.status } : x))
+    } finally { setTogglingStatusId(null) }
+  }
+
   const displayed = search.trim()
     ? pages.filter(p =>
         (p.title ?? '').toLowerCase().includes(search.toLowerCase()) ||
@@ -146,11 +167,23 @@ export default function PagesListView() {
       render: (p) => {
         const s = p.status && STATUS_META[p.status] ? p.status : 'draft'
         const m = STATUS_META[s]
+        const busy = togglingStatusId === p.id
+        const nextLabel = s === 'published' ? 'Draft এ নিন' : 'Publish করুন'
         return (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: m.bg, color: m.color }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: m.color }} />
-            {m.label}
-          </span>
+          <button
+            onClick={() => toggleStatus(p)}
+            disabled={busy}
+            title={nextLabel}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+              padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600,
+              background: m.bg, color: m.color,
+              border: 'none', cursor: busy ? 'default' : 'pointer',
+              opacity: busy ? 0.6 : 1, transition: 'opacity 0.2s',
+            }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: busy ? '#9ca3af' : m.color }} />
+            {busy ? '…' : m.label}
+          </button>
         )
       },
     },

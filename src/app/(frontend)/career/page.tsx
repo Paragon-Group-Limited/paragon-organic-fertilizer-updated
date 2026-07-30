@@ -15,9 +15,13 @@ export default async function CareerPage() {
       <PageBanner
         tagText="Join Our Team"
         title="আমাদের সাথে"
+        titleEn="Build Your"
         titleHighlight="ক্যারিয়ার গড়ুন"
+        titleHighlightEn="Career With Us"
         subtitle="মেধাবী, উদ্যমী এবং পরিবেশ সচেতন মানুষদের আমরা সর্বদা স্বাগত জানাই। আপনার দক্ষতা দিয়ে বাংলাদেশের কৃষিকে এগিয়ে নিয়ে যান।"
+        subtitleEn="We always welcome talented, entrepreneurial and environmentally conscious people. Use your skills to advance agriculture in Bangladesh."
         breadcrumbs={[{ label: 'ক্যারিয়ার' }]}
+        breadcrumbsEn={[{ label: 'Career' }]}
         bgGradient="linear-gradient(135deg, #1a2e1a 0%, #1B4D3E 55%, #2D7A3A 100%)"
       />
       <CareerContent />

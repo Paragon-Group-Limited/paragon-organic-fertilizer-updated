@@ -184,8 +184,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     {CATEGORY_LABELS[category] || category}
                   </span>
                 )}
-                <h1 className="text-2xl font-bold text-gray-900 leading-tight mb-1"
-                  style={{ fontFamily: 'var(--font-hind)' }}>
+                <h1 className="text-2xl font-bold text-gray-900 mb-1"
+                  style={{ fontFamily: 'var(--font-noto-bn), var(--font-hind)', lineHeight: '1.6' }}>
                   {nameBn || product.name}
                 </h1>
                 <p className="text-gray-500 text-sm">{product.name}</p>

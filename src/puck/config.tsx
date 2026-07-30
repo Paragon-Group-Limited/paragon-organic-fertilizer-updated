@@ -372,16 +372,16 @@ export const puckConfig: Config = {
     StatsSectionBlock: {
       label: '📊 Stats Section (সংখ্যা)',
       fields: {
-        stat1ValueBn: richTextField('Stat 1 Value (বড় সংখ্যা)'), stat1LabelBn: richTextField('Stat 1 Label (বাংলা)'), stat1LabelEn: richTextField('Stat 1 Label (English)'),
-        stat2ValueBn: richTextField('Stat 2 Value (বড় সংখ্যা)'), stat2LabelBn: richTextField('Stat 2 Label (বাংলা)'), stat2LabelEn: richTextField('Stat 2 Label (English)'),
-        stat3ValueBn: richTextField('Stat 3 Value (বড় সংখ্যা)'), stat3LabelBn: richTextField('Stat 3 Label (বাংলা)'), stat3LabelEn: richTextField('Stat 3 Label (English)'),
-        stat4ValueBn: richTextField('Stat 4 Value (বড় সংখ্যা)'), stat4LabelBn: richTextField('Stat 4 Label (বাংলা)'), stat4LabelEn: richTextField('Stat 4 Label (English)'),
+        stat1ValueBn: richTextField('Stat 1 Value (বাংলা সংখ্যা, যেমন: ১০০%)'), stat1ValueEn: richTextField('Stat 1 Value (English, e.g. 100%)'), stat1LabelBn: richTextField('Stat 1 Label (বাংলা)'), stat1LabelEn: richTextField('Stat 1 Label (English)'),
+        stat2ValueBn: richTextField('Stat 2 Value (বাংলা সংখ্যা)'), stat2ValueEn: richTextField('Stat 2 Value (English)'), stat2LabelBn: richTextField('Stat 2 Label (বাংলা)'), stat2LabelEn: richTextField('Stat 2 Label (English)'),
+        stat3ValueBn: richTextField('Stat 3 Value (বাংলা সংখ্যা)'), stat3ValueEn: richTextField('Stat 3 Value (English)'), stat3LabelBn: richTextField('Stat 3 Label (বাংলা)'), stat3LabelEn: richTextField('Stat 3 Label (English)'),
+        stat4ValueBn: richTextField('Stat 4 Value (বাংলা সংখ্যা)'), stat4ValueEn: richTextField('Stat 4 Value (English)'), stat4LabelBn: richTextField('Stat 4 Label (বাংলা)'), stat4LabelEn: richTextField('Stat 4 Label (English)'),
       },
       defaultProps: {
-        stat1ValueBn: '১০০%', stat1LabelBn: 'অর্গানিক জৈব সার', stat1LabelEn: 'Certified Organic',
-        stat2ValueBn: '৫০০০+', stat2LabelBn: 'সন্তুষ্ট কৃষক', stat2LabelEn: 'Happy Farmers',
-        stat3ValueBn: '১০+', stat3LabelBn: 'বছরের অভিজ্ঞতা', stat3LabelEn: 'Years Experience',
-        stat4ValueBn: '৩টি', stat4LabelBn: 'প্রিমিয়াম পণ্য', stat4LabelEn: 'Premium Products',
+        stat1ValueBn: '১০০%', stat1ValueEn: '100%', stat1LabelBn: 'অর্গানিক জৈব সার', stat1LabelEn: 'Certified Organic',
+        stat2ValueBn: '৫০০০+', stat2ValueEn: '5000+', stat2LabelBn: 'সন্তুষ্ট কৃষক', stat2LabelEn: 'Happy Farmers',
+        stat3ValueBn: '১০+', stat3ValueEn: '10+', stat3LabelBn: 'বছরের অভিজ্ঞতা', stat3LabelEn: 'Years Experience',
+        stat4ValueBn: '৩টি', stat4ValueEn: '3+', stat4LabelBn: 'প্রিমিয়াম পণ্য', stat4LabelEn: 'Premium Products',
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (props: any) => <StatsSectionBlock {...props} />,

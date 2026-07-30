@@ -50,5 +50,40 @@ export const Pages: CollectionConfig = {
       defaultValue: 'draft',
       admin: { position: 'sidebar' },
     },
+    {
+      name: 'showInNavbar',
+      type: 'checkbox',
+      label: '+ Navbar (Show in Navbar)',
+      defaultValue: false,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'navLabelBn',
+      type: 'text',
+      label: 'Navbar Label (বাংলা)',
+      admin: {
+        position: 'sidebar',
+        condition: (data: Record<string, unknown>) => Boolean(data.showInNavbar),
+      },
+    },
+    {
+      name: 'navLabelEn',
+      type: 'text',
+      label: 'Navbar Label (English)',
+      admin: {
+        position: 'sidebar',
+        condition: (data: Record<string, unknown>) => Boolean(data.showInNavbar),
+      },
+    },
+    {
+      name: 'navOrder',
+      type: 'number',
+      label: 'Navbar Order (1 = first)',
+      defaultValue: 99,
+      admin: {
+        position: 'sidebar',
+        condition: (data: Record<string, unknown>) => Boolean(data.showInNavbar),
+      },
+    },
   ],
 }

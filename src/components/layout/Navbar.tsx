@@ -38,6 +38,26 @@ type SiteSettings = {
 
 type NavLink = { href?: string; bn: string; en: string }
 
+type NavPage = {
+  id: string | number
+  slug: string
+  title: string
+  navLabelBn?: string | null
+  navLabelEn?: string | null
+  showInNavbar?: boolean | null
+}
+
+// All hrefs that appear in the hardcoded navLinks (including children)
+const HARDCODED_HREFS = new Set([
+  '/', '/about/our-story', '/about/soil-benefit',
+  '/about/why-this-product', '/about/paragon-group',
+  '/shop', '/dealership', '/career', '/contact',
+])
+
+function hrefToSlug(href: string): string {
+  return href === '/' ? 'home' : href.replace(/^\//, '')
+}
+
 type NavbarPuckProps = {
   siteName?: string
   siteSubtitle?: string
@@ -59,17 +79,21 @@ function extractNavbarPuck(data: unknown): NavbarPuckProps | null {
 export default function Navbar({
   siteSettings,
   navbarPuckData,
+  navPages = [],
 }: {
   siteSettings?: SiteSettings | null
   navbarPuckData?: unknown
+  navPages?: NavPage[]
 }) {
   const { lang } = useLanguage()
   const { wishlist } = useCart()
 
   const puck = extractNavbarPuck(navbarPuckData)
 
-  const siteName     = puck?.siteName     || siteSettings?.siteName     || 'প্যারাগন'
-  const siteSubtitle = puck?.siteSubtitle || siteSettings?.siteSubtitle || 'Organic Fertilizer'
+  const siteNameBn   = puck?.siteName     || siteSettings?.siteName     || 'প্যারাগন'
+  const siteName     = lang === 'bn' ? siteNameBn : (puck?.siteNameEn || 'Paragon')
+  const siteSubtitleEn = puck?.siteSubtitle || siteSettings?.siteSubtitle || 'Organic Fertilizer'
+  const siteSubtitle = lang === 'bn' ? (puck?.siteSubtitleBn || 'জৈব সার') : siteSubtitleEn
   const ctaHref      = puck?.ctaHref      || siteSettings?.ctaHref      || '/shop'
   const ctaLabel     = lang === 'en'
     ? (puck?.ctaLabelEn || 'Order Now')
@@ -77,7 +101,7 @@ export default function Navbar({
   const logoUrl      = puck?.logoUrl      || (siteSettings as { logo?: { url?: string } } | null)?.logo?.url || ''
 
   // Build active nav links — use Puck data when available, fallback to hardcoded
-  const activeNavLinks = puck?.navLinks?.length
+  const baseNavLinks = puck?.navLinks?.length
     ? puck.navLinks.map(l => ({
         href: l.href || '',
         bn: l.bn,
@@ -87,6 +111,38 @@ export default function Navbar({
           : undefined,
       }))
     : navLinks
+
+  // Build a slug → page map for quick lookup
+  const navPageMap = new Map(navPages.map(p => [p.slug, p]))
+
+  // A link is visible unless its DB page has showInNavbar explicitly set to false
+  const isVisible = (href: string | undefined): boolean => {
+    if (!href) return true
+    const page = navPageMap.get(hrefToSlug(href))
+    if (!page) return true  // no DB entry (e.g., /shop) → always show
+    return page.showInNavbar !== false
+  }
+
+  // Filter hardcoded links (and their children) based on DB showInNavbar
+  const filteredBase = baseNavLinks
+    .filter(link => !link.href || isVisible(link.href))
+    .map(link => ({
+      ...link,
+      children: link.children?.filter(c => isVisible(c.href)),
+    }))
+    .filter(link => link.href || (link.children && link.children.length > 0))
+
+  // Custom (non-hardcoded) CMS pages with showInNavbar: true
+  const dynamicNavLinks = navPages
+    .filter(p => p.showInNavbar === true && !HARDCODED_HREFS.has(p.slug === 'home' ? '/' : `/${p.slug}`))
+    .map(p => ({
+      href: `/${p.slug}`,
+      bn: p.navLabelBn || p.title,
+      en: p.navLabelEn || p.title,
+      children: undefined as { href: string; bn: string; en: string }[] | undefined,
+    }))
+
+  const activeNavLinks = [...filteredBase, ...dynamicNavLinks]
 
   const [scrolled,       setScrolled]       = useState(false)
   const [mobileOpen,     setMobileOpen]     = useState(false)

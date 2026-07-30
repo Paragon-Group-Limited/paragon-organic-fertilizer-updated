@@ -9,12 +9,14 @@ type Ctx = { lang: Lang; setLang: (l: Lang) => void }
 const LanguageContext = createContext<Ctx>({ lang: 'bn', setLang: () => {} })
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  // SSR always starts at 'bn' (no mismatch with server render).
+  // After mount, read sessionStorage so language persists within a tab session
+  // but resets to Bengali on every new page load / new tab.
   const [lang, setLangState] = useState<Lang>('bn')
 
-  // Hydrate from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem('site-lang') as Lang | null
-    if (stored === 'bn' || stored === 'en') setLangState(stored)
+    const stored = sessionStorage.getItem('site-lang') as Lang | null
+    if (stored === 'en') setLangState('en')
   }, [])
 
   // Keep <html lang="..."> in sync for accessibility
@@ -24,7 +26,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const setLang = (l: Lang) => {
     setLangState(l)
-    localStorage.setItem('site-lang', l)
+    sessionStorage.setItem('site-lang', l)
   }
 
   return (

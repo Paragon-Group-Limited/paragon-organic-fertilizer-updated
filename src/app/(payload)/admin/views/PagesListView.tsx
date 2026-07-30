@@ -9,6 +9,7 @@ type Page = {
   slug?: string
   status?: string
   updatedAt?: string
+  showInNavbar?: boolean
 }
 
 const STATUS_META: Record<string, { label: string; bg: string; color: string }> = {
@@ -20,6 +21,19 @@ const SLUG_ORDER: Record<string, number> = {
   home: 0, 'about/our-story': 10, 'about/soil-benefit': 11,
   'about/why-this-product': 12, 'about/paragon-group': 13,
   products: 20, location: 30, career: 40, contact: 50,
+}
+
+// Slugs whose nav links are hardcoded — they appear in the navbar by default (showInNavbar: null treated as true)
+const HARDCODED_NAV_SLUGS = new Set([
+  'home', 'about/our-story', 'about/soil-benefit',
+  'about/why-this-product', 'about/paragon-group',
+  'career', 'contact', 'dealership',
+])
+
+function isPageInNavbar(p: Page): boolean {
+  return HARDCODED_NAV_SLUGS.has(p.slug ?? '')
+    ? p.showInNavbar !== false   // hardcoded: shown unless explicitly disabled
+    : Boolean(p.showInNavbar)    // custom: only shown when explicitly enabled
 }
 
 const SLUG_TITLES: Record<string, string> = {
@@ -39,6 +53,7 @@ export default function PagesListView() {
   const [pages, setPages]     = useState<Page[]>([])
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const [search, setSearch]   = useState('')
 
   const load = useCallback(async () => {
@@ -61,9 +76,37 @@ export default function PagesListView() {
     if (!confirm(`Delete page "${p.title}"?\nThis cannot be undone.`)) return
     setDeletingId(p.id)
     try {
-      await fetch(`/api/pages/${p.id}`, { method: 'DELETE' })
-      setPages(prev => prev.filter(x => x.id !== p.id))
+      const res = await fetch(`/api/admin/pages?id=${p.id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setPages(prev => prev.filter(x => x.id !== p.id))
+      } else {
+        const err = await res.json().catch(() => ({}))
+        alert(`Delete ব্যর্থ: ${err.error || res.status}`)
+      }
+    } catch {
+      alert('Delete ব্যর্থ হয়েছে')
     } finally { setDeletingId(null) }
+  }
+
+  const toggleNavbar = async (p: Page) => {
+    const currentlyIn = isPageInNavbar(p)
+    const next = !currentlyIn
+    setTogglingId(p.id)
+    setPages(prev => prev.map(x => x.id === p.id ? { ...x, showInNavbar: next } : x))
+    try {
+      const res = await fetch('/api/admin/pages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: p.id, showInNavbar: next }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        alert(`সংরক্ষণ ব্যর্থ: ${err.error || res.status}`)
+        setPages(prev => prev.map(x => x.id === p.id ? { ...x, showInNavbar: p.showInNavbar } : x))
+      }
+    } catch {
+      setPages(prev => prev.map(x => x.id === p.id ? { ...x, showInNavbar: p.showInNavbar } : x))
+    } finally { setTogglingId(null) }
   }
 
   const displayed = search.trim()
@@ -108,6 +151,36 @@ export default function PagesListView() {
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: m.color }} />
             {m.label}
           </span>
+        )
+      },
+    },
+    {
+      key: 'showInNavbar',
+      header: 'Navbar',
+      render: (p) => {
+        const on = isPageInNavbar(p)
+        const busy = togglingId === p.id
+        return (
+          <button
+            onClick={() => toggleNavbar(p)}
+            disabled={busy}
+            title={on ? 'Navbar-এ আছে — সরাতে click করুন' : 'Navbar-এ যোগ করতে click করুন'}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '4px 10px', borderRadius: 999, border: 'none',
+              cursor: busy ? 'default' : 'pointer', fontSize: 11, fontWeight: 700,
+              background: on ? '#dcfce7' : '#f3f4f6',
+              color: on ? '#166534' : '#9ca3af',
+              transition: 'all 0.2s',
+              opacity: busy ? 0.6 : 1,
+            }}>
+            <span style={{
+              width: 8, height: 8, borderRadius: '50%',
+              background: on ? '#16a34a' : '#d1d5db',
+              display: 'inline-block', flexShrink: 0,
+            }} />
+            {busy ? '…' : on ? 'Navbar-এ আছে' : '+ Navbar'}
+          </button>
         )
       },
     },

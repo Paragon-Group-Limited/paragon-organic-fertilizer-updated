@@ -21,7 +21,16 @@ export const Pages: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
-      admin: { position: 'sidebar' },
+      admin: {
+        position: 'sidebar',
+        description: 'Leading slash ছাড়া লিখুন। যেমন: "about/my-page" বা "faq"',
+      },
+      hooks: {
+        beforeValidate: [
+          ({ value }: { value?: string }) =>
+            typeof value === 'string' ? value.replace(/^\/+/, '').replace(/\/+$/, '') : value,
+        ],
+      },
     },
     {
       name: 'layout',
@@ -29,26 +38,18 @@ export const Pages: CollectionConfig = {
       label: 'Page Layout (Puck Editor Data)',
       admin: { hidden: true },
     },
-    {
-      name: 'meta',
-      type: 'group',
-      label: 'SEO Meta',
-      admin: { position: 'sidebar' },
-      fields: [
-        { name: 'title', type: 'text', label: 'Meta Title' },
-        { name: 'description', type: 'textarea', label: 'Meta Description' },
-        { name: 'ogImage', type: 'upload', relationTo: 'media', label: 'OG Image' },
-      ],
-    },
+    // ── Sidebar: Status & Navbar (above SEO Meta) ─────────────────────────────
     {
       name: 'status',
       type: 'select',
+      label: 'Page Status',
       options: [
-        { label: 'Published', value: 'published' },
-        { label: 'Draft', value: 'draft' },
+        { label: '✅ Published', value: 'published' },
+        { label: '📝 Draft', value: 'draft' },
       ],
       defaultValue: 'draft',
-      admin: { position: 'sidebar' },
+      required: true,
+      admin: { position: 'sidebar', description: 'Draft = শুধু admin এ দেখা যাবে। Published = সবার জন্য visible।' },
     },
     {
       name: 'showInNavbar',
@@ -84,6 +85,18 @@ export const Pages: CollectionConfig = {
         position: 'sidebar',
         condition: (data: Record<string, unknown>) => Boolean(data.showInNavbar),
       },
+    },
+    // ── Sidebar: SEO Meta (below Status & Navbar) ─────────────────────────────
+    {
+      name: 'meta',
+      type: 'group',
+      label: 'SEO Meta',
+      admin: { position: 'sidebar' },
+      fields: [
+        { name: 'title', type: 'text', label: 'Meta Title' },
+        { name: 'description', type: 'textarea', label: 'Meta Description' },
+        { name: 'ogImage', type: 'upload', relationTo: 'media', label: 'OG Image' },
+      ],
     },
   ],
 }

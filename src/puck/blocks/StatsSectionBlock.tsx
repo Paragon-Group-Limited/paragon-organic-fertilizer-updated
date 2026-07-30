@@ -9,11 +9,20 @@ import { useT } from '@/hooks/useT'
 
 const ICONS = [Leaf, Users, Calendar, Package]
 
+// Convert English digits to Bengali — handles old data stored as "100%", "5000+" etc.
+function toBn(str: string): string {
+  const map: Record<string, string> = {
+    '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
+    '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
+  }
+  return (str || '').replace(/[0-9]/g, d => map[d] ?? d)
+}
+
 type Props = {
-  stat1ValueBn: string; stat1LabelBn: string; stat1LabelEn: string
-  stat2ValueBn: string; stat2LabelBn: string; stat2LabelEn: string
-  stat3ValueBn: string; stat3LabelBn: string; stat3LabelEn: string
-  stat4ValueBn: string; stat4LabelBn: string; stat4LabelEn: string
+  stat1ValueBn: string; stat1ValueEn?: string; stat1LabelBn: string; stat1LabelEn: string
+  stat2ValueBn: string; stat2ValueEn?: string; stat2LabelBn: string; stat2LabelEn: string
+  stat3ValueBn: string; stat3ValueEn?: string; stat3LabelBn: string; stat3LabelEn: string
+  stat4ValueBn: string; stat4ValueEn?: string; stat4LabelBn: string; stat4LabelEn: string
 }
 
 export function StatsSectionBlock(props: Props) {
@@ -23,10 +32,10 @@ export function StatsSectionBlock(props: Props) {
   const t = useT()
 
   const stats = [
-    { valueBn: props.stat1ValueBn, labelBn: props.stat1LabelBn, labelEn: props.stat1LabelEn },
-    { valueBn: props.stat2ValueBn, labelBn: props.stat2LabelBn, labelEn: props.stat2LabelEn },
-    { valueBn: props.stat3ValueBn, labelBn: props.stat3LabelBn, labelEn: props.stat3LabelEn },
-    { valueBn: props.stat4ValueBn, labelBn: props.stat4LabelBn, labelEn: props.stat4LabelEn },
+    { valueBn: props.stat1ValueBn, valueEn: props.stat1ValueEn, labelBn: props.stat1LabelBn, labelEn: props.stat1LabelEn },
+    { valueBn: props.stat2ValueBn, valueEn: props.stat2ValueEn, labelBn: props.stat2LabelBn, labelEn: props.stat2LabelEn },
+    { valueBn: props.stat3ValueBn, valueEn: props.stat3ValueEn, labelBn: props.stat3LabelBn, labelEn: props.stat3LabelEn },
+    { valueBn: props.stat4ValueBn, valueEn: props.stat4ValueEn, labelBn: props.stat4LabelBn, labelEn: props.stat4LabelEn },
   ]
 
   return (
@@ -49,17 +58,13 @@ export function StatsSectionBlock(props: Props) {
                   style={{ background: 'rgba(212,160,23,0.15)', border: '1px solid rgba(212,160,23,0.3)' }}>
                   <Icon className="w-6 h-6" style={{ color: '#D4A017' }} />
                 </div>
-                <div className="text-4xl font-bold text-white mb-1" style={{ fontFamily: 'var(--font-hind)' }}>
-                  <RichText html={stat.valueBn} inline />
+                <div className="text-4xl font-bold text-white mb-1"
+                  style={{ fontFamily: lang === 'bn' ? 'var(--font-noto-bn), var(--font-hind)' : 'var(--font-inter)' }}>
+                  <RichText html={lang === 'en' ? (stat.valueEn || stat.valueBn) : toBn(stat.valueBn)} inline />
                 </div>
-                <div className="text-sm font-semibold mb-0.5" style={{ fontFamily: 'var(--font-hind)' }}>
+                <div className="text-sm font-semibold" style={{ fontFamily: 'var(--font-hind)' }}>
                   <RichText html={t(stat.labelBn, stat.labelEn)} inline style={{ color: 'inherit' }} />
                 </div>
-                {lang === 'bn' && (
-                  <div className="text-xs" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-inter)' }}>
-                    <RichText html={stat.labelEn} inline />
-                  </div>
-                )}
               </motion.div>
             )
           })}

@@ -1,14 +1,23 @@
 import type { Metadata } from 'next'
-import { Hind_Siliguri, Inter } from 'next/font/google'
+import { Hind_Siliguri, Inter, Noto_Sans_Bengali } from 'next/font/google'
 import '../globals.css'
 import { Providers } from '@/components/layout/Providers'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 
+export const dynamic = 'force-dynamic'
+
 const hindSiliguri = Hind_Siliguri({
   weight: ['300', '400', '500', '600', '700'],
   subsets: ['bengali', 'latin'],
   variable: '--font-hind',
+  display: 'swap',
+})
+
+const notoSansBengali = Noto_Sans_Bengali({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['bengali'],
+  variable: '--font-noto-bn',
   display: 'swap',
 })
 
@@ -60,6 +69,30 @@ async function fetchSiteSettings() {
   }
 }
 
+async function fetchNavPages() {
+  try {
+    const payload = await getPayload({ config })
+    const result = await payload.find({
+      collection: 'pages',
+      where: { status: { equals: 'published' } },
+      limit: 50,
+      depth: 0,
+      sort: 'navOrder',
+    })
+    return result.docs as Array<{
+      id: string | number
+      slug: string
+      title: string
+      navLabelBn?: string | null
+      navLabelEn?: string | null
+      navOrder?: number | null
+      showInNavbar?: boolean | null
+    }>
+  } catch {
+    return []
+  }
+}
+
 const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -77,10 +110,13 @@ const organizationJsonLd = {
 }
 
 export default async function FrontendLayout({ children }: { children: React.ReactNode }) {
-  const siteSettings = await fetchSiteSettings()
+  const [siteSettings, navPages] = await Promise.all([
+    fetchSiteSettings(),
+    fetchNavPages(),
+  ])
 
   return (
-    <html lang="bn" className={`${hindSiliguri.variable} ${inter.variable}`}>
+    <html lang="bn" className={`${hindSiliguri.variable} ${inter.variable} ${notoSansBengali.variable}`}>
       <head>
         <script
           type="application/ld+json"
@@ -88,7 +124,7 @@ export default async function FrontendLayout({ children }: { children: React.Rea
         />
       </head>
       <body className="antialiased">
-        <Providers siteSettings={siteSettings}>
+        <Providers siteSettings={siteSettings} navPages={navPages}>
           {children}
         </Providers>
       </body>

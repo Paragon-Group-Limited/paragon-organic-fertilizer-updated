@@ -5,6 +5,12 @@ import { richTextField } from '@/puck/fields/richTextField'
 import { imageUploadField } from '@/puck/fields/imageUploadField'
 import { RichText } from '@/components/puck/RichText'
 import { useT } from '@/hooks/useT'
+import { useLanguage } from '@/contexts/LanguageContext'
+
+function toEn(str: string): string {
+  const map: Record<string, string> = { '০':'0','১':'1','২':'2','৩':'3','৪':'4','৫':'5','৬':'6','৭':'7','৮':'8','৯':'9' }
+  return (str || '').replace(/[০-৯]/g, d => map[d] ?? d)
+}
 
 // ─── Field helpers ────────────────────────────────────────────────────────────
 
@@ -30,6 +36,7 @@ function textField(label: string) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function LocationMapContactRender(props: any) {
   const t = useT()
+  const { lang } = useLanguage()
   const contacts: { area1: string; phone1: string; area2: string; phone2: string }[] = props.contacts || []
 
   return (
@@ -120,11 +127,17 @@ function LocationMapContactRender(props: any) {
                     <tr key={i} style={{ borderBottom: '1px solid rgba(27,77,62,0.06)', background: i % 2 === 0 ? 'white' : 'rgba(27,77,62,0.015)' }}>
                       <td className="px-5 py-3 text-sm" style={{ color: '#374151', fontFamily: 'var(--font-hind)' }}>{t(row.area1)}</td>
                       <td className="px-5 py-3 text-sm font-medium" style={{ color: '#1B4D3E', fontFamily: 'var(--font-inter)' }}>
-                        <a href={`tel:${row.phone1.replace(/\D/g, '')}`} className="hover:underline">{row.phone1}</a>
+                        <a href={`tel:${toEn(row.phone1).replace(/\D/g, '')}`} className="hover:underline">
+                          {lang === 'en' ? toEn(row.phone1) : row.phone1}
+                        </a>
                       </td>
                       <td className="px-5 py-3 text-sm" style={{ color: '#374151', fontFamily: 'var(--font-hind)' }}>{t(row.area2)}</td>
                       <td className="px-5 py-3 text-sm font-medium" style={{ color: '#1B4D3E', fontFamily: 'var(--font-inter)' }}>
-                        {row.phone2 ? <a href={`tel:${row.phone2.replace(/\D/g, '')}`} className="hover:underline">{row.phone2}</a> : '—'}
+                        {row.phone2
+                          ? <a href={`tel:${toEn(row.phone2).replace(/\D/g, '')}`} className="hover:underline">
+                              {lang === 'en' ? toEn(row.phone2) : row.phone2}
+                            </a>
+                          : '—'}
                       </td>
                     </tr>
                   ))}

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { richTextField } from '@/puck/fields/richTextField'
 import { RichText } from '@/components/puck/RichText'
 import { useT } from '@/hooks/useT'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 // ─── ParagonAboutBlock ────────────────────────────────────────────────────────
 
@@ -260,7 +261,10 @@ function ParagonWhyOrganicRender(props: any) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ParagonVisionRender(props: any) {
   const t = useT()
-  const cards: { icon: string; title: string; bnText: string; enText: string }[] = props.cards || []
+  const { lang } = useLanguage()
+  const cards: { icon: string; title: string; titleBn?: string; bnText: string; enText: string }[] = props.cards || []
+
+  const displayHeading = lang === 'bn' ? (props.headingBn || props.heading) : props.heading
 
   return (
     <section className="py-20 lg:py-28" style={{ background: 'white' }}>
@@ -278,59 +282,63 @@ function ParagonVisionRender(props: any) {
           )}
           <h2
             className="text-2xl lg:text-3xl font-bold mb-5"
-            style={{ color: '#1a2e1a', fontFamily: 'var(--font-hind)' }}
+            style={{ color: '#1a2e1a', fontFamily: lang === 'bn' ? 'var(--font-noto-bn), var(--font-hind)' : 'var(--font-inter)' }}
           >
-            <RichText html={t(props.heading)} inline />
+            <RichText html={displayHeading} inline />
           </h2>
-          {(props.bnSubtitle || props.enSubtitle) && (
-            <div className="max-w-3xl mx-auto space-y-2">
-              {props.bnSubtitle && (
-                <RichText
-                  html={t(props.bnSubtitle)}
-                  className="text-base leading-relaxed"
-                  style={{ color: '#4a5568', fontFamily: 'var(--font-hind)' }}
-                />
-              )}
-              {props.enSubtitle && (
-                <RichText
-                  html={t(props.enSubtitle)}
-                  className="text-sm italic leading-relaxed"
-                  style={{ color: '#9ca3af', fontFamily: 'var(--font-inter)' }}
-                />
-              )}
+          {props.bnSubtitle && (
+            <div className="max-w-3xl mx-auto">
+              <RichText
+                html={t(props.bnSubtitle)}
+                className="text-base leading-relaxed"
+                style={{ color: '#4a5568', fontFamily: 'var(--font-hind)' }}
+              />
+            </div>
+          )}
+          {lang === 'en' && props.enSubtitle && (
+            <div className="max-w-3xl mx-auto mt-2">
+              <RichText
+                html={props.enSubtitle}
+                className="text-sm italic leading-relaxed"
+                style={{ color: '#9ca3af', fontFamily: 'var(--font-inter)' }}
+              />
             </div>
           )}
         </div>
 
         {/* Vision / People / Sustainability cards */}
         <div className="grid sm:grid-cols-3 gap-8">
-          {cards.map((c, i) => (
-            <div key={i} className="text-center">
-              {/* Icon circle */}
-              <div
-                className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl"
-                style={{ background: 'rgba(212,160,23,0.1)', border: '2px solid rgba(212,160,23,0.25)' }}
-              >
-                {c.icon}
+          {cards.map((c, i) => {
+            const displayTitle = lang === 'bn' ? (c.titleBn || c.title) : c.title
+            return (
+              <div key={i} className="text-center">
+                <div
+                  className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl"
+                  style={{ background: 'rgba(212,160,23,0.1)', border: '2px solid rgba(212,160,23,0.25)' }}
+                >
+                  {c.icon}
+                </div>
+                <h3
+                  className="text-lg font-bold mb-3"
+                  style={{ color: '#D4A017', fontFamily: lang === 'bn' ? 'var(--font-hind)' : 'var(--font-inter)' }}
+                >
+                  <RichText html={displayTitle} inline />
+                </h3>
+                <RichText
+                  html={t(c.bnText)}
+                  className="text-sm leading-relaxed"
+                  style={{ color: '#374151', fontFamily: 'var(--font-hind)', marginBottom: lang === 'en' ? '0.5rem' : 0 }}
+                />
+                {lang === 'en' && c.enText && (
+                  <RichText
+                    html={c.enText}
+                    className="text-xs italic leading-relaxed"
+                    style={{ color: '#9ca3af', fontFamily: 'var(--font-inter)' }}
+                  />
+                )}
               </div>
-              <h3
-                className="text-lg font-bold mb-3"
-                style={{ color: '#D4A017', fontFamily: 'var(--font-inter)' }}
-              >
-                <RichText html={t(c.title)} inline />
-              </h3>
-              <RichText
-                html={t(c.bnText)}
-                className="text-sm leading-relaxed mb-2"
-                style={{ color: '#374151', fontFamily: 'var(--font-hind)' }}
-              />
-              <RichText
-                html={t(c.enText)}
-                className="text-xs italic leading-relaxed"
-                style={{ color: '#9ca3af', fontFamily: 'var(--font-inter)' }}
-              />
-            </div>
-          ))}
+            )
+          })}
         </div>
 
       </div>
@@ -424,7 +432,8 @@ export const paragonGroupBlocks = {
     label: '🏢 Paragon Group — Vision / People / Sustainability',
     fields: {
       tagText: richTextField('Tag Text (optional)'),
-      heading: richTextField('Section Heading'),
+      heading: richTextField('Section Heading (English)'),
+      headingBn: richTextField('Section Heading (বাংলা)'),
       bnSubtitle: richTextField('Subtitle (বাংলা)'),
       enSubtitle: richTextField('Subtitle (English, italic)'),
       cards: {
@@ -434,34 +443,39 @@ export const paragonGroupBlocks = {
         getItemSummary: (item: any) => item.title || 'Card',
         arrayFields: {
           icon: { type: 'text' as const, label: 'Icon (emoji)' },
-          title: richTextField('Title (e.g. Vision)'),
+          title: richTextField('Title (English, e.g. Vision)'),
+          titleBn: richTextField('Title (বাংলা, e.g. দৃষ্টিভঙ্গি)'),
           bnText: richTextField('Bengali Text'),
           enText: richTextField('English Text (italic)'),
         },
-        defaultItemProps: { icon: '🎯', title: 'Vision', bnText: '', enText: '' },
+        defaultItemProps: { icon: '🎯', title: 'Vision', titleBn: 'দৃষ্টিভঙ্গি', bnText: '', enText: '' },
       },
     },
     defaultProps: {
       tagText: 'Our Values',
       heading: 'Excellence Through Innovation &amp; Sustainability',
+      headingBn: 'উদ্ভাবন ও টেকসইতার মধ্য দিয়ে শ্রেষ্ঠত্ব',
       bnSubtitle: 'ত্রিশ বছরেরও বেশি সময়ের অভিজ্ঞতায়, আমরা শ্রেষ্ঠত্ব, উদ্ভাবন এবং টেকসই চর্চার প্রতি আমাদের অঙ্গীকারের ভিত্তিতে গড়ে ওঠা এক বৈচিত্র্যপূর্ণ ব্যবসার ক্ষেত্র গড়ে তুলেছি।',
       enSubtitle: '" With over three decades of experience, we\'ve built a diverse portfolio of businesses united by our commitment to excellence, innovation, and sustainable practices. "',
       cards: [
         {
           icon: '🎯',
           title: 'Vision',
+          titleBn: 'দৃষ্টিভঙ্গি',
           bnText: 'বিভিন্ন শিল্পখাতে টেকসই ব্যবসায়িক চর্চার একটি অগ্রণী শক্তি হয়ে ওঠা।',
           enText: '" To be a leading force in sustainable business practices across multiple industries. "',
         },
         {
           icon: '👥',
           title: 'People',
+          titleBn: 'মানুষ',
           bnText: '১০,০০০-এর অধিক দক্ষ পেশাজীবীর কর্মের সক্ষমতা বৃদ্ধি করা।',
           enText: '" Empowering our workforce of over 10,000 skilled professionals. "',
         },
         {
           icon: '🌿',
           title: 'Sustainability',
+          titleBn: 'টেকসইতা',
           bnText: 'পরিবেশগত দায়িত্ববোধ ও সম্প্রদায়ের উন্নয়নে প্রতিশ্রুতিবদ্ধ থাকা।',
           enText: '" Committed to environmental stewardship and community development. "',
         },

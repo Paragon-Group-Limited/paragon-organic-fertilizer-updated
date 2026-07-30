@@ -18,17 +18,29 @@ type SiteSettings = {
   footerData?: unknown
 }
 
+export type NavPage = {
+  id: string | number
+  slug: string
+  title: string
+  navLabelBn?: string | null
+  navLabelEn?: string | null
+  navOrder?: number | null
+  showInNavbar?: boolean | null
+}
+
 export function Providers({
   children,
   siteSettings,
+  navPages = [],
 }: {
   children: React.ReactNode
   siteSettings: SiteSettings | null
+  navPages?: NavPage[]
 }) {
   return (
     <LanguageProvider>
       <CartProvider>
-        <Navbar siteSettings={siteSettings} navbarPuckData={siteSettings?.navbarData} />
+        <Navbar siteSettings={siteSettings} navbarPuckData={siteSettings?.navbarData} navPages={navPages} />
         <main>{children}</main>
         <Footer
           socialLinks={siteSettings?.socialLinks}

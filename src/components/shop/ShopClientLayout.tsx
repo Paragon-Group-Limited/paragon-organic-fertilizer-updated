@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, X, Leaf, Layers, Tag, Sprout, ArrowUpDown } from 'lucide-react'
 import ProductCard from './ProductCard'
 import MobileFilters from './MobileFilters'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export type ShopProduct = {
   id: string
@@ -23,17 +24,17 @@ export type ShopProduct = {
 }
 
 const CATEGORIES = [
-  { value: 'all',                label: 'All Products',        icon: Layers },
-  { value: 'organic-fertilizer', label: 'Organic Fertilizer',  icon: Leaf   },
-  { value: 'vermicompost',       label: 'Vermicompost',        icon: Sprout },
-  { value: 'upcoming',           label: 'Upcoming',            icon: Tag    },
+  { value: 'all',                bn: 'সব পণ্য',          en: 'All Products',       icon: Layers },
+  { value: 'organic-fertilizer', bn: 'জৈব সার',           en: 'Organic Fertilizer', icon: Leaf   },
+  { value: 'vermicompost',       bn: 'ভার্মিকম্পোস্ট',   en: 'Vermicompost',       icon: Sprout },
+  { value: 'upcoming',           bn: 'শীঘ্রই আসছে',      en: 'Upcoming',           icon: Tag    },
 ]
 
 const SORT_OPTIONS = [
-  { value: 'newest',      label: 'Newest First'       },
-  { value: 'price-asc',   label: 'Price: Low → High'  },
-  { value: 'price-desc',  label: 'Price: High → Low'  },
-  { value: 'rating',      label: 'Top Rated'           },
+  { value: 'newest',      bn: 'নতুন আগে',        en: 'Newest First'      },
+  { value: 'price-asc',   bn: 'দাম: কম → বেশি',  en: 'Price: Low → High' },
+  { value: 'price-desc',  bn: 'দাম: বেশি → কম',  en: 'Price: High → Low' },
+  { value: 'rating',      bn: 'শীর্ষ রেটিং',     en: 'Top Rated'         },
 ]
 
 export default function ShopClientLayout({
@@ -50,6 +51,8 @@ export default function ShopClientLayout({
   const [localSearch, setLocalSearch] = useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { lang } = useLanguage()
+  const isBn = lang === 'bn'
 
   const navigate = useCallback((cat: string, sort: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -85,8 +88,8 @@ export default function ShopClientLayout({
         {/* Search box */}
         <div className="rounded-2xl overflow-hidden" style={{ background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
           <div className="px-5 py-4 border-b border-gray-100">
-            <h2 className="text-sm font-bold uppercase tracking-widest" style={{ color: '#1B4D3E', fontFamily: 'var(--font-inter)' }}>
-              Search
+            <h2 className="text-sm font-bold uppercase tracking-widest" style={{ color: '#1B4D3E', fontFamily: isBn ? 'var(--font-hind)' : 'var(--font-inter)' }}>
+              {isBn ? 'অনুসন্ধান' : 'Search'}
             </h2>
           </div>
           <div className="p-3">
@@ -98,7 +101,7 @@ export default function ShopClientLayout({
                 type="text"
                 value={localSearch}
                 onChange={e => setLocalSearch(e.target.value)}
-                placeholder="Search by name…"
+                placeholder={isBn ? 'নাম দিয়ে খুঁজুন…' : 'Search by name…'}
                 className="flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder-gray-400 min-w-0"
                 style={{ fontFamily: 'var(--font-hind)' }}
               />
@@ -113,9 +116,11 @@ export default function ShopClientLayout({
               )}
             </div>
             {localSearch && (
-              <p className="text-xs mt-2 px-1" style={{ color: '#1B4D3E' }}>
-                <span className="font-semibold">{filtered.length}</span> result{filtered.length !== 1 ? 's' : ''} for&nbsp;
-                <span className="font-semibold">"{localSearch}"</span>
+              <p className="text-xs mt-2 px-1" style={{ color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
+                {isBn
+                  ? <><span className="font-semibold">"{localSearch}"</span>-এর জন্য <span className="font-semibold">{filtered.length}</span>টি ফলাফল</>
+                  : <><span className="font-semibold">{filtered.length}</span> result{filtered.length !== 1 ? 's' : ''} for&nbsp;<span className="font-semibold">"{localSearch}"</span></>
+                }
               </p>
             )}
           </div>
@@ -124,20 +129,20 @@ export default function ShopClientLayout({
         {/* Categories */}
         <div className="rounded-2xl overflow-hidden" style={{ background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
           <div className="px-5 py-4 border-b border-gray-100">
-            <h2 className="text-sm font-bold uppercase tracking-widest" style={{ color: '#1B4D3E', fontFamily: 'var(--font-inter)' }}>
-              Categories
+            <h2 className="text-sm font-bold uppercase tracking-widest" style={{ color: '#1B4D3E', fontFamily: isBn ? 'var(--font-hind)' : 'var(--font-inter)' }}>
+              {isBn ? 'ক্যাটাগরি' : 'Categories'}
             </h2>
           </div>
           <div className="p-3 space-y-1">
-            {CATEGORIES.map(({ value, label, icon: Icon }) => {
+            {CATEGORIES.map(({ value, bn, en, icon: Icon }) => {
               const active = currentCat === value
               return (
                 <button key={value}
                   onClick={() => navigate(value, currentSort)}
                   className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-left"
-                  style={{ background: active ? '#1B4D3E' : 'transparent', color: active ? '#fff' : '#4B5563' }}>
+                  style={{ background: active ? '#1B4D3E' : 'transparent', color: active ? '#fff' : '#4B5563', fontFamily: 'var(--font-hind)' }}>
                   <Icon className="w-4 h-4 shrink-0" style={{ opacity: active ? 1 : 0.6 }} />
-                  {label}
+                  {isBn ? bn : en}
                 </button>
               )
             })}
@@ -148,12 +153,12 @@ export default function ShopClientLayout({
         <div className="rounded-2xl overflow-hidden" style={{ background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
           <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
             <ArrowUpDown className="w-4 h-4" style={{ color: '#1B4D3E' }} />
-            <h2 className="text-sm font-bold uppercase tracking-widest" style={{ color: '#1B4D3E', fontFamily: 'var(--font-inter)' }}>
-              Sort By
+            <h2 className="text-sm font-bold uppercase tracking-widest" style={{ color: '#1B4D3E', fontFamily: isBn ? 'var(--font-hind)' : 'var(--font-inter)' }}>
+              {isBn ? 'সাজান' : 'Sort By'}
             </h2>
           </div>
           <div className="p-3 space-y-1">
-            {SORT_OPTIONS.map(({ value, label }) => {
+            {SORT_OPTIONS.map(({ value, bn, en }) => {
               const active = currentSort === value
               return (
                 <button key={value}
@@ -163,10 +168,11 @@ export default function ShopClientLayout({
                     background: active ? 'rgba(27,77,62,0.08)' : 'transparent',
                     color: active ? '#1B4D3E' : '#4B5563',
                     fontWeight: active ? 600 : 400,
+                    fontFamily: 'var(--font-hind)',
                   }}>
                   <span className="w-2 h-2 rounded-full shrink-0"
                     style={{ background: active ? '#1B4D3E' : '#D1D5DB' }} />
-                  {label}
+                  {isBn ? bn : en}
                 </button>
               )
             })}
@@ -176,21 +182,22 @@ export default function ShopClientLayout({
         {/* Promo card */}
         <div className="rounded-2xl p-5 text-white"
           style={{ background: 'linear-gradient(135deg, #1B4D3E 0%, #2D7A5B 60%, #D4A017 180%)' }}>
-          <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#F5C842' }}>
-            Special Offer
+          <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#F5C842', fontFamily: 'var(--font-hind)' }}>
+            {isBn ? 'বিশেষ অফার' : 'Special Offer'}
           </div>
-          <div className="text-lg font-bold leading-tight mb-2">
-            1st Order get<br />
-            <span style={{ color: '#F5C842' }}>10% Off</span>
+          <div className="text-lg font-bold leading-tight mb-2" style={{ fontFamily: 'var(--font-hind)' }}>
+            {isBn ? <>১ম অর্ডারে পাচ্ছেন<br /><span style={{ color: '#F5C842' }}>১০% ছাড়</span></> : <>1st Order get<br /><span style={{ color: '#F5C842' }}>10% Off</span></>}
           </div>
-          <p className="text-white/80 text-xs mb-3">
-            Get 10% off your first order with code:
+          <p className="text-white/80 text-xs mb-3" style={{ fontFamily: 'var(--font-hind)' }}>
+            {isBn ? 'প্রথম অর্ডারে ১০% ছাড় পেতে কোড ব্যবহার করুন:' : 'Get 10% off your first order with code:'}
           </p>
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-mono font-bold"
             style={{ background: 'rgba(255,255,255,0.15)', border: '1px dashed rgba(255,255,255,0.4)', color: '#F5C842', letterSpacing: '0.1em' }}>
             WELCOME10
           </div>
-          <p className="text-white/50 text-xs mt-2">Valid Until: 8/31/2026</p>
+          <p className="text-white/50 text-xs mt-2" style={{ fontFamily: 'var(--font-hind)' }}>
+            {isBn ? 'মেয়াদ: ৩১/০৮/২০২৬' : 'Valid Until: 8/31/2026'}
+          </p>
         </div>
       </aside>
 
@@ -212,19 +219,21 @@ export default function ShopClientLayout({
               style={{ background: 'rgba(27,77,62,0.08)' }}>
               <Search className="w-8 h-8" style={{ color: '#1B4D3E', opacity: 0.4 }} />
             </div>
-            <p className="text-gray-600 font-semibold text-base mb-1">
+            <p className="text-gray-600 font-semibold text-base mb-1" style={{ fontFamily: 'var(--font-hind)' }}>
               {localSearch
-                ? `No results for "${localSearch}"`
-                : 'No products found'}
+                ? (isBn ? `"${localSearch}"-এর কোনো ফলাফল নেই` : `No results for "${localSearch}"`)
+                : (isBn ? 'কোনো পণ্য পাওয়া যায়নি' : 'No products found')}
             </p>
             {localSearch ? (
               <button onClick={() => setLocalSearch('')}
                 className="mt-3 text-sm font-semibold px-5 py-2 rounded-full transition-all hover:scale-105"
-                style={{ background: '#1B4D3E', color: '#fff' }}>
-                Clear search
+                style={{ background: '#1B4D3E', color: '#fff', fontFamily: 'var(--font-hind)' }}>
+                {isBn ? 'অনুসন্ধান মুছুন' : 'Clear search'}
               </button>
             ) : (
-              <p className="text-gray-400 text-sm mt-1">Try a different category</p>
+              <p className="text-gray-400 text-sm mt-1" style={{ fontFamily: 'var(--font-hind)' }}>
+                {isBn ? 'অন্য ক্যাটাগরি চেষ্টা করুন' : 'Try a different category'}
+              </p>
             )}
           </div>
         ) : (

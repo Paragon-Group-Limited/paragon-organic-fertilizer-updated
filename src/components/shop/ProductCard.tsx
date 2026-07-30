@@ -25,11 +25,23 @@ type Product = {
   shortDescription?: string | null
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
+function toBn(str: string): string {
+  const map: Record<string, string> = { '0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯' }
+  return str.replace(/[0-9]/g, d => map[d] ?? d)
+}
+
+const CATEGORY_LABELS_EN: Record<string, string> = {
   'organic-fertilizer': 'Organic Fertilizer',
   'vermicompost': 'Vermicompost',
   'organic-pesticide': 'Organic Pesticide',
   'soil-improver': 'Soil Improver',
+}
+
+const CATEGORY_LABELS_BN: Record<string, string> = {
+  'organic-fertilizer': 'জৈব সার',
+  'vermicompost': 'ভার্মিকম্পোস্ট',
+  'organic-pesticide': 'জৈব কীটনাশক',
+  'soil-improver': 'মাটি উন্নয়নকারী',
 }
 
 function StarRating({ rating, count }: { rating: number; count?: number | null }) {
@@ -64,7 +76,9 @@ export default function ProductCard({ product }: { product: Product }) {
     : 0
 
   const imageUrl = product.image?.url || null
-  const categoryLabel = product.category ? (CATEGORY_LABELS[product.category] || product.category) : null
+  const categoryLabel = product.category
+    ? (lang === 'bn' ? (CATEGORY_LABELS_BN[product.category] || CATEGORY_LABELS_EN[product.category] || product.category) : (CATEGORY_LABELS_EN[product.category] || product.category))
+    : null
 
   const cartProduct = {
     id: String(product.id),
@@ -101,8 +115,8 @@ export default function ProductCard({ product }: { product: Product }) {
           <div className="absolute inset-0 flex items-center justify-center"
             style={{ background: 'rgba(0,0,0,0.45)' }}>
             <span className="px-4 py-1.5 rounded-full text-white text-sm font-bold tracking-widest uppercase"
-              style={{ background: '#1B4D3E', border: '2px solid #D4A017' }}>
-              Upcoming
+              style={{ background: '#1B4D3E', border: '2px solid #D4A017', fontFamily: 'var(--font-hind)' }}>
+              {lang === 'bn' ? 'শীঘ্রই আসছে' : 'Upcoming'}
             </span>
           </div>
         )}
@@ -138,23 +152,29 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
         )}
 
-        <h3 className="font-semibold text-gray-900 text-sm leading-snug mb-1 line-clamp-2 group-hover:text-green-800 transition-colors"
-          style={{ fontFamily: 'var(--font-hind)' }}>
+        <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2 group-hover:text-green-800 transition-colors"
+          style={{ fontFamily: lang === 'bn' ? 'var(--font-noto-bn), var(--font-hind)' : 'var(--font-hind)', lineHeight: '1.65' }}>
           {displayName}
         </h3>
         <p className="text-xs text-gray-400 mb-3 line-clamp-1">{product.name}</p>
 
         <div className="flex items-baseline gap-2 mb-4">
           {isUpcoming ? (
-            <span className="text-sm font-medium text-gray-400">Coming Soon</span>
+            <span className="text-sm font-medium text-gray-400" style={{ fontFamily: 'var(--font-hind)' }}>
+              {lang === 'bn' ? 'শীঘ্রই আসছে' : 'Coming Soon'}
+            </span>
           ) : (
             <>
-              <span className="text-xl font-bold" style={{ color: '#1B4D3E' }}>
-                Tk {(product.price || 0).toLocaleString()}
+              <span className="text-xl font-bold" style={{ color: '#1B4D3E', fontFamily: lang === 'bn' ? 'var(--font-noto-bn), var(--font-hind)' : 'inherit' }}>
+                {lang === 'bn'
+                  ? `৳ ${toBn((product.price || 0).toLocaleString())}`
+                  : `Tk ${(product.price || 0).toLocaleString()}`}
               </span>
               {hasDiscount && (
-                <span className="text-sm line-through text-gray-400">
-                  Tk {product.comparePrice!.toLocaleString()}
+                <span className="text-sm line-through text-gray-400" style={{ fontFamily: lang === 'bn' ? 'var(--font-noto-bn), var(--font-hind)' : 'inherit' }}>
+                  {lang === 'bn'
+                    ? `৳ ${toBn(product.comparePrice!.toLocaleString())}`
+                    : `Tk ${product.comparePrice!.toLocaleString()}`}
                 </span>
               )}
               {product.weight && (
@@ -172,15 +192,15 @@ export default function ProductCard({ product }: { product: Product }) {
               <button
                 onClick={() => router.push(`/shop/${product.slug}`)}
                 className="flex-1 flex items-center justify-center px-3 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-95"
-                style={{ background: 'linear-gradient(135deg, #D4A017, #F5C842)', color: '#1B4D3E' }}>
-                Order Now
+                style={{ background: 'linear-gradient(135deg, #D4A017, #F5C842)', color: '#1B4D3E', fontFamily: 'var(--font-hind)' }}>
+                {lang === 'bn' ? 'অর্ডার করুন' : 'Order Now'}
               </button>
             </div>
           ) : (
             <button disabled
               className="w-full py-2.5 rounded-full text-sm font-semibold text-gray-400 cursor-not-allowed"
-              style={{ background: '#f3f4f6' }}>
-              Coming Soon
+              style={{ background: '#f3f4f6', fontFamily: 'var(--font-hind)' }}>
+              {lang === 'bn' ? 'শীঘ্রই আসছে' : 'Coming Soon'}
             </button>
           )}
         </div>
